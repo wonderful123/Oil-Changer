@@ -3,7 +3,7 @@
   "gpioPins": [{
     "gpio": 12,
     "id": "BUZZER",
-    "type": "PWM"
+    "type": "BUZZER"
   }, {
     "gpio": 13,
     "id": "VOLTAGE_SENSE",
@@ -125,8 +125,5 @@
     "id": "LPS_FILL",
     "type": "DIGITAL",
     "options": {}
-  }],
-  "voltageSenseCalibration": {
-    "coefficients": [0.02, 0]
-  }
+  }]
 }
