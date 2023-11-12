@@ -1,0 +1,42 @@
+#include "VoltageSense.h"
+#include <cmath>
+
+VoltageSense::VoltageSense() : _gpio(0), _resolution(0) {}
+
+bool VoltageSense::initialize(HardwareInterface &hardwareInterface, int gpio,
+                              int resolution,
+                              const std::vector<double> &coefficients) {
+  // Ensure at least two coefficients for a valid polynomial equation
+  if (coefficients.size() < 2) {
+    return false;
+  }
+  _hardwareInterface = &hardwareInterface;
+  _gpio = gpio;
+  _resolution = resolution;
+  _coefficients = coefficients;
+  return true;
+}
+
+double
+VoltageSense::calculatePolynomial(int rawValue,
+                                  const std::vector<double> &coefficients) {
+  double result = 0.0;
+  // Calculate polynomial result based on coefficients and rawValue
+  for (size_t i = 0; i < coefficients.size(); ++i) {
+    result += coefficients[i] * std::pow(static_cast<double>(rawValue), i);
+  }
+  return result;
+}
+
+int VoltageSense::readVoltage() {
+  int rawValue = _hardwareInterface->readADC(_gpio);
+  double convertedValue = calculatePolynomial(rawValue, _coefficients);
+  return static_cast<int>(convertedValue);
+}
+
+void VoltageSense::updateCoefficients(const std::vector<double> &coefficients) {
+  // Update only if there are at least two coefficients
+  if (coefficients.size() >= 2) {
+    _coefficients = coefficients;
+  }
+}

@@ -1,0 +1,70 @@
+#pragma once
+#include <Hardware.h>
+#include <vector>
+
+/**
+ * @class VoltageSense
+ * @brief Class for reading and converting voltage values.
+ *
+ * This class provides functionality for initializing the voltage sensor
+ * and reading converted voltage values. The conversion uses polynomial
+ * coefficients to adjust the raw ADC readings.
+ */
+class VoltageSense {
+public:
+  /**
+   * @brief Default constructor.
+   */
+  VoltageSense();
+
+  /**
+   * @brief Initializes the VoltageSense instance.
+   *
+   * @param hardwareInterface Reference to the HardwareInterface object.
+   * @param gpio GPIO pin where the sensor is connected.
+   * @param resolution ADC resolution.
+   * @param coefficients Polynomial coefficients for voltage conversion.
+   * @return True if initialization is successful, otherwise false.
+   */
+  bool initialize(int gpio,
+                  int resolution, const std::vector<double> &coefficients);
+
+  /**
+   * @brief Reads and returns the converted voltage value.
+   *
+   * @return The converted voltage value.
+   */
+  int readVoltage();
+
+  /**
+   * @brief Getter for the polynomial coefficients.
+   *
+   * @return A vector containing the polynomial coefficients.
+   */
+  std::vector<double> getCoefficients() const { return _coefficients; }
+
+  /**
+   * @brief Updates the polynomial coefficients.
+   *
+   * @param coefficients The new polynomial coefficients.
+   */
+  void updateCoefficients(const std::vector<double> &coefficients);
+
+private:
+  HardwareInterface *_hardwareInterface =
+      nullptr;     ///< Pointer to the HardwareInterface object.
+  int _gpio;       ///< GPIO pin for the sensor.
+  int _resolution; ///< ADC resolution.
+  std::vector<double>
+      _coefficients; ///< Polynomial coefficients for voltage conversion.
+
+  /**
+   * @brief Calculates the voltage value based on the raw ADC reading.
+   *
+   * @param rawValue Raw ADC value.
+   * @param coefficients Polynomial coefficients for the conversion.
+   * @return The converted voltage value.
+   */
+  double calculatePolynomial(int rawValue,
+                             const std::vector<double> &coefficients);
+};

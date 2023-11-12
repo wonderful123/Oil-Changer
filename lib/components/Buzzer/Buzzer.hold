@@ -1,0 +1,16 @@
+#pragma once
+#include "HAL.hpp"
+
+class Buzzer {
+public:
+  void initialize(int pin, HardwareInterface &hardwareInterface);
+  void singleBeep(int frequency, int duration);
+  void rapidBeep(int frequency, int duration, int interval); // New Method
+  void stopBeep();
+
+private:
+  int _pin;
+  HardwareInterface *_hardwareInterface = nullptr;
+  bool _isRapidBeeping = false;
+  bool _isBeeping = false;
+};
