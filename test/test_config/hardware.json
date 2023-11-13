@@ -1,0 +1,131 @@
+{
+  "gpioPins": [{
+      "pinNumber": 12,
+      "id": "BUZZER",
+      "type": "Buzzer"
+    },
+    {
+      "pinNumber": 13,
+      "id": "VOLTAGE_SENSE",
+      "type": "ADC",
+      "options": {
+        "resolution": 4096,
+        "attenuation": 11
+      }
+    },
+    {
+      "pinNumber": 14,
+      "id": "FLOW_METER_FILL",
+      "type": "FlowMeter"
+    },
+    {
+      "pinNumber": 15,
+      "id": "FLOW_METER_EXTRACT",
+      "type": "FlowMeter"
+    },
+    {
+      "pinNumber": 34,
+      "id": "SW_PLUS",
+      "type": "PushButton"
+    },
+    {
+      "pinNumber": 35,
+      "id": "SW_MANUAL_FILL",
+      "type": "PushButton"
+    },
+    {
+      "pinNumber": 32,
+      "id": "SW_AUTO",
+      "type": "PushButton"
+    },
+    {
+      "pinNumber": 33,
+      "id": "OIL_TEMP",
+      "type": "AnalogSensor",
+      "options": {
+        "resolution": 4096,
+        "attenuation": 11
+      }
+    },
+    {
+      "pinNumber": 25,
+      "id": "MOTOR_SPEED",
+      "type": "DAC"
+    },
+    {
+      "pinNumber": 26,
+      "id": "MOTOR_FILL",
+      "type": "DigitalIO"
+    },
+    {
+      "pinNumber": 27,
+      "id": "MOTOR_EXTRACT",
+      "type": "DigitalIO"
+    },
+    {
+      "pinNumber": 23,
+      "id": "VSPI_MOSI",
+      "type": "SPI"
+    },
+    {
+      "pinNumber": 22,
+      "id": "I2C_SCL",
+      "type": "I2C"
+    },
+    {
+      "pinNumber": 1,
+      "id": "TXD",
+      "type": "Serial"
+    },
+    {
+      "pinNumber": 3,
+      "id": "RXD",
+      "type": "Serial"
+    },
+    {
+      "pinNumber": 21,
+      "id": "I2C_SDA",
+      "type": "I2C"
+    },
+    {
+      "pinNumber": 19,
+      "id": "VSPI_MISO",
+      "type": "SPI"
+    },
+    {
+      "pinNumber": 18,
+      "id": "VSPI_SCLK",
+      "type": "SPI"
+    },
+    {
+      "pinNumber": 5,
+      "id": "VSPI_CS",
+      "type": "SPI"
+    },
+    {
+      "pinNumber": 17,
+      "id": "SW_MINUS",
+      "type": "PushButton"
+    },
+    {
+      "pinNumber": 16,
+      "id": "SW_STOP",
+      "type": "PushButton"
+    },
+    {
+      "pinNumber": 4,
+      "id": "SW_MANUAL_EXTRACT",
+      "type": "PushButton"
+    },
+    {
+      "pinNumber": 0,
+      "id": "LPS_EXTRACT",
+      "type": "DigitalIO"
+    },
+    {
+      "pinNumber": 2,
+      "id": "LPS_FILL",
+      "type": "DigitalIO"
+    }
+  ]
+}

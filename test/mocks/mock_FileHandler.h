@@ -1,4 +1,7 @@
+#pragma once
+
 #include <IFileHandler.h>
+#include <fstream>
 #include <gmock/gmock.h>
 
 class MockFileHandler : public IFileHandler {

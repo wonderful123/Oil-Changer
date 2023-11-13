@@ -9,7 +9,7 @@ FileHandler::FileHandler() {
   _isFileSystemMounted = LittleFS.begin();
   if (!_isFileSystemMounted) {
     // Log the error using the Error class
-    Error fileSystemMountError(Error::FileSystemMountFailure);
+    Error(Error::FileSystemMountFailure);
   }
 }
 
