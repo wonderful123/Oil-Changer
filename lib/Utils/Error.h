@@ -35,7 +35,9 @@
   ERROR_CODE(JsonInputIncomplete,                                              \
              "The JSON input is incomplete or ends abruptly.")                 \
   ERROR_CODE(JsonDeserializationFailure,                                       \
-             "Failed to deserialize the JSON document due to an error.")
+             "Failed to deserialize the JSON document due to an error.")       \
+  ERROR_CODE(ConfigTypeNotRecognized,                                          \
+      "The specified configuration type is not recognized or supported.")
 
 class Error {
 public:
