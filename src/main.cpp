@@ -1,10 +1,10 @@
 #include <Arduino.h>
 #include <BuzzerPlayer/BuzzerPlayer.h>
-#include <Config.h>
+#include <ConfigManager.h>
 #include <Hardware.h>
 
 FileHandler fileHandler;
-Config config(&fileHandler);
+ConfigManager config(&fileHandler);
 Buzzer *buzzer = nullptr;       // Initialize the pointer to nullptr
 BuzzerPlayer *player = nullptr; // Initialize the player pointer to nullptr
 
