@@ -10,7 +10,7 @@
       "type": "ADC",
       "options": {
         "resolution": 4096,
-        "attenuation": 11
+        "attenuation": 3
       }
     },
     {
@@ -44,7 +44,7 @@
       "type": "AnalogSensor",
       "options": {
         "resolution": 4096,
-        "attenuation": 11
+        "attenuation": 3
       }
     },
     {
