@@ -1,5 +1,7 @@
 #pragma once
 
+#include "GpioPinConfig.h"
+
 class IBuzzer {
 public:
   virtual ~IBuzzer() = default;

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <ComponentConfig.h>
-
 class IPWM {
 public:
   virtual ~IPWM() = default;

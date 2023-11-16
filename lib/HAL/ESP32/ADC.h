@@ -1,7 +1,7 @@
 #pragma once
 
-#include <IADC.h>
-#include <ComponentConfig.h>
+#include "GpioPinConfig.h"
+#include "IADC.h"
 
 /**
  * @class ADC
@@ -9,19 +9,19 @@
  */
 class ADC : public IADC {
 private:
-  int _pinNumber;           ///< Pin number for ADC.
-  int _resolution;          ///< ADC resolution.
-  ConfigMap _configOptions; ///< Configuration options.
+  GpioPinConfig _config; ///< GPIO Pin Configuration for ADC.
 
 public:
   /**
    * @brief Construct a new ADC object.
    *
-   * @param pin       The pin number for ADC.
-   * @param resolution ADC resolution. Default value is 12.
-   * @param options   Configuration options for ADC. Default is an empty map.
+   * @param config Configuration for the ADC pin.
    */
-  ADC(int pin, int resolution = 12, const ConfigMap &options = {});
+  ADC(const GpioPinConfig &config) : _config(config) {
+    // Initialize ADC with values from _config.
+    // You can access resolution and other options from _config.options.
+    // Example: _resolution = std::stoi(_config.options.at("resolution"));
+  }
 
   /**
    * @brief Read the ADC value.

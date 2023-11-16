@@ -1,16 +1,13 @@
-#ifdef PLATFORM_ESP32
-#include "ComponentConfig.h"
 #include "Buzzer.h"
-#include <Arduino.h>
-#include <Ticker.h> // Include the Ticker library
+
+#ifdef PLATFORM_ESP32
 
 // Constants for LEDC
 const int pwmChannel = 0;      // Use an appropriate channel
 const int pwmResolution = 8;   // 8-bit resolution
 const int pwmFrequency = 5000; // Adjust as needed
 
-Buzzer::Buzzer(int pin, const ComponentConfig &config)
-    : _pin(pin), _options(config.options) {
+Buzzer::Buzzer(const GpioPinConfig &config) : _pin(config.pinNumber) {
   ledcSetup(pwmChannel, pwmFrequency, pwmResolution);
   ledcAttachPin(_pin, pwmChannel);
 }

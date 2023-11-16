@@ -1,5 +1,5 @@
 #include "HardwareConfig.h"
-#include <FileGuard.h> // If you're using FileGuard for file operations
+#include <FileGuard.h>
 
 HardwareConfig::HardwareConfig(IFileHandler *fileHandler)
     : BaseConfig(fileHandler) {} // Initializing base class constructor

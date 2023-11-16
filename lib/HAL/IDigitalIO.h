@@ -1,34 +1,30 @@
 #pragma once
 
-#include <ComponentConfig.h>
+#include "GpioPinConfig.h"
 
 /**
  * @class IDigitalIO
  * @brief Interface for digital input/output operations.
  *
- * This interface provides the fundamental operations for digital
- * I/O operations such as reading a digital input or setting a digital
- * output. Implementations of this interface should provide platform-specific
- * details for these operations.
+ * This interface provides the fundamental operations for digital I/O
+ * operations, such as reading a digital input or setting a digital output.
+ * Implementations of this interface should provide platform-specific details
+ * for these operations, using the GpioPinConfig structure for configuration.
  */
 class IDigitalIO {
 protected:
-  int _pinNumber;           ///< Pin associated with this digital IO
-  int _mode;                ///< Pin mode (e.g., INPUT, OUTPUT).
-  ConfigMap _configOptions; ///< Configuration options for the pin
+  GpioPinConfig _config; ///< GPIO Pin Configuration for Digital I/O
 
 public:
   /**
-   * @brief Constructs the IDigitalIO object.
+   * @brief Constructs the IDigitalIO object using GpioPinConfig.
    *
-   * @param pin The pin number to use for digital IO operations.
-   * @param mode Pin mode (e.g., INPUT, OUTPUT).
-   * @param options Configurations options for the pin. Optional.
+   * @param config Configuration for the digital I/O pin.
    */
-  IDigitalIO(int pin, int mode, const ConfigMap &options = {})
-      : _pinNumber(pin), _mode(mode), _configOptions(options) {
-    // Note: Abstract base class should not set pin mode. This should be done in
-    // the derived classes.
+  explicit IDigitalIO(const GpioPinConfig &config) : _config(config) {
+    // Initialization with the GpioPinConfig structure.
+    // Note: Setting the pin mode and other configurations should be done in
+    // derived classes.
   }
 
   virtual ~IDigitalIO() = default;
@@ -57,7 +53,7 @@ public:
    * @brief Get the current pin mode.
    *
    * This method returns the current mode of the digital pin
-   * (e.g., INPUT, OUTPUT).
+   * (e.g., INPUT, OUTPUT), which is part of the GpioPinConfig.
    *
    * @return int Current pin mode.
    */
