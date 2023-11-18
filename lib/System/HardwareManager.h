@@ -31,3 +31,62 @@ SensorManager and is observed by SystemController for state changes or critical
 hardware events. TinyFSM: Utilizes TinyFSM for robust and predictable state
 management of hardware components.
 */
+
+#pragma once
+
+#include "ConfigManager.h"
+#include "Core/IObserver.h"
+#include "GpioPinConfig.h"
+#include "HardwareFactory.h"
+#include "IADC.h"
+#include "IBuzzer.h"
+#include "IDigitalIO.h"
+#include "IPWM.h"
+#include <map>
+#include <memory>
+#include <tinyfsm.hpp>
+
+/**
+ * @file HardwareManager.h
+ * @brief Manages all hardware-related interactions in the Oil Change Machine.
+ *
+ * The HardwareManager serves as a centralized hub for managing hardware
+ * interactions. It abstracts the hardware layer from higher-level system logic,
+ * providing a unified interface for hardware operations and ensuring a clean
+ * separation of concerns.
+ */
+class HardwareManager : public IObserver {
+private:
+  std::shared_ptr<ConfigManager> _configManager;
+  std::unique_ptr<HardwareFactory> _hardwareFactory;
+
+  std::map<int, std::unique_ptr<IADC>> adcs;
+  std::map<int, std::unique_ptr<IDigitalIO>> digitalIOs;
+  std::map<int, std::unique_ptr<IPWM>> pwms;
+  std::unique_ptr<IBuzzer> buzzer;
+
+public:
+  explicit HardwareManager(std::shared_ptr<ConfigManager> configManager,
+                           std::unique_ptr<HardwareFactory> hardwareFactory)
+      : _configManager(std::move(configManager)),
+        _hardwareFactory(std::move(hardwareFactory)) {}
+  virtual ~HardwareManager() = default;
+
+  // Initializes all hardware components
+  void initializeHardware();
+
+  void initializeComponent(const GpioPinConfig &config);
+  bool isComponentInitialized(const std::string &componentType);
+
+  // Manages the states of hardware components using TinyFSM
+  void manageHardwareStates();
+
+  // Notifies other components about hardware events (Observer pattern)
+  void notifyEvent();
+
+  // Receives commands and reports status to the SystemController
+  void communicateWithSystemController();
+
+  // Observer pattern implementation
+  virtual void update() override;
+};
