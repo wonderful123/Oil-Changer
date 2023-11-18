@@ -56,7 +56,7 @@ public:
   static const std::array<ErrorInfo, NumErrors> ErrorMessages;
 
   Error() : _code(OK) {}
-  Error(Code c) : _code(c) { notifyLogger(); }
+  explicit Error(Code c) : _code(c) { notifyLogger(); }
 
   // Compare with Error
   friend bool operator==(const Error &lhs, const Error &rhs) {
