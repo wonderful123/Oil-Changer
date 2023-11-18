@@ -36,5 +36,5 @@ Error BaseConfig::writeJsonToFile(const DynamicJsonDocument &doc,
   }
 
   _fileHandler->close();
-  return Error::OK;
+  return Error(Error::OK);
 }

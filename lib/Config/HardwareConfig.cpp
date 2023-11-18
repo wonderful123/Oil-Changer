@@ -10,11 +10,11 @@ const std::vector<GpioPinConfig> &HardwareConfig::getGpioConfigs() const {
 
 Error HardwareConfig::parseJson(const DynamicJsonDocument &doc) {
   if (!doc.containsKey("gpioPins")) {
-    return Error::HardwareConfigGpioPinsKeyMissing;
+    return Error(Error::HardwareConfigGpioPinsKeyMissing);
   }
 
   if (!doc["gpioPins"].is<JsonArrayConst>()) {
-    return Error::HardwareConfigGpioPinsTypeMismatch;
+    return Error(Error::HardwareConfigGpioPinsTypeMismatch);
   }
 
   JsonArrayConst gpioPins = doc["gpioPins"].as<JsonArrayConst>();
@@ -25,20 +25,20 @@ Error HardwareConfig::parseJson(const DynamicJsonDocument &doc) {
     }
   }
 
-  return Error::OK;
+  return Error(Error::OK);
 }
 
 Error HardwareConfig::parseGpioPin(const JsonObjectConst &obj) {
   if (!obj.containsKey("pinNumber") || !obj["pinNumber"].is<int>())
-    return Error::HardwareConfigGpioPinNumberMissing;
+    return Error(Error::HardwareConfigGpioPinNumberMissing);
   int pin = obj["pinNumber"].as<int>();
 
   if (!obj.containsKey("id") || !obj["id"].is<std::string>())
-    return Error::HardwareConfigGpioPinIdMissing;
+    return Error(Error::HardwareConfigGpioPinIdMissing);
   std::string id = obj["id"].as<std::string>();
 
   if (!obj.containsKey("type") || !obj["type"].is<std::string>())
-    return Error::HardwareConfigGpioPinTypeMissing;
+    return Error(Error::HardwareConfigGpioPinTypeMissing);
   std::string type = obj["type"].as<std::string>();
 
   GpioPinConfig config(pin, id, type);
@@ -58,12 +58,12 @@ Error HardwareConfig::parseGpioPin(const JsonObjectConst &obj) {
   }
 
   gpioConfigs.push_back(config);
-  return Error::OK;
+  return Error(Error::OK);
 }
 
 Error HardwareConfig::validateADCOptions(const JsonObjectConst &obj) {
   if (!obj.containsKey("options") || !obj["options"].is<JsonObjectConst>()) {
-    return Error::HardwareConfigAdcOptionsKeyMissing;
+    return Error(Error::HardwareConfigAdcOptionsKeyMissing);
   }
 
   JsonObjectConst options = obj["options"].as<JsonObjectConst>();
@@ -71,7 +71,7 @@ Error HardwareConfig::validateADCOptions(const JsonObjectConst &obj) {
     return Error(Error::HardwareConfigAdcResolutionOptionMissing);
   }
 
-  return Error::OK;
+  return Error(Error::OK);
 }
 
 Error HardwareConfig::save(const std::string &filename) const {
