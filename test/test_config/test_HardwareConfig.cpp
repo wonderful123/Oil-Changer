@@ -1,5 +1,5 @@
-#include "mocks/mock_FileHandler.h"
-#include "mocks/mock_FileHandlerWithRealLoad.h"
+#include "MockFileHandler.h"
+#include "MockFileHandlerWithRealLoad.h"
 #include "test_utils.h"
 #include <HardwareConfig.h>
 #include <gmock/gmock.h>
@@ -66,7 +66,7 @@ protected:
   MockFileHandler mockFileHandler;
   HardwareConfig hardwareConfig;
 
-  const std::string REAL_CONFIG_FILE = "test/test_config/hardware.json";
+  const std::string REAL_CONFIG_FILE = "test/test_config/hardwareConfig.json";
   MockFileHandlerWithRealLoad mockFileHandlerWithRealLoad;
   HardwareConfig realHardwareConfig;
 };
