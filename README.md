@@ -90,7 +90,7 @@ The Oil Change Machine's software architecture reflects a commitment to robust, 
 - **State Management**: TinyFSM is used for managing states in `SystemController` and `MotorController`.
 - **Data Encapsulation and Access**: Data is accessed and modified through well-defined interfaces and methods.
 
-### Suggested Implementation Sequence
+### Implementation Sequence
 
 1.  **ConfigManager**
     
