@@ -9,19 +9,24 @@
  */
 class ADC : public IADC {
 private:
-  GpioPinConfig _config; ///< GPIO Pin Configuration for ADC.
+  unsigned int _attenuation;
 
 public:
   /**
    * @brief Construct a new ADC object.
    *
-   * @param config Configuration for the ADC pin.
+   * @param config [in] Configuration for the ADC pin.
+   *
+   * The `config` object must contain the following required parameters:
+   *
+   * - `pinNumber` [Required]: The pin number to use for the ADC.
+   *
+   * The `config` object can also contain the following optional parameters
+   *
+   * - `attenuation` [Optional-Default=1]: The attenuation level of the ADC.
+   * - `resolution` [Optional-Default-12]: The resolution of the ADC in bits.
    */
-  ADC(const GpioPinConfig &config) : _config(config) {
-    // Initialize ADC with values from _config.
-    // You can access resolution and other options from _config.options.
-    // Example: _resolution = std::stoi(_config.options.at("resolution"));
-  }
+  ADC(const GpioPinConfig &config);
 
   /**
    * @brief Read the ADC value.

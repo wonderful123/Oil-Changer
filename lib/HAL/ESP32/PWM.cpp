@@ -8,8 +8,8 @@ const int MAX_PWM_CHANNEL = 15; // ESP32 supports 16 channels from 0 to 15.
 const int PWM_RESOLUTION = 8;   // 8-bit resolution. Adjust if needed.
 
 PWM::PWM(const GpioPinConfig &config)
-    : _pinNumber(config.pinNumber), _dutyCycle(0.0),
-      _frequency(1000.0) { // Default frequency
+    : IPWM(config), _dutyCycle(0.0), _frequency(1000.0) {
+  // Default frequency
 
   // Extract and handle frequency from config if available
   auto frequencyIter = config.options.find("frequency");
@@ -26,6 +26,9 @@ PWM::PWM(const GpioPinConfig &config)
   // Set up the PWM with the provided frequency
   ledcSetup(MAX_PWM_CHANNEL, _frequency, PWM_RESOLUTION);
   ledcAttachPin(_pinNumber, MAX_PWM_CHANNEL);
+
+  // Mark as initialized after successful setup
+  setInitialized(true);
 }
 
 void PWM::setDutyCycle(double dutyCycle) {

@@ -1,38 +1,46 @@
 #include "ADC.h"
-
 #ifdef PLATFORM_ESP32
 #include <Arduino.h>
 
-ADC::ADC(const GpioPinConfig &config) : _config(config) {
-  // Extract the pin number
-  _pinNumber = _config.pinNumber;
-
-  // Set default values
-  _resolution = 12;       // Default resolution for ESP32 is usually 12 bits
-  _attenuation = ADC_0db; // Default attenuation (0 dB)
+ADC::ADC(const GpioPinConfig &config)
+    : IADC(config), _resolution(12), _attenuation(ADC_0db) {
+  // Set default values for resolution and attenuation
+  // Default resolution for ESP32 is usually 12 bits
+  // Default attenuation is 0 dB
 
   // Configure resolution
-  if (_config.options.find("resolution") != _config.options.end()) {
-    _resolution = std::stoi(_config.options.at("resolution"));
+  auto resIt = config.options.find("resolution");
+  if (resIt != config.options.end()) {
+    _resolution = std::stoi(resIt->second);
     analogReadResolution(_resolution);
   }
 
   // Configure attenuation
-  if (_config.options.find("attenuation") != _config.options.end()) {
-    _attenuation = std::stoi(_config.options.at("attenuation"));
+  auto attIt = config.options.find("attenuation");
+  if (attIt != config.options.end()) {
+    _attenuation = std::stoi(attIt->second);
 
     if (_attenuation >= 0 && _attenuation <= 3) {
-      // Assuming the attenuation value in config is from 0 to 3
-      // corresponding to 0 dB to 11 dB in ESP32
-      adc1_config_channel_atten((adc1_channel_t)_pinNumber,
-                                (adc_atten_t)_attenuation);
+      // Configure ADC attenuation
+      adc1_config_channel_atten(static_cast<adc1_channel_t>(_pinNumber),
+                                static_cast<adc_atten_t>(_attenuation));
+    } else {
+      // Handle invalid attenuation values
+      Logger::error("Invalid ADC attenuation value.");
+      setInitialized(false);
+      
+      return;
     }
-    // Handle invalid attenuation values appropriately
   }
+
+  setInitialized(true); // Mark ADC as initialized
 }
 
 int ADC::read() const {
-  // Read ADC value from the specified pin
+  if (!isInitialized()) {
+    Logger::error("Attempted to read uninitialized ADC.");
+    return -1; // or some error code
+  }
   return analogRead(_pinNumber);
 }
 

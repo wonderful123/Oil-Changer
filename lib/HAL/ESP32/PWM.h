@@ -2,7 +2,6 @@
 
 #include "GpioPinConfig.h"
 #include "IPWM.h"
-#include <Arduino.h>
 
 class PWM : public IPWM {
 public:
@@ -21,7 +20,6 @@ public:
   double getFrequency() const override;
 
 private:
-  int _pinNumber;    // The GPIO pin number for the PWM signal
   double _frequency; // Frequency of the PWM signal
   double _dutyCycle; // Duty cycle of the PWM signal
 };
