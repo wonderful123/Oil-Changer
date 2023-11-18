@@ -1,7 +1,6 @@
-#include <Arduino.h>
 #include <BuzzerPlayer/BuzzerPlayer.h>
 #include <ConfigManager.h>
-#include <Hardware.h>
+#include <Arduino.h>
 
 FileHandler fileHandler;
 ConfigManager config(&fileHandler);
