@@ -1,5 +1,5 @@
 #include "ConfigManager.h"
-#include "mocks/mock_FileHandler.h"
+#include "MockFileHandler.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -37,7 +37,7 @@ protected:
   MockFileHandler mockFileHandler;
   ConfigManager configManager;
 
-  ConfigManagerTest() : configManager() {}
+  ConfigManagerTest() : configManager(&mockFileHandler) {}
 
   void SetUp() override {
     // Set up any required configurations for each test
@@ -72,7 +72,7 @@ TEST_F(ConfigManagerTest, RetrieveExistingConfig) {
 
   // Load a valid hardware configuration
   Error loadError =
-      configManager.loadConfig("HardwareConfig", &mockFileHandler);
+      configManager.loadConfig("HardwareConfig");
   EXPECT_EQ(loadError.code(), Error::OK)
       << loadError.getFormattedMessage(loadError.code());
   
@@ -102,7 +102,7 @@ TEST_F(ConfigManagerTest, LoadSuccess) {
   })"));
 
   Error loadError =
-      configManager.loadConfig("HardwareConfig", &mockFileHandler);
+      configManager.loadConfig("HardwareConfig");
   EXPECT_EQ(loadError.code(), Error::OK)
       << loadError.getFormattedMessage(loadError.code());
 
@@ -125,7 +125,7 @@ TEST_F(ConfigManagerTest, LoadSuccess) {
 
 TEST_F(ConfigManagerTest, LoadUnrecognizedConfigType) {
   Error loadError =
-      configManager.loadConfig("UnknownConfigType", &mockFileHandler);
+      configManager.loadConfig("UnknownConfigType");
 
   EXPECT_EQ(loadError.code(), Error::ConfigTypeNotRecognized)
       << loadError.getFormattedMessage(loadError.code());
@@ -140,7 +140,7 @@ TEST_F(ConfigManagerTest, LoadFileReadFailure) {
       .Times(testing::AtLeast(0)); // Handle close call
 
   Error loadError =
-      configManager.loadConfig("HardwareConfig", &mockFileHandler);
+      configManager.loadConfig("HardwareConfig");
 
   // Expecting an empty JSON input error
   EXPECT_EQ(loadError.code(), Error::JsonInputEmpty)
@@ -156,7 +156,7 @@ TEST_F(ConfigManagerTest, LoadDeserializationFailure) {
       .Times(testing::AtLeast(0)); // Handle close call
 
   Error loadError =
-      configManager.loadConfig("HardwareConfig", &mockFileHandler);
+      configManager.loadConfig("HardwareConfig");
 
   // Check for the appropriate error code for invalid JSON input
   EXPECT_EQ(loadError.code(), Error::JsonInputInvalid)
