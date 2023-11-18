@@ -4,13 +4,14 @@
 #include "Melody.h"
 #include "Notes.h"
 #include <IBuzzer.h>
+#include <Arduino.h>
 
 class BuzzerPlayer {
 private:
   IBuzzer &_buzzer; // Reference to a buzzer object
 
 public:
-  BuzzerPlayer(IBuzzer &buzzer) : _buzzer(buzzer) {}
+  explicit BuzzerPlayer(IBuzzer &buzzer) : _buzzer(buzzer) {}
 
   void playTune(MelodyName melodyName) {
     Melody melody = getMelody(melodyName);

@@ -1,0 +1,135 @@
+{
+  "gpioPins": [{
+      "pinNumber": 12,
+      "id": "Buzzer",
+      "type": "Buzzer"
+    },
+    {
+      "pinNumber": 13,
+      "id": "VoltageSense",
+      "type": "ADC",
+      "options": {
+        "resolution": 4096,
+        "attenuation": 3
+      }
+    },
+    {
+      "pinNumber": 14,
+      "id": "FlowMeterFill",
+      "type": "FlowMeter"
+    },
+    {
+      "pinNumber": 15,
+      "id": "FlowMeterExtract",
+      "type": "FlowMeter"
+    },
+    {
+      "pinNumber": 34,
+      "id": "ButtonPlus",
+      "type": "PushButton"
+    },
+    {
+      "pinNumber": 35,
+      "id": "ButtonManualFill",
+      "type": "PushButton"
+    },
+    {
+      "pinNumber": 32,
+      "id": "ButtonAuto",
+      "type": "PushButton"
+    },
+    {
+      "pinNumber": 33,
+      "id": "OilTemp",
+      "type": "ADC",
+      "options": {
+        "resolution": 4096,
+        "attenuation": 3
+      }
+    },
+    {
+      "pinNumber": 25,
+      "id": "MotorSpeed",
+      "type": "DAC"
+    },
+    {
+      "pinNumber": 26,
+      "id": "MotorControlFill",
+      "type": "DigitalIO",
+      "mode": "Output"
+    },
+    {
+      "pinNumber": 27,
+      "id": "MotorControlExtract",
+      "type": "DigitalIO",
+      "mode": "Output"
+    },
+    {
+      "pinNumber": 23,
+      "id": "VSPI_MOSI",
+      "type": "SPI"
+    },
+    {
+      "pinNumber": 22,
+      "id": "I2C_SCL",
+      "type": "I2C"
+    },
+    {
+      "pinNumber": 1,
+      "id": "TXD",
+      "type": "Serial"
+    },
+    {
+      "pinNumber": 3,
+      "id": "RXD",
+      "type": "Serial"
+    },
+    {
+      "pinNumber": 21,
+      "id": "I2C_SDA",
+      "type": "I2C"
+    },
+    {
+      "pinNumber": 19,
+      "id": "VSPI_MISO",
+      "type": "SPI"
+    },
+    {
+      "pinNumber": 18,
+      "id": "VSPI_SCLK",
+      "type": "SPI"
+    },
+    {
+      "pinNumber": 5,
+      "id": "VSPI_CS",
+      "type": "SPI"
+    },
+    {
+      "pinNumber": 17,
+      "id": "ButtonMinus",
+      "type": "PushButton"
+    },
+    {
+      "pinNumber": 16,
+      "id": "ButtonStop",
+      "type": "PushButton"
+    },
+    {
+      "pinNumber": 4,
+      "id": "ButtonManualExtract",
+      "type": "PushButton"
+    },
+    {
+      "pinNumber": 0,
+      "id": "LPSExtract",
+      "type": "DigitalIO",
+      "mode": "Input"
+    },
+    {
+      "pinNumber": 2,
+      "id": "LPSFill",
+      "type": "DigitalIO",
+      "mode": "Input"
+    }
+  ]
+}
