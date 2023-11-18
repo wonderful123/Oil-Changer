@@ -1,5 +1,8 @@
 #pragma once
 
+#include "GpioPinConfig.h"
+#include "HardwareComponent.h"
+
 /**
  * @class IADC
  * @brief Interface for ADC implementations.
@@ -7,11 +10,10 @@
  * This class defines an ADC interface that should be implemented by
  * platform-specific classes.
  */
-class IADC {
+class IADC : public HardwareComponent {
 public:
-  virtual ~IADC() {
-  } // virtual destructor to ensure proper cleanup for derived classes
-
+  virtual ~IADC() = default; // virtual destructor to ensure proper cleanup for
+                             // derived classes
   /**
    * @brief Reads the ADC value.
    *
@@ -27,5 +29,11 @@ public:
   virtual int resolution() const = 0;
 
 protected:
-  IADC() { } // Protected constructor to prevent direct instantiation of this interface
+  explicit IADC(const GpioPinConfig &config)
+      : HardwareComponent(config) {
+  } // Protected constructor to prevent direct instantiation of this interface
+
+private:
+  unsigned int _pinNumber;
+  unsigned int _resolution;
 };
