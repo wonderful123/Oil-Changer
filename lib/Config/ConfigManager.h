@@ -9,17 +9,18 @@
 
 class ConfigManager {
 public:
-  ConfigManager();
-  ~ConfigManager();
+  explicit ConfigManager(IFileHandler *fileHandler)
+      : _fileHandler(fileHandler) {}
 
   // Method to get hardware configuration object
-  std::shared_ptr<HardwareConfig> getHardwareConfig();
+  virtual std::shared_ptr<HardwareConfig> getHardwareConfig() const;
 
   // Add methods to get other specific config types if necessary...
 
   // Method to load a configuration
-  Error loadConfig(const std::string &configType, IFileHandler *fileHandler);
+  Error loadConfig(const std::string &configType);
 
 private:
+  IFileHandler *_fileHandler;
   std::unordered_map<std::string, std::shared_ptr<IConfig>> configs;
 };
