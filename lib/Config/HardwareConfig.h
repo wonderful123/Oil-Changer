@@ -10,10 +10,10 @@
 
 class HardwareConfig : public BaseConfig {
 public:
-  HardwareConfig(IFileHandler *fileHandler);
+  explicit HardwareConfig(IFileHandler *fileHandler);
   Error save(const std::string &filename) const override;
 
-  const std::vector<GpioPinConfig> &getGpioConfigs() const;
+  virtual const std::vector<GpioPinConfig> &getGpioConfigs() const;
 
 private:
   std::vector<GpioPinConfig> gpioConfigs;
