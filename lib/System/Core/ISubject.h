@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IObserver.h"
+#include "Core/IObserver.h"
 #include <vector>
 
 /**
