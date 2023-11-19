@@ -1,13 +1,10 @@
 #include "HardwareManager.h"
 #include "Logger.h"
-#include <iostream>
 
 void HardwareManager::initializeHardware() {
   auto hardwareConfig = _configManager->getHardwareConfig();
   if (hardwareConfig) {
     for (const auto &config : hardwareConfig->getGpioConfigs()) {
-      std::cout << "Config: Pin Number = " << config.pinNumber
-                << ", ID = " << config.id << std::endl;
       initializeComponent(config);
     }
   } else {
@@ -30,10 +27,7 @@ void HardwareManager::initializeComponent(const GpioPinConfig &config) {
 
 bool HardwareManager::isComponentInitialized(const std::string &componentType) {
   if (componentType == "DigitalIO") {
-    std::cout << "DigitalIOs size: " << digitalIOs.size() << std::endl;
     for (const auto &dio : digitalIOs) {
-      std::cout << "isInitialized: " << dio.second->isInitialized() << "..."
-                << std::endl;
       if (!dio.second->isInitialized()) {
         return false;
       }
