@@ -12,7 +12,9 @@ Buzzer::Buzzer(const GpioPinConfig &config) : IBuzzer(config) {
   setInitialized(true); // Mark the buzzer as initialized
 }
 
-Buzzer::~Buzzer() { stop(); }
+Buzzer::~Buzzer() {
+  stop(); // Ensure the buzzer is stopped
+}
 
 void Buzzer::setVolume(float volume) {
   int dutyCycle = std::max(0.0f, std::min(volume, 1.0f)) * 255;
