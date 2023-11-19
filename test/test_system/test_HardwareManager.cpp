@@ -138,3 +138,64 @@ TEST_F(HardwareManagerTest, InitializeWithoutConfig) {
   EXPECT_FALSE(hardwareManager.isComponentInitialized("DigitalIO"));
   EXPECT_FALSE(hardwareManager.isComponentInitialized("PWM"));
 }
+
+TEST_F(HardwareManagerTest, InitializeADCWithValidConfig) {
+  GpioPinConfig adcConfig{13, "VoltageSense", "ADC"};
+  adcConfig.options["resolution"] = "12";
+  adcConfig.options["attenuation"] = "3";
+
+  std::vector<GpioPinConfig> gpioConfigurations = {adcConfig};
+
+  EXPECT_CALL(*mockConfigManager, getHardwareConfig())
+      .WillOnce(Return(mockHardwareConfig));
+  EXPECT_CALL(*mockHardwareConfig, getGpioConfigs())
+      .WillOnce(ReturnRef(gpioConfigurations));
+
+  hardwareManager.initializeHardware();
+
+  EXPECT_TRUE(hardwareManager.isComponentInitialized("ADC"));
+}
+
+TEST_F(HardwareManagerTest, InitializeDigitalIOWithValidConfig) {
+  GpioPinConfig digitalIOConfig{26, "MotorControlFill", "DigitalIO"};
+  digitalIOConfig.options["mode"] = "OUTPUT";
+  
+  std::vector<GpioPinConfig> gpioConfigurations = {digitalIOConfig};
+
+  EXPECT_CALL(*mockConfigManager, getHardwareConfig())
+      .WillOnce(Return(mockHardwareConfig));
+  EXPECT_CALL(*mockHardwareConfig, getGpioConfigs())
+      .WillOnce(ReturnRef(gpioConfigurations));
+
+  hardwareManager.initializeHardware();
+
+  EXPECT_TRUE(hardwareManager.isComponentInitialized("DigitalIO"));
+}
+
+TEST_F(HardwareManagerTest, InitializePWMWithValidConfig) {
+  GpioPinConfig pwmConfig{25, "MotorSpeed", "PWM"};
+  std::vector<GpioPinConfig> gpioConfigurations = {pwmConfig};
+
+  EXPECT_CALL(*mockConfigManager, getHardwareConfig())
+      .WillOnce(Return(mockHardwareConfig));
+  EXPECT_CALL(*mockHardwareConfig, getGpioConfigs())
+      .WillOnce(ReturnRef(gpioConfigurations));
+
+  hardwareManager.initializeHardware();
+
+  EXPECT_TRUE(hardwareManager.isComponentInitialized("PWM"));
+}
+
+TEST_F(HardwareManagerTest, InitializeBuzzerWithValidConfig) {
+  GpioPinConfig buzzerConfig{12, "Buzzer", "Buzzer"};
+  std::vector<GpioPinConfig> gpioConfigurations = {buzzerConfig};
+
+  EXPECT_CALL(*mockConfigManager, getHardwareConfig())
+      .WillOnce(Return(mockHardwareConfig));
+  EXPECT_CALL(*mockHardwareConfig, getGpioConfigs())
+      .WillOnce(ReturnRef(gpioConfigurations));
+
+  hardwareManager.initializeHardware();
+
+  EXPECT_TRUE(hardwareManager.isComponentInitialized("Buzzer"));
+}
