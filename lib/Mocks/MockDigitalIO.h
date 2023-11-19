@@ -21,10 +21,11 @@ public:
       modeStr = it->second;
     }
     
-    _mode = modeStr == "INPUT" ? INPUT : OUTPUT;
+    _mode == IDigitalIO::INPUT_MODE ? IDigitalIO::INPUT_MODE : IDigitalIO::OUTPUT_MODE;
 
     std::cout << "MockDigitalIO initialized on pin: " << _pinNumber
-              << " with mode: " << (_mode == INPUT ? "INPUT" : "OUTPUT")
+              << " with mode: "
+              << (_mode == IDigitalIO::INPUT_MODE ? "INPUT" : "OUTPUT")
               << std::endl;
     setInitialized(true); // Mark MockDigitalIO as initialized
   }
