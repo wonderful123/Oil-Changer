@@ -4,7 +4,7 @@
 
 const int pwmChannel = 0;
 const int pwmResolution = 8;
-const int pwmFrequency = 5000;
+const int pwmFrequency = 2713;
 
 Buzzer::Buzzer(const GpioPinConfig &config) : IBuzzer(config) {
   ledcSetup(pwmChannel, pwmFrequency, pwmResolution);
