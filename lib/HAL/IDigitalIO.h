@@ -14,19 +14,19 @@
  */
 class IDigitalIO : public HardwareComponent {
   public:
-    enum Mode { INPUT, OUTPUT };
-
-  private:
-    Mode _mode;
+    enum Mode { INPUT_MODE, OUTPUT_MODE };
+    virtual ~IDigitalIO() = default;
 
   protected:
+    Mode _mode;
+
     /**
      * @brief Constructs the IDigitalIO object using GpioPinConfig.
      *
      * @param config Configuration for the digital I/O pin.
      */
     explicit IDigitalIO(const GpioPinConfig &config)
-        : HardwareComponent(config), _mode(INPUT) {}
+        : HardwareComponent(config), _mode(INPUT_MODE) {}
 
     /**
      * @brief Read the value of the digital input pin.
