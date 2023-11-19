@@ -7,6 +7,7 @@
 // Macro list of error codes and their messages
 #define ERROR_CODE_DEFINITIONS                                                 \
   ERROR_CODE(OK, "No Error.")                                                  \
+  ERROR_CODE(FileSystemMountFailure, "Failed to mount the file system.")       \
   ERROR_CODE(FileOpenFailure, "Unable to open the specified file.")            \
   ERROR_CODE(FileReadFailure, "Error encountered while reading the file.")     \
   ERROR_CODE(FileSystemMountError, "Failed to mount the file system.")         \

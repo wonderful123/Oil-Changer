@@ -1,18 +1,12 @@
 #pragma once
 
-#include "GpioPinConfig.h"
-#include "HardwareComponent.h"
+#include "IDigitalIO.h"
 
-class IDigitalIO : public HardwareComponent {
+class DigitalIO : public IDigitalIO {
 public:
-  enum Mode { INPUT, OUTPUT };
-
-  virtual ~IDigitalIO() = default;
-  virtual int read() const = 0;
-  virtual void write(int value) = 0;
-  virtual Mode getMode() const = 0;
-
-protected:
-  explicit IDigitalIO(const GpioPinConfig &config)
-      : HardwareComponent(config) {}
+  DigitalIO(const GpioPinConfig &config);
+  virtual ~DigitalIO() = default; // Correct the destructor name
+  virtual int read() const override;
+  virtual void write(int value) override;
+  virtual Mode getMode() const override;
 };

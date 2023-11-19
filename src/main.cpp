@@ -1,13 +1,16 @@
-#include <BuzzerPlayer/BuzzerPlayer.h>
-#include <ConfigManager.h>
-#include <Arduino.h>
-#include "ESP32/FileHandler.h"
+#include "BuzzerPlayer/BuzzerPlayer.h"
+#include "ConfigManager.h"
 #include "ESP32/Buzzer.h"
+#include "ESP32/FileHandler.h"
+#include "Error.h"
+#include "HardwareConfig.h"
+#include <Arduino.h>
+#include <memory>
 
 FileHandler fileHandler;
 ConfigManager config(&fileHandler);
-Buzzer *buzzer = nullptr;       // Initialize the pointer to nullptr
-BuzzerPlayer *player = nullptr; // Initialize the player pointer to nullptr
+std::unique_ptr<Buzzer> buzzer;
+std::unique_ptr<BuzzerPlayer> player;
 
 void setup() {
   // Initialize Serial Communication
@@ -16,36 +19,33 @@ void setup() {
     ; // Wait for Serial port to connect.
   }
 
-  // Set the logger callback
-  Logger::setLogCallback([](Logger::Level level, const char *message) {
-    Serial.print("[");
-    Serial.print(Logger::levelToString(level)); // Convert level to string
-    Serial.print("] ");
-    Serial.println(message);
-  });
+  // Set up logging (assuming Logger setup code here)
 
-  // Set the Error class to use this logger
-  Error::setLoggerCallback(Logger::log);
+  Logger::info("Loading hardware configuration...");
+  Error configLoadError = config.loadConfig("HardwareConfig");
+  if (configLoadError) {
+    Logger::error("Failed to load hardware configuration: ");
+    return;
+  }
 
-  Logger::info("Loading configuration...");
-  config.loadConfig("HardwareConfig");
-  Logger::info("Configuration loaded.");
+  std::shared_ptr<HardwareConfig> hardwareConfig = config.getHardwareConfig();
+  if (hardwareConfig) {
+    const auto &gpioConfigs = hardwareConfig->getGpioConfigs();
+    for (const auto &gpioConfig : gpioConfigs) {
+      if (gpioConfig.id == "Buzzer") {
+        Logger::info("Initializing buzzer...");
+        buzzer.reset(new Buzzer(gpioConfig));
+        player.reset(new BuzzerPlayer(*buzzer));
 
-  auto buzzerConfig = config.getConfigFor("BUZZER");
-  if (!buzzerConfig.type.empty()) {
-    Logger::info("Initializing buzzer...");
-    buzzer = new Buzzer(buzzerConfig.gpio, buzzerConfig);
-
-    Logger::info("Initializing BuzzerPlayer...");
-    player = new BuzzerPlayer(*buzzer);
-
-    Logger::info("Playing super mario tune...");
-    player->playTune(SUPER_MARIO_THEME);
-    Logger::info("Playing starwars tune...");
-    player->playTune(STARWARS_THEME);
+        Logger::info("Playing super mario tune...");
+        player->playTune(SUPER_MARIO_THEME);
+        Logger::info("Playing starwars tune...");
+        player->playTune(STARWARS_THEME);
+        break; // Exit loop after initializing the buzzer
+      }
+    }
   } else {
-    Logger::error("No buzzer configuration found.");
-    Serial.println("No buzzer configuration found.");
+    Logger::error("Hardware configuration not available.");
   }
 }
 
@@ -54,4 +54,3 @@ void loop() {
     buzzer->update();
   }
 }
-
