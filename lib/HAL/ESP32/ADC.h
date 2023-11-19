@@ -33,12 +33,12 @@ public:
    *
    * @return int ADC reading.
    */
-  virtual int read() const = 0;
+  virtual int read() const override;
 
   /**
    * @brief Get the ADC resolution.
    *
    * @return int ADC resolution.
    */
-  virtual int resolution() const = 0;
+  virtual int resolution() const override;
 };
