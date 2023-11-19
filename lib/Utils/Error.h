@@ -37,8 +37,15 @@
              "The JSON input is incomplete or ends abruptly.")                 \
   ERROR_CODE(JsonDeserializationFailure,                                       \
              "Failed to deserialize the JSON document due to an error.")       \
-  ERROR_CODE(ConfigTypeNotRecognized,                                          \
-      "The specified configuration type is not recognized or supported.")
+  ERROR_CODE(                                                                  \
+      ConfigTypeNotRecognized,                                                 \
+      "The specified configuration type is not recognized or supported.")      \
+  ERROR_CODE(HardwareConfigAdcInitializationFailure,                           \
+             "Failed to initialize ADC with the given configuration.")         \
+  ERROR_CODE(DigitalIOModeOptionMissingOrInvalid,                              \
+             "Missing or invalid mode in DigitalIO options")                   \
+  ERROR_CODE(ADCInvalidAttenuationValue,                                       \
+             "Invalid ADC attenuation value.")
 #undef ERROR_CODE
 
 class Error {
