@@ -1,6 +1,8 @@
 #include <BuzzerPlayer/BuzzerPlayer.h>
 #include <ConfigManager.h>
 #include <Arduino.h>
+#include "ESP32/FileHandler.h"
+#include "ESP32/Buzzer.h"
 
 FileHandler fileHandler;
 ConfigManager config(&fileHandler);
@@ -26,7 +28,8 @@ void setup() {
   Error::setLoggerCallback(Logger::log);
 
   Logger::info("Loading configuration...");
-  config.load("/config.json");
+  config.loadConfig("HardwareConfig");
+  Logger::info("Configuration loaded.");
 
   auto buzzerConfig = config.getConfigFor("BUZZER");
   if (!buzzerConfig.type.empty()) {

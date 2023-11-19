@@ -38,6 +38,7 @@
              "Failed to deserialize the JSON document due to an error.")       \
   ERROR_CODE(ConfigTypeNotRecognized,                                          \
       "The specified configuration type is not recognized or supported.")
+#undef ERROR_CODE
 
 class Error {
 public:
@@ -56,7 +57,7 @@ public:
   static const std::array<ErrorInfo, NumErrors> ErrorMessages;
 
   Error() : _code(OK) {}
-  explicit Error(Code c) : _code(c) { notifyLogger(); }
+  Error(Code c) : _code(c) { notifyLogger(); }
 
   // Compare with Error
   friend bool operator==(const Error &lhs, const Error &rhs) {

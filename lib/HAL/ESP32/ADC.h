@@ -33,7 +33,7 @@ public:
    *
    * @return int ADC reading.
    */
-  virtual int read() = 0;
+  virtual int read() const = 0;
 
   /**
    * @brief Get the ADC resolution.

@@ -29,11 +29,10 @@ public:
   virtual int resolution() const = 0;
 
 protected:
+  unsigned int _pinNumber;
+  unsigned int _resolution;
+
   explicit IADC(const GpioPinConfig &config)
       : HardwareComponent(config) {
   } // Protected constructor to prevent direct instantiation of this interface
-
-private:
-  unsigned int _pinNumber;
-  unsigned int _resolution;
 };
