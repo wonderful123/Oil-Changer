@@ -1,33 +1,34 @@
-// ESP32HardwareFactory.h
-#pragma once
-
 #include "ESP32/ADC.h"
 #include "ESP32/Buzzer.h"
 #include "ESP32/DigitalIO.h"
 #include "ESP32/FileHandler.h"
 #include "ESP32/PWM.h"
 #include "HardwareFactory.h"
+#include <memory>
 
 class ESP32HardwareFactory : public HardwareFactory {
 public:
-  std::unique_ptr<ADC> createADC(const GpioPinConfig &config) override {
-    return std::make_unique<ESP32::ADC>(config);
+  virtual std::unique_ptr<IADC>
+  createADC(const GpioPinConfig &config) override {
+    return std::unique_ptr<IADC>(new ADC(config));
   }
 
-  std::unique_ptr<DigitalIO>
+  virtual std::unique_ptr<IDigitalIO>
   createDigitalIO(const GpioPinConfig &config) override {
-    return std::make_unique<ESP32::DigitalIO>(config);
+    return std::unique_ptr<IDigitalIO>(new DigitalIO(config));
   }
 
-  std::unique_ptr<PWM> createPWM(const GpioPinConfig &config) override {
-    return std::make_unique<ESP32::PWM>(config);
+  virtual std::unique_ptr<IPWM>
+  createPWM(const GpioPinConfig &config) override {
+    return std::unique_ptr<IPWM>(new PWM(config));
   }
 
-  std::unique_ptr<Buzzer> createBuzzer(const GpioPinConfig &config) override {
-    return std::make_unique<ESP32::Buzzer>(config);
+  virtual std::unique_ptr<IBuzzer>
+  createBuzzer(const GpioPinConfig &config) override {
+    return std::unique_ptr<IBuzzer>(new Buzzer(config));
   }
 
-  std::unique_ptr<IFileHandler> createFileHandler() override {
-    return std::make_unique<ESP32::FileHandler>();
+  virtual std::unique_ptr<IFileHandler> createFileHandler() override {
+    return std::unique_ptr<IFileHandler>(new FileHandler());
   }
 };

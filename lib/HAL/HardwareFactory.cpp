@@ -10,9 +10,9 @@ std::unique_ptr<HardwareFactory> &getHardwareFactory() {
 
   if (!hardwareFactory) {
 #ifdef PLATFORM_ESP32
-    hardwareFactory = std::make_unique<ESP32HardwareFactory>();
+    hardwareFactory.reset(new ESP32HardwareFactory());
 #else
-    hardwareFactory = std::make_unique<MockHardwareFactory>();
+    hardwareFactory.reset(new MockHardwareFactory());
 #endif
   }
 
