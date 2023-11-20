@@ -32,13 +32,12 @@ std::string Error::getFormattedMessage(Code code) const {
 }
 
 void Error::notifyLogger() const {
-  if (_code != OK) {
-    std::string message = getFormattedMessage(_code);
-    _loggerCallback(Logger::ERROR, message.c_str());
+  std::string message = getFormattedMessage(_code);
+  _loggerCallback(Logger::ERROR, message.c_str());
 
+  if (_code != OK) {
     std::lock_guard<std::mutex> lock(_lastErrorCodeMutex);
-    _lastErrorCode =
-        _code; // Update the last error code in a thread-safe manner
+    _lastErrorCode = _code; // Update the last error code only if it's not OK
   }
 }
 
