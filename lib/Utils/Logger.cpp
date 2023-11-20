@@ -17,7 +17,11 @@ static void log(Level level, const char *message) {
     return; // Filter out messages below current level
   std::lock_guard<std::mutex> lock(_mutex);
   if (_log_callback) {
-    _log_callback(level, message);
+    try {
+      _log_callback(level, message);
+    } catch (...) {
+      // Handle or ignore exceptions from the log callback
+    }
   }
 }
 
