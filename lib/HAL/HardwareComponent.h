@@ -10,19 +10,31 @@
 #pragma once
 
 #include "GpioPinConfig.h"
+#include "Error.h"
 
 /**
  * @class HardwareComponent
  * @brief Abstract base class for all hardware components.
  *
- * HardwareComponent defines common attributes and functionalities for hardware
- * components such as ADC, PWM, DigitalIO, etc. It includes basic properties
- * like pin number and initialization status. This class should be inherited by
- * all specific hardware component classes to ensure consistent behavior and
+ * HardwareComponent provides a common interface and functionalities for
+ * hardware components like ADC, PWM, DigitalIO, etc. It includes properties
+ * such as pin number and initialization status. Specific hardware component
+ * classes should inherit from this class to ensure consistent behavior and
  * interface.
  */
 class HardwareComponent {
 public:
+  /**
+   * @brief Protected constructor for the HardwareComponent.
+   *
+   * Initializes the hardware component with the given GPIO pin configuration.
+   * Marked explicit to prevent accidental conversions.
+   *
+   * @param config The GPIO pin configuration.
+   */
+  explicit HardwareComponent(const GpioPinConfig &config)
+      : _pinNumber(config.pinNumber), _initialized(false) {}
+      
   /**
    * @brief Virtual destructor.
    *
@@ -38,17 +50,6 @@ public:
   virtual bool isInitialized() const { return _initialized; }
 
 protected:
-  /**
-   * @brief Protected constructor for the HardwareComponent.
-   *
-   * Initializes the hardware component with the given GPIO pin configuration.
-   * Marked explicit to prevent accidental conversions.
-   *
-   * @param config The GPIO pin configuration.
-   */
-  explicit HardwareComponent(const GpioPinConfig &config)
-      : _pinNumber(config.pinNumber), _initialized(false) {}
-
   /**
    * @brief Sets the initialization state of the hardware component.
    *
