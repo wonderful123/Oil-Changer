@@ -65,9 +65,29 @@ public:
   static const std::array<ErrorInfo, NumErrors> ErrorMessages;
 
   Error() : _code(OK) {}
-  Error(Code c) : _code(c) { notifyLogger(); }
+  
+  Error(Code c) : _code(c) {
+    if (_code != OK) {
+      notifyLogger();
+    }
+  }
+
+  // Method to get the last error code (for testing)
+  static Code getLastErrorCode() { return _lastErrorCode; }
+
+  // Method to reset the last error code (for testing)
+  static void resetLastError() { _lastErrorCode = OK; }
+
+  const char *getErrorMessage(Code code) const;
+  std::string getFormattedMessage(Code code) const;
+
+  static void setLoggerCallback(Logger::LogCallback callback);
+
+  Code code() const { return _code; }
 
   // Compare with Error
+  explicit operator bool() const { return _code != OK; }
+
   friend bool operator==(const Error &lhs, const Error &rhs) {
     return lhs._code == rhs._code;
   }
@@ -89,18 +109,12 @@ public:
     return lhs != rhs._code;
   }
 
-  explicit operator bool() const { return _code != OK; }
-
-  const char *getErrorMessage(Code code) const;
-  std::string getFormattedMessage(Code code) const;
-
-  static void setLoggerCallback(Logger::LogCallback callback);
-
-  Code code() const { return _code; }
-
 private:
   Code _code;
   static Logger::LogCallback _loggerCallback;
+
+  // Static member to store the last error code
+  static Code _lastErrorCode;
 
   void notifyLogger() const;
 };
