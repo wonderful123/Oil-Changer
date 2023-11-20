@@ -101,8 +101,18 @@ protected:
         mockHardwareFactory(new MockHardwareFactory()),
         hardwareManager(mockConfigManager, std::move(mockHardwareFactory)) {}
 
-  virtual void SetUp() override {
-    // Setup code (if needed)
+  std::ostringstream capturedLog;
+
+  void SetUp() override {
+    Logger::setLogCallback([this](Logger::Level level,
+                                  const std::string &message) {
+      capturedLog << Logger::levelToString(level) << ": " << message << "\n";
+      std::cout << Logger::levelToString(level) << "->: " << message << std::endl;
+    });
+  }
+
+  void TearDown() override {
+    Logger::setLogCallback(nullptr); // Reset the logger callback
   }
 };
 
@@ -159,7 +169,7 @@ TEST_F(HardwareManagerTest, InitializeADCWithValidConfig) {
 TEST_F(HardwareManagerTest, InitializeDigitalIOWithValidConfig) {
   GpioPinConfig digitalIOConfig{26, "MotorControlFill", "DigitalIO"};
   digitalIOConfig.options["mode"] = "OUTPUT";
-  
+
   std::vector<GpioPinConfig> gpioConfigurations = {digitalIOConfig};
 
   EXPECT_CALL(*mockConfigManager, getHardwareConfig())
@@ -220,4 +230,55 @@ TEST_F(HardwareManagerTest, TestInitializationOfNonExistentHardwareType) {
   // Assuming that "NonExistentType" is not a recognized type in
   // initializeComponent method
   EXPECT_FALSE(hardwareManager.isComponentInitialized("NonExistentType"));
+}
+
+TEST_F(HardwareManagerTest, TestErrorHandlingOnFailedInitialization) {
+  GpioPinConfig invalidConfig{1, "FailedPin", "DigitalIO"};
+  invalidConfig.options["mode"] =
+      "INVALID_MODE"; // Intentionally invalid to cause failure
+  std::vector<GpioPinConfig> gpioConfigurations = {invalidConfig};
+
+  EXPECT_CALL(*mockConfigManager, getHardwareConfig())
+      .WillOnce(Return(mockHardwareConfig));
+  EXPECT_CALL(*mockHardwareConfig, getGpioConfigs())
+      .WillOnce(ReturnRef(gpioConfigurations));
+
+  hardwareManager.initializeHardware();
+  Error(Error::HardwareConfigHardwareKeyMissing);
+
+  Logger::info("HELLO HELLO");
+  // Verify if the DigitalIOModeOptionMissingOrInvalid error is generated
+  // Assuming Error class has a static method to check the last error generated
+  EXPECT_EQ(Error::getLastErrorCode(),
+            Error::DigitalIOModeOptionMissingOrInvalid);
+}
+
+TEST_F(HardwareManagerTest, TestLoggingOfInitializationErrors) {
+  GpioPinConfig errorConfig{3, "ErrorPin", "ADC"};
+  errorConfig.options["resolution"] =
+      "INVALID"; // Invalid resolution to cause error
+  std::vector<GpioPinConfig> gpioConfigurations = {errorConfig};
+
+  EXPECT_CALL(*mockConfigManager, getHardwareConfig())
+      .WillOnce(Return(mockHardwareConfig));
+  EXPECT_CALL(*mockHardwareConfig, getGpioConfigs())
+      .WillOnce(ReturnRef(gpioConfigurations));
+
+  hardwareManager.initializeHardware();
+
+  // Verify that the captured log contains the expected message
+  std::string logContents = capturedLog.str();
+  EXPECT_THAT(logContents, testing::HasSubstr(
+                               "Missing or invalid mode in DigitalIO options"));
+}
+
+TEST(MyTest, MyTest) {
+  Logger::info("Running MyTest...");
+
+  // Set the error code and log a message about it
+  Error(Error::HardwareConfigHardwareKeyMissing);
+  Logger::info("Hardware configuration is missing the 'hardware' key.");
+
+  // Check the error code
+  ASSERT_EQ(Error::HardwareConfigHardwareKeyMissing, Error::getLastErrorCode());
 }

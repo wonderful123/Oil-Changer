@@ -1,3 +1,5 @@
+#pragma once
+
 #include "ESP32/ADC.h"
 #include "ESP32/Buzzer.h"
 #include "ESP32/DigitalIO.h"
