@@ -199,3 +199,25 @@ TEST_F(HardwareManagerTest, InitializeBuzzerWithValidConfig) {
 
   EXPECT_TRUE(hardwareManager.isComponentInitialized("Buzzer"));
 }
+
+TEST_F(HardwareManagerTest, TestInitializationOfNonExistentHardwareType) {
+  // Set up mock config with a non-existent hardware type
+  GpioPinConfig nonExistentTypeConfig{5, "NonExistentTypePin",
+                                      "NonExistentType"};
+
+  std::vector<GpioPinConfig> gpioConfigurations = {nonExistentTypeConfig};
+
+  EXPECT_CALL(*mockConfigManager, getHardwareConfig())
+      .WillOnce(Return(mockHardwareConfig));
+
+  EXPECT_CALL(*mockHardwareConfig, getGpioConfigs())
+      .WillOnce(ReturnRef(gpioConfigurations));
+
+  // Call initializeHardware()
+  hardwareManager.initializeHardware();
+
+  // Verify that the hardware component of non-existent type is not initialized
+  // Assuming that "NonExistentType" is not a recognized type in
+  // initializeComponent method
+  EXPECT_FALSE(hardwareManager.isComponentInitialized("NonExistentType"));
+}
