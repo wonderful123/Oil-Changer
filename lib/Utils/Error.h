@@ -65,7 +65,7 @@ public:
   static const std::array<ErrorInfo, NumErrors> ErrorMessages;
 
   Error() : _code(OK) {}
-  
+
   Error(Code c) : _code(c) {
     if (_code != OK) {
       notifyLogger();
@@ -73,10 +73,10 @@ public:
   }
 
   // Method to get the last error code (for testing)
-  static Code getLastErrorCode() { return _lastErrorCode; }
+  static Code getLastErrorCode();
 
   // Method to reset the last error code (for testing)
-  static void resetLastError() { _lastErrorCode = OK; }
+  static void resetLastError();
 
   const char *getErrorMessage(Code code) const;
   std::string getFormattedMessage(Code code) const;
@@ -113,8 +113,9 @@ private:
   Code _code;
   static Logger::LogCallback _loggerCallback;
 
-  // Static member to store the last error code
+  // Static member and mutex for thread-safe last error code
   static Code _lastErrorCode;
+  static std::mutex _lastErrorCodeMutex;
 
   void notifyLogger() const;
 };

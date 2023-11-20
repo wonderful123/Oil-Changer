@@ -1,6 +1,10 @@
 #include "Error.h"
 #include "Logger.h" // Include Logger
 
+// Initialize static members
+Error::Code Error::_lastErrorCode = Error::OK;
+std::mutex Error::_lastErrorCodeMutex;
+
 // Define the static member 'ErrorMessages'
 #define ERROR_CODE(code, message) {Error::code, message},
 const std::array<Error::ErrorInfo, Error::NumErrors> Error::ErrorMessages = {
@@ -28,13 +32,22 @@ std::string Error::getFormattedMessage(Code code) const {
 }
 
 void Error::notifyLogger() const {
-  if (_loggerCallback) {
+  if (_code != OK) {
     std::string message = getFormattedMessage(_code);
-    if (_code != Error::OK) {
-      _loggerCallback(Logger::ERROR, message.c_str());
-    } else {
-      // _loggerCallback(Logger::INFO, message.c_str());
-      // Skip outputting Error:OK
-    }
+    _loggerCallback(Logger::ERROR, message.c_str());
+
+    std::lock_guard<std::mutex> lock(_lastErrorCodeMutex);
+    _lastErrorCode =
+        _code; // Update the last error code in a thread-safe manner
   }
+}
+
+Error::Code Error::getLastErrorCode() {
+  std::lock_guard<std::mutex> lock(_lastErrorCodeMutex);
+  return _lastErrorCode;
+}
+
+void Error::resetLastError() {
+  std::lock_guard<std::mutex> lock(_lastErrorCodeMutex);
+  _lastErrorCode = OK;
 }
