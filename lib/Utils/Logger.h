@@ -19,7 +19,11 @@ public:
   static void warn(const std::string &message) { log(WARN, message.c_str()); }
   static void error(const std::string &message) { log(ERROR, message.c_str()); }
 
+  static void setLogLevel(Level level) { _currentLevel = level; }
+  static Level getLogLevel() { return _currentLevel; }
+
 private:
   static LogCallback _log_callback;
   static std::mutex _mutex;
+  static Level _logLevel; // Current log level for filtering
 };

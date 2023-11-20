@@ -12,7 +12,9 @@ void Logger::setLogCallback(LogCallback callback) {
   _log_callback = callback;
 }
 
-void Logger::log(Level level, const char *message) {
+static void log(Level level, const char *message) {
+  if (level < _logLevel)
+    return; // Filter out messages below current level
   std::lock_guard<std::mutex> lock(_mutex);
   if (_log_callback) {
     _log_callback(level, message);
