@@ -3,6 +3,7 @@
 #include "HardwareFactory.h"
 #include "HardwareManager.h"
 #include "IFileHandler.h"
+#include "Logger.h"
 #include "MockConfigManager.h"
 #include "MockFileHandler.h"
 #include "MockHardwareConfig.h"
@@ -40,42 +41,6 @@
   - LoggingDuringInitialization: Verifies logging of steps and issues during the
   initialization phase.
 
-
-  1. Successful Initialization
-Test Case: Ensure that HardwareManager correctly initializes hardware components
-when ConfigManager provides valid HardwareConfig data. Expectation: The hardware
-components are initialized as expected, and any relevant state in
-HardwareManager is set correctly.
-2. Handling of Missing or Invalid Configurations
-Test Case: Simulate a scenario where ConfigManager returns nullptr (indicating
-missing configuration) and verify how HardwareManager handles it. Expectation:
-HardwareManager should not attempt to initialize hardware components and should
-handle the situation gracefully, possibly setting an error state or logging an
-appropriate message.
-3. Error Conditions and Robustness
-Test Case: Introduce mock errors or exceptions in the configuration loading
-process and observe how HardwareManager responds. Expectation: The manager
-should handle errors robustly, without crashing or entering an invalid state.
-4. Correct Interaction with ConfigManager
-Test Case: Verify that HardwareManager calls the correct methods on
-ConfigManager to retrieve the necessary configurations. Expectation: Methods
-such as getHardwareConfig() are called as expected.
-5. Handling Partial or Incomplete Configurations
-Test Case: Provide a HardwareConfig with partial or incomplete data (e.g.,
-missing some GPIO configurations) and test how HardwareManager responds.
-Expectation: HardwareManager should either handle the incomplete configuration
-gracefully or log appropriate errors/warnings.
-6. State Verification Post Initialization
-Test Case: After successful initialization, verify that the state of
-HardwareManager reflects the initialized hardware. Expectation: Internal state
-variables or flags in HardwareManager should correctly represent the
-initialization status.
-7. Multiple Initializations
-Test Case: Call the initialization method on HardwareManager multiple times,
-possibly with different configurations. Expectation: Subsequent initializations
-either update the hardware state correctly or are handled appropriately (e.g.,
-ignored, logged, etc.).
-
 */
 /*******************************************************************/
 
@@ -104,11 +69,11 @@ protected:
   std::ostringstream capturedLog;
 
   void SetUp() override {
-    Logger::setLogCallback([this](Logger::Level level,
-                                  const std::string &message) {
-      capturedLog << Logger::levelToString(level) << ": " << message << "\n";
-      std::cout << Logger::levelToString(level) << "->: " << message << std::endl;
-    });
+    Logger::setLogCallback(
+        [this](Logger::Level level, const std::string &message) {
+          capturedLog << Logger::levelToString(level) << ": " << message
+                      << std::endl;
+        });
   }
 
   void TearDown() override {
@@ -244,41 +209,49 @@ TEST_F(HardwareManagerTest, TestErrorHandlingOnFailedInitialization) {
       .WillOnce(ReturnRef(gpioConfigurations));
 
   hardwareManager.initializeHardware();
-  Error(Error::HardwareConfigHardwareKeyMissing);
 
-  Logger::info("HELLO HELLO");
   // Verify if the DigitalIOModeOptionMissingOrInvalid error is generated
   // Assuming Error class has a static method to check the last error generated
   EXPECT_EQ(Error::getLastErrorCode(),
             Error::DigitalIOModeOptionMissingOrInvalid);
 }
 
-TEST_F(HardwareManagerTest, TestLoggingOfInitializationErrors) {
-  GpioPinConfig errorConfig{3, "ErrorPin", "ADC"};
-  errorConfig.options["resolution"] =
-      "INVALID"; // Invalid resolution to cause error
-  std::vector<GpioPinConfig> gpioConfigurations = {errorConfig};
+TEST_F(HardwareManagerTest, TestLoggingOfSuccessfulInitialization) {
+  // Set up mock config and expectations
+  GpioPinConfig pin1{1, "Pin1", "DigitalIO"};
+  GpioPinConfig pin2{2, "Pin2", "PWM"};
+  GpioPinConfig pin3{3, "Pin3", "DigitalIO"};
+  pin3.options["mode"] = "INPUT";
 
+  std::vector<GpioPinConfig> gpioConfigurations = {pin1, pin2, pin3};
+
+  // Mock dependencies to simulate successful initialization
   EXPECT_CALL(*mockConfigManager, getHardwareConfig())
       .WillOnce(Return(mockHardwareConfig));
   EXPECT_CALL(*mockHardwareConfig, getGpioConfigs())
-      .WillOnce(ReturnRef(gpioConfigurations));
+      .WillRepeatedly(
+          ReturnRef(gpioConfigurations)); // Provide valid configurations
 
+  // Act
   hardwareManager.initializeHardware();
 
-  // Verify that the captured log contains the expected message
+  // Assert
   std::string logContents = capturedLog.str();
-  EXPECT_THAT(logContents, testing::HasSubstr(
-                               "Missing or invalid mode in DigitalIO options"));
+  EXPECT_THAT(logContents,
+              testing::HasSubstr("Hardware initialization successful"));
 }
 
-TEST(MyTest, MyTest) {
-  Logger::info("Running MyTest...");
+TEST_F(HardwareManagerTest, TestLoggingOfConfigurationIssues) {
+  // Mock dependencies to simulate a configuration issue
+  EXPECT_CALL(*mockConfigManager, getHardwareConfig())
+      .WillOnce(Return(nullptr)); // Simulate missing config
 
-  // Set the error code and log a message about it
-  Error(Error::HardwareConfigHardwareKeyMissing);
-  Logger::info("Hardware configuration is missing the 'hardware' key.");
+  // Act
+  hardwareManager.initializeHardware();
 
-  // Check the error code
-  ASSERT_EQ(Error::HardwareConfigHardwareKeyMissing, Error::getLastErrorCode());
+  // Assert
+  std::string logContents = capturedLog.str();
+  EXPECT_THAT(
+      logContents,
+      testing::HasSubstr("ERROR: Hardware configuration is not available\n"));
 }

@@ -4,25 +4,64 @@
 void HardwareManager::initializeHardware() {
   auto hardwareConfig = _configManager->getHardwareConfig();
   if (hardwareConfig) {
+    bool allComponentsInitialized = true;
     for (const auto &config : hardwareConfig->getGpioConfigs()) {
-      initializeComponent(config);
+      if (!initializeComponent(config)) {
+        allComponentsInitialized = false;
+        break; // Stop initialization if any component fails
+      }
+    }
+    if (allComponentsInitialized) {
+      Logger::info("Hardware initialization successful");
+    } else {
+      Logger::error("Some hardware components failed to initialize");
     }
   } else {
-    Logger::error("Hardware configuration is not available.");
+    Logger::error("Hardware configuration is not available");
   }
 }
-
-void HardwareManager::initializeComponent(const GpioPinConfig &config) {
+bool HardwareManager::initializeComponent(const GpioPinConfig &config) {
   if (config.type == "ADC") {
-    adcs[config.pinNumber] = _hardwareFactory->createADC(config);
+    auto adc = _hardwareFactory->createADC(config);
+    if (!adc) {
+      Logger::error("Failed to initialize ADC on pin " +
+                    std::to_string(config.pinNumber));
+      return false;
+    }
+    adcs[config.pinNumber] = std::move(adc);
   } else if (config.type == "DigitalIO") {
-    digitalIOs[config.pinNumber] = _hardwareFactory->createDigitalIO(config);
+    auto digitalIO = _hardwareFactory->createDigitalIO(config);
+    if (!digitalIO) {
+      Logger::error("Failed to initialize DigitalIO on pin " +
+                    std::to_string(config.pinNumber));
+      return false;
+    }
+    digitalIOs[config.pinNumber] = std::move(digitalIO);
   } else if (config.type == "PWM") {
-    pwms[config.pinNumber] = _hardwareFactory->createPWM(config);
+    auto pwm = _hardwareFactory->createPWM(config);
+    if (!pwm) {
+      Logger::error("Failed to initialize PWM on pin " +
+                    std::to_string(config.pinNumber));
+      return false;
+    }
+    pwms[config.pinNumber] = std::move(pwm);
   } else if (config.type == "Buzzer") {
-    buzzer = _hardwareFactory->createBuzzer(config);
+    auto buzzerComponent = _hardwareFactory->createBuzzer(config);
+    if (!buzzerComponent) {
+      Logger::error("Failed to initialize Buzzer on pin " +
+                    std::to_string(config.pinNumber));
+      return false;
+    }
+    buzzer = std::move(buzzerComponent);
+  } else {
+    Logger::error("Unrecognized component type: " + config.type);
+    return false;
   }
-  // Add more types as needed
+
+  // Log successful initialization
+  Logger::info(config.type + " component initialized successfully on pin " +
+               std::to_string(config.pinNumber));
+  return true;
 }
 
 bool HardwareManager::isComponentInitialized(const std::string &componentType) {

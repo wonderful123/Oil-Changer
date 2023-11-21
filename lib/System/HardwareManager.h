@@ -75,7 +75,7 @@ public:
   // Initializes all hardware components
   void initializeHardware();
 
-  void initializeComponent(const GpioPinConfig &config);
+  bool initializeComponent(const GpioPinConfig &config);
   bool isComponentInitialized(const std::string &componentType);
 
   // Manages the states of hardware components using TinyFSM
