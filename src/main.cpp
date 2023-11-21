@@ -51,6 +51,6 @@ void setup() {
 
 void loop() {
   if (buzzer) {
-    buzzer->update();
+    //buzzer->update();
   }
 }
