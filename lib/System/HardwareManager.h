@@ -89,4 +89,6 @@ public:
 
   // Observer pattern implementation
   virtual void update() override;
+
+  void handleButtonPress(int buttonId);
 };

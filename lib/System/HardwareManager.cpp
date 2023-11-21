@@ -1,5 +1,6 @@
 #include "HardwareManager.h"
 #include "Logger.h"
+#include "FSM/StateMachine.h"
 
 void HardwareManager::initializeHardware() {
   auto hardwareConfig = _configManager->getHardwareConfig();
@@ -109,4 +110,10 @@ void HardwareManager::update() {
   Logger::info("HardwareManager received an update notification.");
 
   // Implement specific logic based on your application's requirements.
+}
+
+void HardwareManager::handleButtonPress(int buttonId) {
+  StateMachine stateMachine;
+  ButtonPressEvent pressEvent(buttonId);
+  stateMachine.handleEvent(pressEvent);
 }
