@@ -2,24 +2,24 @@
 
 #include "IButtonControllerObserver.h"
 #include <memory>
+#include <unordered_map>
 #include <vector>
 
 class ButtonController {
 public:
   ButtonController();
 
-  // Register an observer
   void addObserver(std::shared_ptr<IButtonControllerObserver> observer);
-
-  // Method to be called when a button is pressed
-  void onButtonPress(int buttonId);
-
-  // Other methods for button management
-  // ...
+  void registerButton(int buttonId,
+                      int pin);  // Register a button and its associated pin
+  static void handleInterrupt(); // Static method to handle interrupts
 
 private:
   std::vector<std::shared_ptr<IButtonControllerObserver>> _observers;
+  static std::unordered_map<int, int>
+      _buttonPinMap; // Maps button IDs to pin numbers
+  static std::unordered_map<int, ButtonController *>
+      _instances; // Maps button IDs to controller instances
 
-  // Method to notify all observers about a button press
   void notifyObservers(int buttonId);
 };

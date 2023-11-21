@@ -34,6 +34,7 @@ management of hardware components.
 
 #pragma once
 
+#include "ButtonController.h"
 #include "ConfigManager.h"
 #include "Core/IObserver.h"
 #include "GpioPinConfig.h"
@@ -59,6 +60,7 @@ class HardwareManager : public IObserver {
 private:
   std::shared_ptr<ConfigManager> _configManager;
   std::unique_ptr<HardwareFactory> _hardwareFactory;
+  std::shared_ptr<ButtonController> _buttonController;
 
   std::map<int, std::unique_ptr<IADC>> adcs;
   std::map<int, std::unique_ptr<IDigitalIO>> digitalIOs;
@@ -67,9 +69,9 @@ private:
 
 public:
   explicit HardwareManager(std::shared_ptr<ConfigManager> configManager,
-                           std::unique_ptr<HardwareFactory> hardwareFactory)
-      : _configManager(std::move(configManager)),
-        _hardwareFactory(std::move(hardwareFactory)) {}
+                           std::unique_ptr<HardwareFactory> hardwareFactory,
+                           std::shared_ptr<ButtonController> buttonController) {
+  }
   virtual ~HardwareManager() = default;
 
   // Initializes all hardware components

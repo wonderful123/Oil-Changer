@@ -1,14 +1,25 @@
+#include "ButtonController.h"
 #include "BuzzerPlayer/BuzzerPlayer.h"
 #include "ConfigManager.h"
 #include "ESP32/Buzzer.h"
 #include "ESP32/FileHandler.h"
 #include "Error.h"
 #include "HardwareConfig.h"
+#include "HardwareManager.h"
+#include "SystemController.h"
 #include <Arduino.h>
 #include <memory>
 
 FileHandler fileHandler;
 ConfigManager config(&fileHandler);
+auto buttonController = std::make_shared<ButtonController>();
+auto buttonController = std::make_shared<ButtonController>();
+
+HardwareManager hardwareManager(configManager, std::move(hardwareFactory),
+                                buttonController);
+auto systemController =
+    std::make_shared<SystemController>(hardwareManager, buttonController);
+
 std::unique_ptr<Buzzer> buzzer;
 std::unique_ptr<BuzzerPlayer> player;
 
@@ -19,8 +30,9 @@ void setup() {
     ; // Wait for Serial port to connect.
   }
 
-  // Set up logging (assuming Logger setup code here)
+  systemController.initialize();
 
+  // Set up logging (assuming Logger setup code here)
   Logger::info("Loading hardware configuration...");
   Error configLoadError = config.loadConfig("HardwareConfig");
   if (configLoadError) {
@@ -51,6 +63,6 @@ void setup() {
 
 void loop() {
   if (buzzer) {
-    //buzzer->update();
+    // buzzer->update();
   }
 }

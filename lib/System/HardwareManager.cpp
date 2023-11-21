@@ -1,6 +1,14 @@
 #include "HardwareManager.h"
-#include "Logger.h"
 #include "FSM/StateMachine.h"
+#include "Logger.h"
+
+HardwareManager::HardwareManager(
+    std::shared_ptr<ConfigManager> configManager,
+    std::unique_ptr<HardwareFactory> hardwareFactory,
+    std::shared_ptr<ButtonController> buttonController)
+    : _configManager(std::move(configManager)),
+      _hardwareFactory(std::move(hardwareFactory)),
+      _buttonController(std::move(buttonController)) {}
 
 void HardwareManager::initializeHardware() {
   auto hardwareConfig = _configManager->getHardwareConfig();
@@ -38,6 +46,12 @@ bool HardwareManager::initializeComponent(const GpioPinConfig &config) {
       return false;
     }
     digitalIOs[config.pinNumber] = std::move(digitalIO);
+  } else if (config.type == "Button") {
+    _buttonController->registerButton(config.id, config.pinNumber);
+    // Log successful initialization
+    Logger::info("Button component initialized successfully on pin " +
+                 std::to_string(config.pinNumber));
+    return true;
   } else if (config.type == "PWM") {
     auto pwm = _hardwareFactory->createPWM(config);
     if (!pwm) {
@@ -116,4 +130,8 @@ void HardwareManager::handleButtonPress(int buttonId) {
   StateMachine stateMachine;
   ButtonPressEvent pressEvent(buttonId);
   stateMachine.handleEvent(pressEvent);
+}
+
+void HardwareManager::onButtonEvent(int buttonId, bool pressed) {
+  _buttonController->handleButtonEvent(buttonId, pressed);
 }

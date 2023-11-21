@@ -1,35 +1,28 @@
-// src/controllers/SystemController.h
 #pragma once
+
+#include "ButtonController.h"
 #include "FSM/StateMachine.h"
 #include "HardwareManager.h"
-#include "IButtonControllerObserver.h" // Interface for observing button controller
+#include "IButtonControllerObserver.h"
 
-class SystemController : public IButtonControllerObserver {
+class SystemController : public IButtonControllerObserver,
+                         public std::enable_shared_from_this<SystemController> {
 public:
-  SystemController(std::shared_ptr<HardwareManager> hardwareManager);
+  SystemController(std::shared_ptr<HardwareManager> hardwareManager,
+                   std::shared_ptr<ButtonController> buttonController);
 
-  // Initialize system components
   void initialize();
-
-  // Overrides from IButtonControllerObserver
   void onButtonPress(int buttonId) override;
 
-  // Other system-related functions
   void startSystem();
   void stopSystem();
-
-  // Handling FSM events
   void handleEvent(const Event &event);
 
 private:
   std::shared_ptr<HardwareManager> _hardwareManager;
+  std::shared_ptr<ButtonController> _buttonController;
   StateMachine _stateMachine;
 
-  // Add other members as needed
-
-  // Private methods for internal operations
-  void changeSystemState(); // Example method to change state
-
-  // Method to register as observer to ButtonController
+  void changeSystemState();
   void registerAsButtonObserver();
 };
