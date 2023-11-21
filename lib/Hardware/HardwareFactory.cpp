@@ -1,8 +1,8 @@
 #include "HardwareFactory.h"
 #ifdef PLATFORM_ESP32
-#include "ESP32/ESP32HardwareFactory.h"
+#include "ESP32HardwareFactory.h"
 #else
-#include "MockHardwareFactory.h"
+#include <MockHardwareFactory.h>
 #endif
 
 std::unique_ptr<HardwareFactory> &getHardwareFactory() {

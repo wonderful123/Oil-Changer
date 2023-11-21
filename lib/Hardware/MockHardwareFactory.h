@@ -1,17 +1,21 @@
 #pragma once
 
 #include "HardwareFactory.h"
-#include <MockADC.h>
-#include "MockBuzzer.h"
-#include "MockDigitalIO.h"
-#include "MockFileHandler.h"
-#include "MockPWM.h"
-#include <gmock/gmock.h>
+#include "Mocks/MockADC.h"
+#include "Mocks/MockDAC.h"
+#include "Mocks/MockBuzzer.h"
+#include "Mocks/MockDigitalIO.h"
+#include "Mocks/MockFileHandler.h"
+#include "Mocks/MockPWM.h"
 
 class MockHardwareFactory : public HardwareFactory {
 public:
   std::unique_ptr<IADC> createADC(const GpioPinConfig &config) override {
     return std::unique_ptr<IADC>(new MockADC(config));
+  }
+
+  std::unique_ptr<IDAC> createDAC(const GpioPinConfig &config) override {
+    return std::unique_ptr<IDAC>(new MockDAC(config));
   }
 
   std::unique_ptr<IDigitalIO>

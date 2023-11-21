@@ -1,7 +1,7 @@
 #pragma once
 
 #include "DigitalIOBase.h"
-#include "gmock/gmock.h"
+#include <gmock/gmock.h>
 
 class MockDigitalIO : public DigitalIOBase {
 public:

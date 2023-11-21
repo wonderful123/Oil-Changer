@@ -57,6 +57,6 @@ protected:
    */
   void setInitialized(bool state) { _initialized = state; }
 
-  unsigned int _pinNumber; ///< GPIO pin number associated with the component.
-  bool _initialized; ///< Flag indicating whether the component is initialized.
+  unsigned int _pinNumber; // GPIO pin number associated with the component.
+  bool _initialized; // Flag indicating whether the component is initialized.
 };

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ESP32/ADC.h"
+#include "ESP32/DAC.h"
 #include "ESP32/Buzzer.h"
 #include "ESP32/DigitalIO.h"
 #include "ESP32/FileHandler.h"
@@ -13,6 +14,11 @@ public:
   virtual std::unique_ptr<IADC>
   createADC(const GpioPinConfig &config) override {
     return std::unique_ptr<IADC>(new ADC(config));
+  }
+
+  virtual std::unique_ptr<IDAC>
+  createDAC(const GpioPinConfig &config) override {
+    return std::unique_ptr<IDAC>(new DAC(config));
   }
 
   virtual std::unique_ptr<IDigitalIO>

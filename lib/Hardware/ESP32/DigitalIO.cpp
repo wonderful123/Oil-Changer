@@ -3,7 +3,7 @@
 #include "Error.h"
 #include <Arduino.h>
 
-explicit DigitalIO::DigitalIO(const GpioPinConfig &config)
+DigitalIO::DigitalIO(const GpioPinConfig &config)
     : DigitalIOBase(config) {
   pinMode(config.pinNumber, _mode);
 }

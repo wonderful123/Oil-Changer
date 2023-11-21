@@ -5,9 +5,9 @@
 #include "IFileHandler.h"
 #include "Logger.h"
 #include "MockConfigManager.h"
-#include "MockFileHandler.h"
 #include "MockHardwareConfig.h"
 #include "MockHardwareFactory.h"
+#include "Mocks/MockFileHandler.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 

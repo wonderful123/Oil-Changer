@@ -1,44 +1,31 @@
 #pragma once
 
-#include "GpioPinConfig.h"
-#include "IADC.h"
+#include "ADCBase.h"
+#ifdef PLATFORM_ESP32
+#include <Arduino.h>
+#include <driver/adc.h>
 
-/**
- * @class ADC
- * @brief ESP32-specific implementation of the IADC interface.
- */
-class ADC : public IADC {
+class ADC : public ADCBase {
 private:
-  unsigned int _attenuation;
+  adc_atten_t _attenuation;
 
 public:
   /**
    * @brief Construct a new ADC object.
    *
-   * @param config [in] Configuration for the ADC pin.
-   *
-   * The `config` object must contain the following required parameters:
-   *
-   * - `pinNumber` [Required]: The pin number to use for the ADC.
-   *
-   * The `config` object can also contain the following optional parameters
-   *
-   * - `attenuation` [Optional-Default=1]: The attenuation level of the ADC.
-   * - `resolution` [Optional-Default-12]: The resolution of the ADC in bits.
+   * @param config Configuration for the ADC pin.
    */
   ADC(const GpioPinConfig &config);
 
-  /**
-   * @brief Read the ADC value.
-   *
-   * @return int ADC reading.
-   */
   virtual int read() const override;
 
+private:
   /**
-   * @brief Get the ADC resolution.
+   * @brief Configures the attenuation for the ADC.
    *
-   * @return int ADC resolution.
+   * @param config Configuration for the ADC pin.
    */
-  virtual int resolution() const override;
+  void configureAttenuation(const GpioPinConfig &config);
 };
+
+#endif // PLATFORM_ESP32

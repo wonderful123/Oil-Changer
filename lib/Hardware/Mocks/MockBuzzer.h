@@ -33,16 +33,13 @@ public:
     // Implement any additional logic required for testing
   }
 
-  void update() override {
-    std::cout << "MockBuzzer::update called" << std::endl;
-    // Implement any additional logic required for testing
-  }
-
   void setVolume(float volume) override {
     std::cout << "MockBuzzer::setVolume called with volume: " << volume
               << std::endl;
     // Store volume or perform additional logic for testing
   }
+
+  MOCK_METHOD(bool, isBeeping, (), (const, override));
 };
 
 #endif // PLATFORM_NATIVE
