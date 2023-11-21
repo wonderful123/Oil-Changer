@@ -27,7 +27,7 @@ protected:
       _mode = IDigitalIO::OUTPUT_MODE;
     } else {
       // Handle invalid mode
-      Error(DigitalIOModeOptionMissingOrInvalid);
+      Error(Error::DigitalIOModeOptionMissingOrInvalid);
       _mode = IDigitalIO::INPUT_MODE; // Default to INPUT mode
     }
   }
