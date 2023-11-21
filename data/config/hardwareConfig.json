@@ -26,17 +26,17 @@
     {
       "pinNumber": 34,
       "id": "ButtonPlus",
-      "type": "PushButton"
+      "type": "Button"
     },
     {
       "pinNumber": 35,
       "id": "ButtonManualFill",
-      "type": "PushButton"
+      "type": "Button"
     },
     {
       "pinNumber": 32,
       "id": "ButtonAuto",
-      "type": "PushButton"
+      "type": "Button"
     },
     {
       "pinNumber": 33,
@@ -107,17 +107,17 @@
     {
       "pinNumber": 17,
       "id": "ButtonMinus",
-      "type": "PushButton"
+      "type": "Button"
     },
     {
       "pinNumber": 16,
       "id": "ButtonStop",
-      "type": "PushButton"
+      "type": "Button"
     },
     {
       "pinNumber": 4,
       "id": "ButtonManualExtract",
-      "type": "PushButton"
+      "type": "Button"
     },
     {
       "pinNumber": 0,
