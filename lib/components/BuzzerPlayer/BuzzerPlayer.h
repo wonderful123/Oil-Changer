@@ -4,7 +4,6 @@
 #include "Melody.h"
 #include "Notes.h"
 #include <IBuzzer.h>
-#include <Arduino.h>
 
 class BuzzerPlayer {
 private:
@@ -47,8 +46,7 @@ public:
       }
 
       // Pause between notes
-      delay(pauseBetweenNotes);
-      _buzzer.stop(); // Stop the tone playing
+      _buzzer.beep(0, pauseBetweenNotes);
     }
 
     Logger::info("Finished playing tune");
