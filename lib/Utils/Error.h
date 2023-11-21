@@ -78,8 +78,8 @@ public:
   // Method to reset the last error code (for testing)
   static void resetLastError();
 
-  const char *getErrorMessage(Code code) const;
-  std::string getFormattedMessage(Code code) const;
+  static std::string getErrorMessage(Code code);
+  static std::string getFormattedMessage(Code code);
 
   static void setLoggerCallback(Logger::LogCallback callback);
 

@@ -18,7 +18,7 @@ void Error::setLoggerCallback(Logger::LogCallback callback) {
   _loggerCallback = callback;
 }
 
-const char *Error::getErrorMessage(Code code) const {
+std::string Error::getErrorMessage(Code code) {
   size_t index = static_cast<size_t>(code);
   if (index < ErrorMessages.size()) {
     return ErrorMessages[index].message;
@@ -26,14 +26,16 @@ const char *Error::getErrorMessage(Code code) const {
   return "Unknown error code.";
 }
 
-std::string Error::getFormattedMessage(Code code) const {
+std::string Error::getFormattedMessage(Code code) {
   size_t index = static_cast<size_t>(code);
   return "Error Code - " + std::to_string(index) + "::" + getErrorMessage(code);
 }
 
 void Error::notifyLogger() const {
-  std::string message = getFormattedMessage(_code);
-  _loggerCallback(Logger::ERROR, message.c_str());
+  if (_loggerCallback) {
+    std::string message = getFormattedMessage(_code);
+    _loggerCallback(Logger::ERROR, message.c_str());
+  }
 
   if (_code != OK) {
     std::lock_guard<std::mutex> lock(_lastErrorCodeMutex);

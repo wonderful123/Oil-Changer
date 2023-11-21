@@ -11,7 +11,9 @@ std::mutex Logger::_mutex;
 
 void Logger::setLogCallback(LogCallback callback) {
   std::lock_guard<std::mutex> lock(_mutex);
-  _log_callback = callback;
+  if (callback) {
+    _log_callback = callback;
+  }
 }
 
 void Logger::log(Logger::Level level, const std::string &message) {
