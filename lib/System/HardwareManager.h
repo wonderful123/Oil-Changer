@@ -70,6 +70,13 @@ private:
   std::map<int, std::unique_ptr<IPWM>> pwms;
   std::unique_ptr<IBuzzer> buzzer;
 
+  bool initializeADC(const GpioPinConfig &config);
+  bool initializeDAC(const GpioPinConfig &config);
+  bool initializeDigitalIO(const GpioPinConfig &config);
+  bool initializeButton(const GpioPinConfig &config);
+  bool initializePWM(const GpioPinConfig &config);
+  bool initializeBuzzer(const GpioPinConfig &config);
+
 public:
   explicit HardwareManager(std::shared_ptr<ConfigManager> configManager,
                            std::unique_ptr<HardwareFactory> hardwareFactory,

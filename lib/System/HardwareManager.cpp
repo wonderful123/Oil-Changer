@@ -31,71 +31,21 @@ void HardwareManager::initializeHardware() {
 }
 bool HardwareManager::initializeComponent(const GpioPinConfig &config) {
   if (config.type == "ADC") {
-    auto adc = _hardwareFactory->createADC(config);
-    if (!adc) {
-      Logger::error("Failed to initialize ADC on pin " +
-                    std::to_string(config.pinNumber));
-      return false;
-    } else if (config.type == "DAC") {
-      auto dac = _hardwareFactory->createDAC(config);
-      if (!dac) {
-        Logger::error("Failed to initialize DAC on pin " +
-                      std::to_string(config.pinNumber));
-        return false;
-      }
-      dacs[config.pinNumber] = std::move(dac);
-    }
-    adcs[config.pinNumber] = std::move(adc);
+    return initializeADC(config);
+  } else if (config.type == "DAC") {
+    return initializeDAC(config);
   } else if (config.type == "DigitalIO") {
-    auto digitalIO = _hardwareFactory->createDigitalIO(config);
-    if (!digitalIO) {
-      Logger::error("Failed to initialize DigitalIO on pin " +
-                    std::to_string(config.pinNumber));
-      return false;
-    }
-    digitalIOs[config.pinNumber] = std::move(digitalIO);
+    return initializeDigitalIO(config);
   } else if (config.type == "Button") {
-    std::unique_ptr<IButton> buttonUnique =
-        _hardwareFactory->createButton(config);
-    if (!buttonUnique) {
-      Logger::error("Failed to initialize Button on pin " +
-                    std::to_string(config.pinNumber));
-      return false;
-    }
-    std::shared_ptr<IButton> buttonShared =
-        std::move(buttonUnique); // Convert to shared_ptr
-    _buttonController->registerButton(config.pinNumber,
-                                      std::move(buttonShared));
-    _buttonIdToPinMap[config.id] = config.pinNumber;
-    Logger::info("Button component '" + config.id +
-                 "' initialized successfully on pin " +
-                 std::to_string(config.pinNumber));
-    return true;
+    return initializeButton(config);
   } else if (config.type == "PWM") {
-    auto pwm = _hardwareFactory->createPWM(config);
-    if (!pwm) {
-      Logger::error("Failed to initialize PWM on pin " +
-                    std::to_string(config.pinNumber));
-      return false;
-    }
-    pwms[config.pinNumber] = std::move(pwm);
+    return initializePWM(config);
   } else if (config.type == "Buzzer") {
-    auto buzzerComponent = _hardwareFactory->createBuzzer(config);
-    if (!buzzerComponent) {
-      Logger::error("Failed to initialize Buzzer on pin " +
-                    std::to_string(config.pinNumber));
-      return false;
-    }
-    buzzer = std::move(buzzerComponent);
+    return initializeBuzzer(config);
   } else {
     Logger::error("Unrecognized component type: " + config.type);
     return false;
   }
-
-  // Log successful initialization
-  Logger::info(config.type + " component initialized successfully on pin " +
-               std::to_string(config.pinNumber));
-  return true;
 }
 
 bool HardwareManager::isComponentInitialized(const std::string &componentType) {
@@ -129,20 +79,79 @@ bool HardwareManager::isComponentInitialized(const std::string &componentType) {
 void HardwareManager::update() {
   // This method is called when the observed subject changes.
 
-  // Example implementation:
-  // 1. Check the status of the observed subject.
-  // 2. Based on the new status, take appropriate action.
-  //    This might involve adjusting hardware settings, triggering events, etc.
-
-  // Example: Check if a sensor value is out of range and respond accordingly
-  // if (sensorManager.isSensorValueOutOfRange()) {
-  //     handleSensorOutOfRange();
-  // }
-
   // You can also log the update or perform other operations as needed.
   Logger::info("HardwareManager received an update notification.");
 
   // Implement specific logic based on your application's requirements.
+}
+
+bool HardwareManager::initializeADC(const GpioPinConfig &config) {
+  auto adc = _hardwareFactory->createADC(config);
+  if (!adc) {
+    Logger::error("Failed to initialize ADC on pin " +
+                  std::to_string(config.pinNumber));
+    return false;
+  }
+  adcs[config.pinNumber] = std::move(adc);
+  return true;
+}
+
+bool HardwareManager::initializeDAC(const GpioPinConfig &config) {
+  auto dac = _hardwareFactory->createDAC(config);
+  if (!dac) {
+    Logger::error("Failed to initialize DAC on pin " +
+                  std::to_string(config.pinNumber));
+    return false;
+  }
+  dacs[config.pinNumber] = std::move(dac);
+  return true;
+}
+
+bool HardwareManager::initializeDigitalIO(const GpioPinConfig &config) {
+  auto digitalIO = _hardwareFactory->createDigitalIO(config);
+  if (!digitalIO) {
+    Logger::error("Failed to initialize DigitalIO on pin " +
+                  std::to_string(config.pinNumber));
+    return false;
+  }
+  digitalIOs[config.pinNumber] = std::move(digitalIO);
+  return true;
+}
+
+bool HardwareManager::initializeButton(const GpioPinConfig &config) {
+  auto buttonUnique = _hardwareFactory->createButton(config);
+  if (!buttonUnique) {
+    Logger::error("Failed to initialize Button on pin " +
+                  std::to_string(config.pinNumber));
+    return false;
+  }
+  std::shared_ptr<IButton> buttonShared =
+      std::move(buttonUnique); // Convert to shared_ptr
+  _buttonController->registerButton(config.pinNumber, std::move(buttonShared));
+  _buttonIdToPinMap[config.id] = config.pinNumber;
+  return true;
+}
+
+bool HardwareManager::initializePWM(const GpioPinConfig &config) {
+  auto pwm = _hardwareFactory->createPWM(config);
+  if (!pwm) {
+    Logger::error("Failed to initialize PWM on pin " +
+                  std::to_string(config.pinNumber));
+    return false;
+  }
+  pwms[config.pinNumber] = std::move(pwm);
+  return true;
+}
+
+bool HardwareManager::initializeBuzzer(const GpioPinConfig &config) {
+  auto buzzerComponent = _hardwareFactory->createBuzzer(config);
+  if (!buzzerComponent) {
+    Logger::error("Failed to initialize Buzzer on pin " +
+                  std::to_string(config.pinNumber));
+    return false;
+  }
+  buzzer = std::move(buzzerComponent);
+  return true;
 }
 
 void HardwareManager::handleButtonPress(const std::string &buttonId) {
