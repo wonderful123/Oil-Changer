@@ -5,7 +5,7 @@
 
 std::unordered_map<int, Button *> Button::_instanceMap;
 
-ButtonESP32::Button(const GpioPinConfig &config,
+Button::Button(const GpioPinConfig &config,
                          ButtonController &controller)
     : ButtonBase(config), _controller(controller) {
   pinMode(_pinNumber, INPUT_PULLUP);
@@ -14,7 +14,7 @@ ButtonESP32::Button(const GpioPinConfig &config,
 
   _instanceMap[_pinNumber] = this;
   attachInterrupt(digitalPinToInterrupt(_pinNumber),
-                  ButtonESP32::handleInterrupt, CHANGE);
+                  Button::handleInterrupt, CHANGE);
 }
 
 void Button::updatePressedState() {
