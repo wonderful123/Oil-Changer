@@ -40,15 +40,17 @@ void HardwareManager::initializeHardware() {
 }
 
 bool HardwareManager::initializeComponent(const GpioPinConfig &config) {
-  auto it = initializerMap.find(config.type);
-  if (it != initializerMap.end()) {
-    return it->second(config);
-  }
   if (config.type == "Buzzer") {
     return initializeBuzzer(config);
   }
-  Logger::error("Unrecognized component type: " + config.type);
-  return false;
+
+  auto initializer = initializerMap.find(config.type);
+  if (initializer == initializerMap.end()) {
+    Logger::error("Unrecognized component type: " + config.type);
+    return false;
+  }
+
+  return initializer->second(config);
 }
 
 bool HardwareManager::isComponentInitialized(const std::string &componentType) {
