@@ -8,13 +8,17 @@ HardwareManager::HardwareManager(
     std::shared_ptr<ButtonController> buttonController)
     : _configManager(std::move(configManager)),
       _hardwareFactory(std::move(hardwareFactory)),
-      _buttonController(std::move(buttonController)) {
+      _buttonController(buttonController) {
 
-  initializerMap["ADC"] = [this](const auto &config) { return initializeADC(config); };
-  initializerMap["DAC"] = [this](const auto &config) { return initializeDAC(config); };
-  initializerMap["DigitalIO"] = [this](const auto &config) { return initializeDigitalIO(config); };
-  initializerMap["Button"] = [this](const auto &config) { return initializeButton(config); };
-  initializerMap["PWM"] = [this](const auto &config) { return initializePWM(config); };
+  setupInitializerMap();
+}
+
+void HardwareManager::setupInitializerMap() {
+    initializerMap["ADC"] = [this](const auto &config) { return initializeADC(config); };
+    initializerMap["DAC"] = [this](const auto &config) { return initializeDAC(config); };
+    initializerMap["DigitalIO"] = [this](const auto &config) { return initializeDigitalIO(config); };
+    initializerMap["Button"] = [this](const auto &config) { return initializeButton(config); };
+    initializerMap["PWM"] = [this](const auto &config) { return initializePWM(config); };
 }
 
 void HardwareManager::initializeHardware() {
@@ -122,15 +126,13 @@ bool HardwareManager::initializeDigitalIO(const GpioPinConfig &config) {
 }
 
 bool HardwareManager::initializeButton(const GpioPinConfig &config) {
-  auto buttonUnique = _hardwareFactory->createButton(config);
-  if (!buttonUnique) {
+  auto button = _hardwareFactory->createButton(config);
+  if (!button) {
     Logger::error("Failed to initialize Button on pin " +
                   std::to_string(config.pinNumber));
     return false;
   }
-  std::shared_ptr<IButton> buttonShared =
-      std::move(buttonUnique); // Convert to shared_ptr
-  _buttonController->registerButton(config.pinNumber, std::move(buttonShared));
+  _buttonController->registerButton(config.pinNumber, std::move(button));
   _buttonIdToPinMap[config.id] = config.pinNumber;
   return true;
 }

@@ -85,11 +85,13 @@ private:
   std::string findButtonIdByPin(int pin);
 
 public:
-  explicit HardwareManager(std::shared_ptr<ConfigManager> configManager,
+  HardwareManager(std::shared_ptr<ConfigManager> configManager,
                            std::unique_ptr<HardwareFactory> hardwareFactory,
                            std::shared_ptr<ButtonController> buttonController);
 
   virtual ~HardwareManager() = default;
+
+  void setupInitializerMap();
 
   // Initializes all hardware components
   void initializeHardware();
