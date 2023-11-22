@@ -29,7 +29,6 @@ public:
   virtual int resolution() const = 0;
 
 protected:
-  unsigned int _pinNumber;
   unsigned int _resolution;
 
   explicit IADC(const GpioPinConfig &config)

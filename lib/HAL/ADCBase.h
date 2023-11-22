@@ -8,7 +8,7 @@
 class ADCBase : public IADC {
 public:
   explicit ADCBase(const GpioPinConfig &config)
-      : IADC(config), _resolution(12) { // Default resolution
+      : IADC(config) { // Default resolution
     extractResolution(config);
   }
 
@@ -25,7 +25,4 @@ protected:
                    std::to_string(_resolution));
     }
   }
-
-private:
-  unsigned int _resolution;
 };
