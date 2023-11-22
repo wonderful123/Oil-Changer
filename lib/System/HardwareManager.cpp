@@ -19,23 +19,26 @@ HardwareManager::HardwareManager(
 
 void HardwareManager::initializeHardware() {
   auto hardwareConfig = _configManager->getHardwareConfig();
-  if (hardwareConfig) {
-    bool allComponentsInitialized = true;
-    for (const auto &config : hardwareConfig->getGpioConfigs()) {
-      if (!initializeComponent(config)) {
-        allComponentsInitialized = false;
-        break; // Stop initialization if any component fails
-      }
-    }
-    if (allComponentsInitialized) {
-      Logger::info("Hardware initialization successful");
-    } else {
-      Logger::error("Some hardware components failed to initialize");
-    }
-  } else {
+  if (!hardwareConfig) {
     Logger::error("Hardware configuration is not available");
+    return;
+  }
+
+  bool allComponentsInitialized = true;
+  for (const auto &config : hardwareConfig->getGpioConfigs()) {
+    if (!initializeComponent(config)) {
+      allComponentsInitialized = false;
+      break; // Stop initialization if any component fails
+    }
+  }
+
+  if (allComponentsInitialized) {
+    Logger::info("Hardware initialization successful");
+  } else {
+    Logger::error("Some hardware components failed to initialize");
   }
 }
+
 bool HardwareManager::initializeComponent(const GpioPinConfig &config) {
   auto it = initializerMap.find(config.type);
   if (it != initializerMap.end()) {
