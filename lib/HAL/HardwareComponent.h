@@ -9,8 +9,8 @@
 
 #pragma once
 
-#include "GpioPinConfig.h"
 #include "Error.h"
+#include "GpioPinConfig.h"
 
 /**
  * @class HardwareComponent
@@ -33,8 +33,9 @@ public:
    * @param config The GPIO pin configuration.
    */
   explicit HardwareComponent(const GpioPinConfig &config)
-      : _pinNumber(config.pinNumber), _initialized(false) {}
-      
+      : _pinNumber(config.pinNumber), _id(config.id), _type(config.type),
+        _initialized(false) {}
+
   /**
    * @brief Virtual destructor.
    *
@@ -49,6 +50,13 @@ public:
    */
   virtual bool isInitialized() const { return _initialized; }
 
+  // Getters
+  std::string id() const { return _id; }
+
+  std::string type() const { return _type; }
+
+  unsigned int pinNumber() const { return _pinNumber; }
+
 protected:
   /**
    * @brief Sets the initialization state of the hardware component.
@@ -58,5 +66,7 @@ protected:
   void setInitialized(bool state) { _initialized = state; }
 
   unsigned int _pinNumber; // GPIO pin number associated with the component.
+  std::string _id;         // Unique identifier for the component.
+  std::string _type;       // Type of the component.
   bool _initialized; // Flag indicating whether the component is initialized.
 };
