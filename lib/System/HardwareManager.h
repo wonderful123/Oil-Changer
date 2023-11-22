@@ -80,7 +80,7 @@ private:
   bool initializePWM(const GpioPinConfig &config);
   bool initializeBuzzer(const GpioPinConfig &config);
 
-  void processButtonEvent(int buttonId);
+  void handleButtonEvent(int buttonId);
   void changeStateBasedOnButton(int buttonId);
   std::string findButtonIdByPin(int pin);
 

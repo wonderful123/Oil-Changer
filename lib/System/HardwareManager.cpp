@@ -164,7 +164,7 @@ void HardwareManager::onButtonEvent(int buttonId, bool pressed) {
   }
 }
 
-void HardwareManager::processButtonEvent(int buttonId) {
+void HardwareManager::handleButtonEvent(int buttonId) {
   auto buttonIdStr = findButtonIdByPin(buttonId);
   if (!buttonIdStr.empty()) {
     changeStateBasedOnButton(buttonId);
