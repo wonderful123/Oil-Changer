@@ -8,7 +8,14 @@ HardwareManager::HardwareManager(
     std::shared_ptr<ButtonController> buttonController)
     : _configManager(std::move(configManager)),
       _hardwareFactory(std::move(hardwareFactory)),
-      _buttonController(std::move(buttonController)) {}
+      _buttonController(std::move(buttonController)) {
+
+  initializerMap["ADC"] = [this](const auto &config) { return initializeADC(config); };
+  initializerMap["DAC"] = [this](const auto &config) { return initializeDAC(config); };
+  initializerMap["DigitalIO"] = [this](const auto &config) { return initializeDigitalIO(config); };
+  initializerMap["Button"] = [this](const auto &config) { return initializeButton(config); };
+  initializerMap["PWM"] = [this](const auto &config) { return initializePWM(config); };
+}
 
 void HardwareManager::initializeHardware() {
   auto hardwareConfig = _configManager->getHardwareConfig();
@@ -30,22 +37,15 @@ void HardwareManager::initializeHardware() {
   }
 }
 bool HardwareManager::initializeComponent(const GpioPinConfig &config) {
-  if (config.type == "ADC") {
-    return initializeADC(config);
-  } else if (config.type == "DAC") {
-    return initializeDAC(config);
-  } else if (config.type == "DigitalIO") {
-    return initializeDigitalIO(config);
-  } else if (config.type == "Button") {
-    return initializeButton(config);
-  } else if (config.type == "PWM") {
-    return initializePWM(config);
-  } else if (config.type == "Buzzer") {
-    return initializeBuzzer(config);
-  } else {
-    Logger::error("Unrecognized component type: " + config.type);
-    return false;
+  auto it = initializerMap.find(config.type);
+  if (it != initializerMap.end()) {
+    return it->second(config);
   }
+  if (config.type == "Buzzer") {
+    return initializeBuzzer(config);
+  }
+  Logger::error("Unrecognized component type: " + config.type);
+  return false;
 }
 
 bool HardwareManager::isComponentInitialized(const std::string &componentType) {
@@ -144,36 +144,41 @@ bool HardwareManager::initializePWM(const GpioPinConfig &config) {
 }
 
 bool HardwareManager::initializeBuzzer(const GpioPinConfig &config) {
-  auto buzzerComponent = _hardwareFactory->createBuzzer(config);
-  if (!buzzerComponent) {
+  buzzer = _hardwareFactory->createBuzzer(config);
+  if (!buzzer) {
     Logger::error("Failed to initialize Buzzer on pin " +
                   std::to_string(config.pinNumber));
     return false;
   }
-  buzzer = std::move(buzzerComponent);
   return true;
 }
 
-void HardwareManager::handleButtonPress(const std::string &buttonId) {
-  int pinNumber =
-      _buttonIdToPinMap[buttonId]; // Retrieve pin number from the ID
-  // Assuming ButtonPressEvent constructor accepts an int
+void HardwareManager::onButtonEvent(int buttonId, bool pressed) {
+  if (pressed) {
+    processButtonEvent(buttonId);
+  }
+}
+
+void HardwareManager::processButtonEvent(int buttonId) {
+  auto buttonIdStr = findButtonIdByPin(buttonId);
+  if (!buttonIdStr.empty()) {
+    changeStateBasedOnButton(buttonId);
+  }
+}
+
+void HardwareManager::changeStateBasedOnButton(int buttonId) {
+  // Here you handle the state changes triggered by button presses
+  // For example, using StateMachine
   StateMachine stateMachine;
-  ButtonPressEvent pressEvent(pinNumber); // Changed to pinNumber
+  ButtonPressEvent pressEvent(buttonId);
   stateMachine.handleEvent(pressEvent);
 }
 
-void HardwareManager::onButtonEvent(int buttonId, bool pressed) {
-  // Convert pin number to textual ID
-  std::string buttonIdStr;
+std::string HardwareManager::findButtonIdByPin(int pin) {
   for (const auto &pair : _buttonIdToPinMap) {
-    if (pair.second == buttonId) {
-      buttonIdStr = pair.first;
-      break;
+    if (pair.second == pin) {
+      return pair.first;
     }
   }
-
-  if (pressed) {
-    handleButtonPress(buttonIdStr);
-  }
+  return std::string(); // Return empty string if not found
 }

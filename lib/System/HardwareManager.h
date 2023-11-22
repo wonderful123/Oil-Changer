@@ -63,6 +63,9 @@ private:
   std::shared_ptr<ButtonController> _buttonController;
   std::unordered_map<std::string, int> _buttonIdToPinMap;
 
+  using InitializerFunction = std::function<bool(const GpioPinConfig &)>;
+  std::unordered_map<std::string, InitializerFunction> initializerMap;
+
   std::map<int, std::unique_ptr<IButton>> buttons;
   std::map<int, std::unique_ptr<IDAC>> dacs;
   std::map<int, std::unique_ptr<IADC>> adcs;
@@ -77,11 +80,15 @@ private:
   bool initializePWM(const GpioPinConfig &config);
   bool initializeBuzzer(const GpioPinConfig &config);
 
+  void processButtonEvent(int buttonId);
+  void changeStateBasedOnButton(int buttonId);
+  std::string findButtonIdByPin(int pin);
+
 public:
   explicit HardwareManager(std::shared_ptr<ConfigManager> configManager,
                            std::unique_ptr<HardwareFactory> hardwareFactory,
                            std::shared_ptr<ButtonController> buttonController);
-                           
+
   virtual ~HardwareManager() = default;
 
   // Initializes all hardware components
@@ -101,8 +108,6 @@ public:
 
   // Observer pattern implementation
   virtual void update() override;
-
-  void handleButtonPress(const std::string &buttonId);
 
   void onButtonEvent(int buttonId, bool pressed);
 };
