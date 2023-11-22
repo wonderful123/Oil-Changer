@@ -6,6 +6,6 @@ public:
   virtual ~IButtonControllerObserver() = default;
 
   // Callback for button press
-  virtual void onButtonPress(int buttonId) = 0;
+  virtual void onButtonPress(const std::string &id) = 0;
 };
 
