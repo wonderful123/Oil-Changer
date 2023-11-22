@@ -7,11 +7,16 @@
 #include "Mocks/MockDigitalIO.h"
 #include "Mocks/MockFileHandler.h"
 #include "Mocks/MockPWM.h"
+#include "Mocks/MockButton.h"
 
 class MockHardwareFactory : public HardwareFactory {
 public:
   std::unique_ptr<IADC> createADC(const GpioPinConfig &config) override {
     return std::unique_ptr<IADC>(new MockADC(config));
+  }
+
+  std::unique_ptr<IButton> createButton(const GpioPinConfig &config) override {
+    return std::unique_ptr<IButton>(new MockButton(config));
   }
 
   std::unique_ptr<IDAC> createDAC(const GpioPinConfig &config) override {

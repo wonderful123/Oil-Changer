@@ -2,6 +2,7 @@
 
 #include "GpioPinConfig.h"
 #include "IADC.h"
+#include "IButton.h"
 #include "IBuzzer.h"
 #include "IDAC.h"
 #include "IDigitalIO.h"
@@ -17,11 +18,10 @@ public:
   std::unique_ptr<HardwareFactory> &getHardwareFactory();
 
   virtual std::unique_ptr<IADC> createADC(const GpioPinConfig &config) = 0;
+  virtual std::unique_ptr<IButton> createButton(const GpioPinConfig &config) = 0;
   virtual std::unique_ptr<IDAC> createDAC(const GpioPinConfig &config) = 0;
-  virtual std::unique_ptr<IDigitalIO>
-  createDigitalIO(const GpioPinConfig &config) = 0;
+  virtual std::unique_ptr<IDigitalIO> createDigitalIO(const GpioPinConfig &config) = 0;
   virtual std::unique_ptr<IPWM> createPWM(const GpioPinConfig &config) = 0;
-  virtual std::unique_ptr<IBuzzer>
-  createBuzzer(const GpioPinConfig &config) = 0;
+  virtual std::unique_ptr<IBuzzer> createBuzzer(const GpioPinConfig &config) = 0;
   virtual std::unique_ptr<IFileHandler> createFileHandler() = 0;
 };

@@ -16,6 +16,11 @@ public:
     return std::unique_ptr<IADC>(new ADC(config));
   }
 
+  virtual std::unique_ptr<IButton>
+  createButton(const GpioPinConfig &config) override {
+    return std::unique_ptr<IButton>(new Button(config));
+  }
+
   virtual std::unique_ptr<IDAC>
   createDAC(const GpioPinConfig &config) override {
     return std::unique_ptr<IDAC>(new DAC(config));
