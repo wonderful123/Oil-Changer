@@ -103,8 +103,9 @@ TEST_F(HardwareManagerTest, InitializeWithValidConfig) {
   hardwareManager.initializeHardware();
 
   // Verify components initialized
-  EXPECT_TRUE(hardwareManager.isComponentInitialized("DigitalIO"));
-  EXPECT_TRUE(hardwareManager.isComponentInitialized("PWM"));
+  EXPECT_TRUE(hardwareManager.isComponentInitialized("Pin1"));
+  EXPECT_TRUE(hardwareManager.isComponentInitialized("Pin2"));
+  EXPECT_TRUE(hardwareManager.isComponentInitialized("Pin3"));
 }
 
 TEST_F(HardwareManagerTest, InitializeWithoutConfig) {
@@ -112,9 +113,9 @@ TEST_F(HardwareManagerTest, InitializeWithoutConfig) {
       .WillOnce(Return(nullptr));
 
   hardwareManager.initializeHardware();
-
-  EXPECT_FALSE(hardwareManager.isComponentInitialized("DigitalIO"));
-  EXPECT_FALSE(hardwareManager.isComponentInitialized("PWM"));
+  
+  EXPECT_FALSE(hardwareManager.isComponentInitialized("Button1"));
+  EXPECT_FALSE(hardwareManager.isComponentInitialized("PWM1"));
 }
 
 TEST_F(HardwareManagerTest, InitializeADCWithValidConfig) {
@@ -131,7 +132,7 @@ TEST_F(HardwareManagerTest, InitializeADCWithValidConfig) {
 
   hardwareManager.initializeHardware();
 
-  EXPECT_TRUE(hardwareManager.isComponentInitialized("ADC"));
+  EXPECT_TRUE(hardwareManager.isComponentInitialized("VoltageSense"));
 }
 
 TEST_F(HardwareManagerTest, InitializeDigitalIOWithValidConfig) {
@@ -147,7 +148,7 @@ TEST_F(HardwareManagerTest, InitializeDigitalIOWithValidConfig) {
 
   hardwareManager.initializeHardware();
 
-  EXPECT_TRUE(hardwareManager.isComponentInitialized("DigitalIO"));
+  EXPECT_TRUE(hardwareManager.isComponentInitialized("MotorControlFill"));
 }
 
 TEST_F(HardwareManagerTest, InitializePWMWithValidConfig) {
@@ -161,7 +162,7 @@ TEST_F(HardwareManagerTest, InitializePWMWithValidConfig) {
 
   hardwareManager.initializeHardware();
 
-  EXPECT_TRUE(hardwareManager.isComponentInitialized("PWM"));
+  EXPECT_TRUE(hardwareManager.isComponentInitialized("MotorSpeed"));
 }
 
 TEST_F(HardwareManagerTest, InitializeBuzzerWithValidConfig) {
@@ -180,7 +181,7 @@ TEST_F(HardwareManagerTest, InitializeBuzzerWithValidConfig) {
 
 TEST_F(HardwareManagerTest, TestInitializationOfNonExistentHardwareType) {
   // Set up mock config with a non-existent hardware type
-  GpioPinConfig nonExistentTypeConfig{5, "NonExistentTypePin",
+  GpioPinConfig nonExistentTypeConfig{5, "NonExistentID",
                                       "NonExistentType"};
 
   std::vector<GpioPinConfig> gpioConfigurations = {nonExistentTypeConfig};
@@ -197,7 +198,7 @@ TEST_F(HardwareManagerTest, TestInitializationOfNonExistentHardwareType) {
   // Verify that the hardware component of non-existent type is not initialized
   // Assuming that "NonExistentType" is not a recognized type in
   // initializeComponent method
-  EXPECT_FALSE(hardwareManager.isComponentInitialized("NonExistentType"));
+  EXPECT_FALSE(hardwareManager.isComponentInitialized("NonExistentID"));
 }
 
 TEST_F(HardwareManagerTest, TestErrorHandlingOnFailedInitialization) {
