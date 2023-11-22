@@ -54,30 +54,28 @@ bool HardwareManager::initializeComponent(const GpioPinConfig &config) {
 }
 
 bool HardwareManager::isComponentInitialized(const std::string &componentType) {
+  auto checkInitialized = [](const auto &components) {
+    return std::all_of(components.begin(), components.end(),
+                       [](const auto &component) {
+                         return component.second->isInitialized();
+                       }) &&
+           !components.empty();
+  };
+
   if (componentType == "DigitalIO") {
-    for (const auto &dio : digitalIOs) {
-      if (!dio.second->isInitialized()) {
-        return false;
-      }
-    }
-    return !digitalIOs.empty();
+    return checkInitialized(digitalIOs);
   } else if (componentType == "ADC") {
-    for (const auto &adc : adcs) {
-      if (!adc.second->isInitialized()) {
-        return false;
-      }
-    }
-    return !adcs.empty();
+    return checkInitialized(adcs);
+  } else if (componentType == "DAC") {
+    return checkInitialized(dacs);
   } else if (componentType == "PWM") {
-    for (const auto &pwm : pwms) {
-      if (!pwm.second->isInitialized()) {
-        return false;
-      }
-    }
-    return !pwms.empty();
+    return checkInitialized(pwms);
+  } else if (componentType == "Button") {
+    return checkInitialized(buttons);
   } else if (componentType == "Buzzer") {
     return buzzer && buzzer->isInitialized();
   }
+
   return false;
 }
 
@@ -160,7 +158,7 @@ bool HardwareManager::initializeBuzzer(const GpioPinConfig &config) {
 
 void HardwareManager::onButtonEvent(int buttonId, bool pressed) {
   if (pressed) {
-    processButtonEvent(buttonId);
+    handleButtonEvent(buttonId);
   }
 }
 
