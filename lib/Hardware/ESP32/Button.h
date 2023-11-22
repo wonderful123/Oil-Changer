@@ -1,10 +1,10 @@
 #pragma once
 
 #include "ButtonBase.h"
-#include <Bounce2.h>
 
 #ifdef PLATFORM_ESP32
 #include <Arduino.h>
+#include <Bounce2.h>
 
 class Button : public ButtonBase {
 public:
