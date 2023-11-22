@@ -36,6 +36,14 @@ bool HardwareManager::initializeComponent(const GpioPinConfig &config) {
       Logger::error("Failed to initialize ADC on pin " +
                     std::to_string(config.pinNumber));
       return false;
+    } else if (config.type == "DAC") {
+      auto dac = _hardwareFactory->createDAC(config);
+      if (!dac) {
+        Logger::error("Failed to initialize DAC on pin " +
+                      std::to_string(config.pinNumber));
+        return false;
+      }
+      dacs[config.pinNumber] = std::move(dac);
     }
     adcs[config.pinNumber] = std::move(adc);
   } else if (config.type == "DigitalIO") {
@@ -47,9 +55,20 @@ bool HardwareManager::initializeComponent(const GpioPinConfig &config) {
     }
     digitalIOs[config.pinNumber] = std::move(digitalIO);
   } else if (config.type == "Button") {
-    _buttonController->registerButton(config.id, config.pinNumber);
-    // Log successful initialization
-    Logger::info("Button component initialized successfully on pin " +
+    std::unique_ptr<IButton> buttonUnique =
+        _hardwareFactory->createButton(config);
+    if (!buttonUnique) {
+      Logger::error("Failed to initialize Button on pin " +
+                    std::to_string(config.pinNumber));
+      return false;
+    }
+    std::shared_ptr<IButton> buttonShared =
+        std::move(buttonUnique); // Convert to shared_ptr
+    _buttonController->registerButton(config.pinNumber,
+                                      std::move(buttonShared));
+    _buttonIdToPinMap[config.id] = config.pinNumber;
+    Logger::info("Button component '" + config.id +
+                 "' initialized successfully on pin " +
                  std::to_string(config.pinNumber));
     return true;
   } else if (config.type == "PWM") {
@@ -126,12 +145,26 @@ void HardwareManager::update() {
   // Implement specific logic based on your application's requirements.
 }
 
-void HardwareManager::handleButtonPress(int buttonId) {
+void HardwareManager::handleButtonPress(const std::string &buttonId) {
+  int pinNumber =
+      _buttonIdToPinMap[buttonId]; // Retrieve pin number from the ID
+  // Assuming ButtonPressEvent constructor accepts an int
   StateMachine stateMachine;
-  ButtonPressEvent pressEvent(buttonId);
+  ButtonPressEvent pressEvent(pinNumber); // Changed to pinNumber
   stateMachine.handleEvent(pressEvent);
 }
 
 void HardwareManager::onButtonEvent(int buttonId, bool pressed) {
-  _buttonController->handleButtonEvent(buttonId, pressed);
+  // Convert pin number to textual ID
+  std::string buttonIdStr;
+  for (const auto &pair : _buttonIdToPinMap) {
+    if (pair.second == buttonId) {
+      buttonIdStr = pair.first;
+      break;
+    }
+  }
+
+  if (pressed) {
+    handleButtonPress(buttonIdStr);
+  }
 }

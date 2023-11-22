@@ -7,15 +7,15 @@ void ButtonController::addObserver(
   _observers.push_back(observer);
 }
 
-void ButtonController::registerButton(int buttonId,
-                                      std::shared_ptr<ButtonBase> button) {
-  _buttons[buttonId] = button;
+void ButtonController::registerButton(int pinNumber,
+                                      std::shared_ptr<IButton> button) {
+  _buttons[pinNumber] = button;
 }
 
-void ButtonController::notifyObservers(int buttonId) {
+void ButtonController::notifyObservers(int pinNumber) {
   for (auto &observer : _observers) {
     if (observer) {
-      observer->onButtonPress(buttonId);
+      observer->onButtonPress(pinNumber);
     }
   }
 }

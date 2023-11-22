@@ -61,7 +61,10 @@ private:
   std::shared_ptr<ConfigManager> _configManager;
   std::unique_ptr<HardwareFactory> _hardwareFactory;
   std::shared_ptr<ButtonController> _buttonController;
+  std::unordered_map<std::string, int> _buttonIdToPinMap;
 
+  std::map<int, std::unique_ptr<IButton>> buttons;
+  std::map<int, std::unique_ptr<IDAC>> dacs;
   std::map<int, std::unique_ptr<IADC>> adcs;
   std::map<int, std::unique_ptr<IDigitalIO>> digitalIOs;
   std::map<int, std::unique_ptr<IPWM>> pwms;
@@ -70,8 +73,8 @@ private:
 public:
   explicit HardwareManager(std::shared_ptr<ConfigManager> configManager,
                            std::unique_ptr<HardwareFactory> hardwareFactory,
-                           std::shared_ptr<ButtonController> buttonController) {
-  }
+                           std::shared_ptr<ButtonController> buttonController);
+                           
   virtual ~HardwareManager() = default;
 
   // Initializes all hardware components
@@ -92,5 +95,7 @@ public:
   // Observer pattern implementation
   virtual void update() override;
 
-  void handleButtonPress(int buttonId);
+  void handleButtonPress(const std::string &buttonId);
+
+  void onButtonEvent(int buttonId, bool pressed);
 };
