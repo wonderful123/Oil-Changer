@@ -5,5 +5,6 @@
 
 class MockButtonController : public ButtonController {
 public:
-  MOCK_METHOD(void, registerButton, (int, std::shared_ptr<IButton>), (override));
+  MOCK_METHOD(void, registerButton,
+              (const std::string &, std::shared_ptr<IButton>), (override));
 };
