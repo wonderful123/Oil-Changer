@@ -11,11 +11,13 @@ public:
   ButtonController();
 
   void addObserver(std::shared_ptr<IButtonControllerObserver> observer);
-  virtual void registerButton(int pinNumber, std::shared_ptr<IButton> button);
+  virtual void registerButton(const std::string &id,
+                              std::shared_ptr<IButton> button);
 
-  void notifyObservers(int pinNumber);
+  void notifyObservers(const std::string &id);
 
 private:
   std::vector<std::shared_ptr<IButtonControllerObserver>> _observers;
-  std::unordered_map<int, std::shared_ptr<IButton>> _buttons;
+  std::unordered_map<std::string, std::shared_ptr<IButton>>
+      _buttons; // Store buttons by ID
 };
