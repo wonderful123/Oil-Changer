@@ -12,7 +12,7 @@ public:
                    std::shared_ptr<ButtonController> buttonController);
 
   void initialize();
-  void onButtonPress(int buttonId) override;
+  void onButtonPress(const std::string &id) override;
 
   void startSystem();
   void stopSystem();

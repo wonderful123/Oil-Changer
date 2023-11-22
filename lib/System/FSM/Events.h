@@ -6,6 +6,6 @@ struct Event : tinyfsm::Event {
 };
 
 struct ButtonPressEvent : Event {
-  int buttonId;
-  ButtonPressEvent(int id) : buttonId(id) {}
+  const std::string &buttonId;
+  ButtonPressEvent(const std::string &id) : buttonId(id) {}
 };

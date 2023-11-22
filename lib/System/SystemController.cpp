@@ -11,8 +11,8 @@ void SystemController::initialize() {
   registerAsButtonObserver();
 }
 
-void SystemController::onButtonPress(int buttonId) {
-  ButtonPressEvent pressEvent(buttonId);
+void SystemController::onButtonPress(const std::string &id) {
+  ButtonPressEvent pressEvent(id);
   _stateMachine.handleEvent(pressEvent);
 }
 
