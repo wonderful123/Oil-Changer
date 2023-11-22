@@ -14,7 +14,7 @@ public:
       : IButton(config), _isPressed(false) {}
 
   // Check if the button is currently pressed
-  bool isPressed() const override { return _isPressed; }
+  virtual bool isPressed() const override { return _isPressed; }
 
 protected:
   /**

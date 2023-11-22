@@ -16,6 +16,8 @@ public:
 
   void notifyObservers(const std::string &id);
 
+  void checkButtonStates();
+
 private:
   std::vector<std::shared_ptr<IButtonControllerObserver>> _observers;
   std::unordered_map<std::string, std::shared_ptr<IButton>>

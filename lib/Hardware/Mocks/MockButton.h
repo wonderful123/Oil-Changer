@@ -8,4 +8,5 @@ public:
   explicit MockButton(const GpioPinConfig &config) : ButtonBase(config) {}
 
   MOCK_METHOD(void, updatePressedState, (), (override));
+  MOCK_METHOD(bool, isPressed, (), (const, override));
 };
