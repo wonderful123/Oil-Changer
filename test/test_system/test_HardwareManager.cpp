@@ -4,6 +4,7 @@
 #include "HardwareManager.h"
 #include "IFileHandler.h"
 #include "Logger.h"
+#include "MockButtonController.h"
 #include "MockConfigManager.h"
 #include "MockHardwareConfig.h"
 #include "MockHardwareFactory.h"
@@ -56,6 +57,7 @@ protected:
   std::shared_ptr<MockConfigManager> mockConfigManager;
   std::shared_ptr<MockHardwareConfig> mockHardwareConfig;
   std::unique_ptr<MockHardwareFactory> mockHardwareFactory;
+  std::shared_ptr<MockButtonController> mockButtonController;
 
   HardwareManager hardwareManager;
 
@@ -64,7 +66,8 @@ protected:
         mockConfigManager(new MockConfigManager(mockFileHandler.get())),
         mockHardwareConfig(new MockHardwareConfig(mockFileHandler.get())),
         mockHardwareFactory(new MockHardwareFactory()),
-        hardwareManager(mockConfigManager, std::move(mockHardwareFactory)) {}
+        hardwareManager(mockConfigManager, std::move(mockHardwareFactory),
+                        mockButtonController) {}
 
   std::ostringstream capturedLog;
 
