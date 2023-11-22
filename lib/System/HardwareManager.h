@@ -38,56 +38,33 @@ management of hardware components.
 #include "ConfigManager.h"
 #include "Core/IObserver.h"
 #include "GpioPinConfig.h"
+#include "HardwareComponent.h" // Include the base class for hardware components
 #include "HardwareFactory.h"
-#include "IADC.h"
-#include "IBuzzer.h"
-#include "IDigitalIO.h"
-#include "IPWM.h"
+#include <functional>
 #include <map>
 #include <memory>
 #include <tinyfsm.hpp>
+#include <unordered_map>
 
-/**
- * @file HardwareManager.h
- * @brief Manages all hardware-related interactions in the Oil Change Machine.
- *
- * The HardwareManager serves as a centralized hub for managing hardware
- * interactions. It abstracts the hardware layer from higher-level system logic,
- * providing a unified interface for hardware operations and ensuring a clean
- * separation of concerns.
- */
 class HardwareManager : public IObserver {
 private:
   std::shared_ptr<ConfigManager> _configManager;
   std::unique_ptr<HardwareFactory> _hardwareFactory;
   std::shared_ptr<ButtonController> _buttonController;
-  std::unordered_map<std::string, int> _buttonIdToPinMap;
 
-  using InitializerFunction = std::function<bool(const GpioPinConfig &)>;
-  std::unordered_map<std::string, InitializerFunction> initializerMap;
+  // Unified map to hold all types of components by id
+  std::map<std::string, std::shared_ptr<HardwareComponent>> _components;
 
-  std::map<int, std::unique_ptr<IButton>> buttons;
-  std::map<int, std::unique_ptr<IDAC>> dacs;
-  std::map<int, std::unique_ptr<IADC>> adcs;
-  std::map<int, std::unique_ptr<IDigitalIO>> digitalIOs;
-  std::map<int, std::unique_ptr<IPWM>> pwms;
-  std::unique_ptr<IBuzzer> buzzer;
+  void registerComponent(const GpioPinConfig &config,
+                         const std::shared_ptr<HardwareComponent> &component);
 
-  bool initializeADC(const GpioPinConfig &config);
-  bool initializeDAC(const GpioPinConfig &config);
-  bool initializeDigitalIO(const GpioPinConfig &config);
-  bool initializeButton(const GpioPinConfig &config);
-  bool initializePWM(const GpioPinConfig &config);
-  bool initializeBuzzer(const GpioPinConfig &config);
-
-  void handleButtonEvent(int buttonId);
-  void changeStateBasedOnButton(int buttonId);
-  std::string findButtonIdByPin(int pin);
+      void handleButtonEvent(const std::string &buttonId);
+  void changeStateBasedOnButton(const std::string &buttonId);
 
 public:
   HardwareManager(std::shared_ptr<ConfigManager> configManager,
-                           std::unique_ptr<HardwareFactory> hardwareFactory,
-                           std::shared_ptr<ButtonController> buttonController);
+                  std::unique_ptr<HardwareFactory> hardwareFactory,
+                  std::shared_ptr<ButtonController> buttonController);
 
   virtual ~HardwareManager() = default;
 
@@ -97,10 +74,11 @@ public:
   void initializeHardware();
 
   bool initializeComponent(const GpioPinConfig &config);
-  bool isComponentInitialized(const std::string &componentType);
+  bool isComponentInitialized(const std::string &componentId) const;
+  std::shared_ptr<HardwareComponent> getComponentById(const std::string &id) const;
 
-  // Manages the states of hardware components using TinyFSM
-  void manageHardwareStates();
+      // Manages the states of hardware components using TinyFSM
+      void manageHardwareStates();
 
   // Notifies other components about hardware events (Observer pattern)
   void notifyEvent();
@@ -111,5 +89,5 @@ public:
   // Observer pattern implementation
   virtual void update() override;
 
-  void onButtonEvent(int buttonId, bool pressed);
+  void onButtonEvent(const std::string &buttonId, bool pressed);
 };

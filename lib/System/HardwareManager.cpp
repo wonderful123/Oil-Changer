@@ -1,5 +1,7 @@
 #include "HardwareManager.h"
+#include "FSM/Events.h"
 #include "FSM/StateMachine.h"
+#include "HardwareManager.h"
 #include "Logger.h"
 
 HardwareManager::HardwareManager(
@@ -8,18 +10,7 @@ HardwareManager::HardwareManager(
     std::shared_ptr<ButtonController> buttonController)
     : _configManager(std::move(configManager)),
       _hardwareFactory(std::move(hardwareFactory)),
-      _buttonController(buttonController) {
-
-  setupInitializerMap();
-}
-
-void HardwareManager::setupInitializerMap() {
-    initializerMap["ADC"] = [this](const auto &config) { return initializeADC(config); };
-    initializerMap["DAC"] = [this](const auto &config) { return initializeDAC(config); };
-    initializerMap["DigitalIO"] = [this](const auto &config) { return initializeDigitalIO(config); };
-    initializerMap["Button"] = [this](const auto &config) { return initializeButton(config); };
-    initializerMap["PWM"] = [this](const auto &config) { return initializePWM(config); };
-}
+      _buttonController(buttonController) {}
 
 void HardwareManager::initializeHardware() {
   auto hardwareConfig = _configManager->getHardwareConfig();
@@ -30,7 +21,8 @@ void HardwareManager::initializeHardware() {
 
   bool allComponentsInitialized = true;
   for (const auto &config : hardwareConfig->getGpioConfigs()) {
-    if (!initializeComponent(config)) {
+    auto component = initializeComponent(config);
+    if (!component) {
       allComponentsInitialized = false;
       break; // Stop initialization if any component fails
     }
@@ -44,42 +36,64 @@ void HardwareManager::initializeHardware() {
 }
 
 bool HardwareManager::initializeComponent(const GpioPinConfig &config) {
-  if (config.type == "Buzzer") {
-    return initializeBuzzer(config);
-  }
+  auto component = _hardwareFactory->createComponent(config);
+  if (component) {
+    // Convert unique_ptr to shared_ptr
+    std::shared_ptr<HardwareComponent> sharedComponent = std::move(component);
+    _components[config.id] = sharedComponent;
+    Logger::info("Created component: " + config.id);
 
-  auto initializer = initializerMap.find(config.type);
-  if (initializer == initializerMap.end()) {
-    Logger::error("Unrecognized component type: " + config.type);
+    // Register the component if needed
+    registerComponent(config, sharedComponent);
+  } else {
+    Logger::error("Failed to create component: " + config.id);
     return false;
   }
 
-  return initializer->second(config);
+  return true;
 }
 
-bool HardwareManager::isComponentInitialized(const std::string &componentType) {
-  auto checkInitialized = [](const auto &components) {
-    return std::all_of(components.begin(), components.end(),
-                       [](const auto &component) {
-                         return component.second->isInitialized();
-                       }) &&
-           !components.empty();
-  };
+/**
+ * Register a hardware component if needed.
+ *
+ * @param config The GPIO pin configuration for the component.
+ * @param component The shared pointer to the hardware component to be
+ * registered.
+ *
+ * @throws None.
+ */
+void HardwareManager::registerComponent(
+    const GpioPinConfig &config,
+    const std::shared_ptr<HardwareComponent> &component) {
 
-  if (componentType == "DigitalIO") {
-    return checkInitialized(digitalIOs);
-  } else if (componentType == "ADC") {
-    return checkInitialized(adcs);
-  } else if (componentType == "DAC") {
-    return checkInitialized(dacs);
-  } else if (componentType == "PWM") {
-    return checkInitialized(pwms);
-  } else if (componentType == "Button") {
-    return checkInitialized(buttons);
-  } else if (componentType == "Buzzer") {
-    return buzzer && buzzer->isInitialized();
+  if (config.type == "Button") {
+    auto button = std::dynamic_pointer_cast<IButton>(component);
+    if (button) {
+      _buttonController->registerButton(config.id, button);
+    } else {
+      Logger::error("Failed to cast to IButton: " + config.id);
+    }
   }
+  // Add similar checks for other component types if needed
+}
 
+std::shared_ptr<HardwareComponent>
+HardwareManager::getComponentById(const std::string &id) const {
+  auto it = _components.find(id);
+  if (it != _components.end()) {
+    return it->second;
+  }
+  return nullptr; // Return nullptr if component not found
+}
+
+bool HardwareManager::isComponentInitialized(const std::string &componentId) const {
+  // Iterate through all components in the _components map
+  for (const auto &[id, component] : _components) {
+    // Check if the component type matches and whether it is initialized
+    if (id == componentId && component->isInitialized()) {
+      return true;
+    }
+  }
   return false;
 }
 
@@ -92,98 +106,20 @@ void HardwareManager::update() {
   // Implement specific logic based on your application's requirements.
 }
 
-bool HardwareManager::initializeADC(const GpioPinConfig &config) {
-  auto adc = _hardwareFactory->createADC(config);
-  if (!adc) {
-    Logger::error("Failed to initialize ADC on pin " +
-                  std::to_string(config.pinNumber));
-    return false;
-  }
-  adcs[config.pinNumber] = std::move(adc);
-  return true;
-}
-
-bool HardwareManager::initializeDAC(const GpioPinConfig &config) {
-  auto dac = _hardwareFactory->createDAC(config);
-  if (!dac) {
-    Logger::error("Failed to initialize DAC on pin " +
-                  std::to_string(config.pinNumber));
-    return false;
-  }
-  dacs[config.pinNumber] = std::move(dac);
-  return true;
-}
-
-bool HardwareManager::initializeDigitalIO(const GpioPinConfig &config) {
-  auto digitalIO = _hardwareFactory->createDigitalIO(config);
-  if (!digitalIO) {
-    Logger::error("Failed to initialize DigitalIO on pin " +
-                  std::to_string(config.pinNumber));
-    return false;
-  }
-  digitalIOs[config.pinNumber] = std::move(digitalIO);
-  return true;
-}
-
-bool HardwareManager::initializeButton(const GpioPinConfig &config) {
-  auto button = _hardwareFactory->createButton(config);
-  if (!button) {
-    Logger::error("Failed to initialize Button on pin " +
-                  std::to_string(config.pinNumber));
-    return false;
-  }
-  _buttonController->registerButton(config.pinNumber, std::move(button));
-  _buttonIdToPinMap[config.id] = config.pinNumber;
-  return true;
-}
-
-bool HardwareManager::initializePWM(const GpioPinConfig &config) {
-  auto pwm = _hardwareFactory->createPWM(config);
-  if (!pwm) {
-    Logger::error("Failed to initialize PWM on pin " +
-                  std::to_string(config.pinNumber));
-    return false;
-  }
-  pwms[config.pinNumber] = std::move(pwm);
-  return true;
-}
-
-bool HardwareManager::initializeBuzzer(const GpioPinConfig &config) {
-  buzzer = _hardwareFactory->createBuzzer(config);
-  if (!buzzer) {
-    Logger::error("Failed to initialize Buzzer on pin " +
-                  std::to_string(config.pinNumber));
-    return false;
-  }
-  return true;
-}
-
-void HardwareManager::onButtonEvent(int buttonId, bool pressed) {
+void HardwareManager::onButtonEvent(const std::string &buttonId, bool pressed) {
   if (pressed) {
     handleButtonEvent(buttonId);
   }
 }
 
-void HardwareManager::handleButtonEvent(int buttonId) {
-  auto buttonIdStr = findButtonIdByPin(buttonId);
-  if (!buttonIdStr.empty()) {
-    changeStateBasedOnButton(buttonId);
-  }
+void HardwareManager::handleButtonEvent(const std::string &buttonId) {
+  changeStateBasedOnButton(buttonId);
 }
 
-void HardwareManager::changeStateBasedOnButton(int buttonId) {
-  // Here you handle the state changes triggered by button presses
-  // For example, using StateMachine
+void HardwareManager::changeStateBasedOnButton(const std::string &buttonId) {
+  // State change logic based on button ID
   StateMachine stateMachine;
-  ButtonPressEvent pressEvent(buttonId);
+  ButtonPressEvent pressEvent(
+      buttonId); // Assuming ButtonPressEvent now takes a string ID
   stateMachine.handleEvent(pressEvent);
-}
-
-std::string HardwareManager::findButtonIdByPin(int pin) {
-  for (const auto &pair : _buttonIdToPinMap) {
-    if (pair.second == pin) {
-      return pair.first;
-    }
-  }
-  return std::string(); // Return empty string if not found
 }
