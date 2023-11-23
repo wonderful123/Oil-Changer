@@ -3,6 +3,7 @@
 #include "FileHandler.h"
 #include "Error.h"
 #include "FS.h"
+#include "Logger.h"
 #include <LittleFS.h>
 
 FileHandler::FileHandler() {
@@ -20,24 +21,35 @@ bool FileHandler::open(const std::string &filePath, const std::string &mode) {
 
   _currentFilePath = filePath; // Store the current file path
 
-  // Mode is passed directly to LittleFS.open
   _file = LittleFS.open(filePath.c_str(), mode.c_str());
-  return _file;
+  if (!_file) {
+    Error(Error::FileOpenFailure);
+    return false;
+  }
+  return true;
 }
 
 bool FileHandler::write(const std::string &data) {
-  if (!_file)
+  if (!_file) {
+    Logger::warn("Write attempted on unopened file");
     return false;
+  }
   size_t bytesWritten = _file.print(data.c_str());
-  return bytesWritten == data.length();
+  if (bytesWritten != data.length()) {
+    Error(Error::FileWriteFailure);
+    return false;
+  }
+  return true;
 }
 
 std::string FileHandler::read() {
   std::string content;
-  if (_file) {
-    while (_file.available()) {
-      content += static_cast<char>(_file.read());
-    }
+  if (!_file) {
+    Logger::warn("Read attempted on unopened file");
+    return content;
+  }
+  while (_file.available()) {
+    content += static_cast<char>(_file.read());
   }
   return content;
 }
@@ -54,6 +66,10 @@ void FileHandler::close() {
 }
 
 bool FileHandler::remove(const std::string &filePath) {
+  if (!LittleFS.exists(filePath.c_str())) {
+    Logger::warn("Attempt to remove non-existing file: " + filePath);
+    return false;
+  }
   return LittleFS.remove(filePath.c_str());
 }
 
