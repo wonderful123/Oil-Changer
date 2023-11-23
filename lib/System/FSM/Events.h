@@ -1,11 +1,8 @@
 #pragma once
+#include <string>
 #include <tinyfsm.hpp>
 
-struct Event : tinyfsm::Event {
-  virtual ~Event() = default;
-};
-
-struct ButtonPressEvent : Event {
-  const std::string &buttonId;
-  ButtonPressEvent(const std::string &id) : buttonId(id) {}
+struct ButtonPressEvent : tinyfsm::Event {
+  std::string buttonId;
+  explicit ButtonPressEvent(const std::string &id) : buttonId(id) {}
 };

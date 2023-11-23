@@ -1,19 +1,51 @@
-#include <tinyfsm.hpp>
+#pragma once
 #include "Events.h"
+#include "HardwareManager.h"
+#include <tinyfsm.hpp>
+
+// Forward declaration of all states
+struct IdleState;
+struct MotorRunningState;
+struct MotorStoppedState;
+
+// Base State
+struct BaseState : tinyfsm::Fsm<BaseState> {
+  virtual void
+  react(ButtonPressEvent const &) { /* default reaction for unhandled events */
+  }
+  virtual void entry(void) { /* default action on state entry */
+  }
+  virtual void exit(void) { /* default action on state exit */
+  }
+};
 
 // Idle State
-struct IdleState : tinyfsm::Fsm<IdleState> {
-  void react(ButtonPressEvent const &e) {
-    // Handle ButtonPressEvent
+struct IdleState : BaseState {
+  void react(ButtonPressEvent const &e) override {
+    if (e.buttonId == "ButtonStart") {
+      // Logic for ButtonStart event
+      transit<MotorRunningState>();
+    }
+  }
+};
+
+// Motor Running State
+struct MotorRunningState : BaseState {
+  void entry() override {
+    // Code to start the motor
   }
 
-  // Entry logic for Idle State
-  void entry() {
-    // Initialization code for entering the state
+  void react(ButtonPressEvent const &e) override {
+    if (e.buttonId == "ButtonStop") {
+      // Logic for ButtonStop event
+      transit<MotorStoppedState>();
+    }
   }
+};
 
-  // Exit logic for Idle State
-  void exit() {
-    // Cleanup code for exiting the state
+// Motor Stopped State
+struct MotorStoppedState : BaseState {
+  void entry() override {
+    // Code to stop the motor
   }
 };
