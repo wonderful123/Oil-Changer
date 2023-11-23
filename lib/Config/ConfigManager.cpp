@@ -14,7 +14,7 @@ std::shared_ptr<HardwareConfig> ConfigManager::getHardwareConfig() const {
 Error ConfigManager::loadConfig(const std::string &configType) {
   if (configType == "HardwareConfig") {
     auto hardwareConfig = std::make_shared<HardwareConfig>(_fileHandler);
-    Error loadError = hardwareConfig->load("hardwareConfig.json");
+    Error loadError = hardwareConfig->load("/config/hardwareConfig.json");
     if (loadError) {
       return loadError; // Propagate the error
     }
