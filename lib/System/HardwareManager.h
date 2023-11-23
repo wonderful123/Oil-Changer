@@ -77,8 +77,8 @@ public:
   bool isComponentInitialized(const std::string &componentId) const;
   std::shared_ptr<HardwareComponent> getComponentById(const std::string &id) const;
 
-      // Manages the states of hardware components using TinyFSM
-      void manageHardwareStates();
+  // Manages the states of hardware components using TinyFSM
+  void manageHardwareStates();
 
   // Notifies other components about hardware events (Observer pattern)
   void notifyEvent();
@@ -90,4 +90,6 @@ public:
   virtual void update() override;
 
   void onButtonEvent(const std::string &buttonId, bool pressed);
+
+  void triggerBuzzer();
 };
