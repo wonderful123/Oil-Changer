@@ -1,4 +1,5 @@
 #include "SystemController.h"
+#include "FSM/States.h"
 
 SystemController::SystemController(
     std::shared_ptr<HardwareManager> hardwareManager,
@@ -11,11 +12,6 @@ void SystemController::initialize() {
   registerAsButtonObserver();
 }
 
-void SystemController::onButtonPress(const std::string &id) {
-  ButtonPressEvent pressEvent(id);
-  _stateMachine.handleEvent(pressEvent);
-}
-
 void SystemController::startSystem() {
   // Logic to start the system
 }
@@ -23,9 +19,17 @@ void SystemController::startSystem() {
 void SystemController::stopSystem() {
   // Logic to stop the system
 }
+void SystemController::onButtonPress(const std::string &id) {
+  _hardwareManager->triggerBuzzer();
 
-void SystemController::handleEvent(const Event &event) {
+  // Create a ButtonPressEvent
+  ButtonPressEvent event(id);
+
+  // Use the state machine to handle the event
+  // Assuming _stateMachine is an instance of StateMachine
   _stateMachine.handleEvent(event);
+
+  // Note: The actual state transition logic is handled within the state classes
 }
 
 void SystemController::changeSystemState() {
@@ -36,4 +40,8 @@ void SystemController::registerAsButtonObserver() {
   if (_buttonController) {
     _buttonController->addObserver(shared_from_this());
   }
+}
+
+void SystemController::update() {
+  // Implementation details...
 }

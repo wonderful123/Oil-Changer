@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ButtonController.h"
+#include "FSM/Events.h"
 #include "FSM/StateMachine.h"
 #include "HardwareManager.h"
 #include "IButtonControllerObserver.h"
@@ -16,7 +17,8 @@ public:
 
   void startSystem();
   void stopSystem();
-  void handleEvent(const Event &event);
+
+  void update();
 
 private:
   std::shared_ptr<HardwareManager> _hardwareManager;
