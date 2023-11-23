@@ -3,6 +3,7 @@
 #include "ESP32/ADC.h"
 #include "ESP32/DAC.h"
 #include "ESP32/Buzzer.h"
+#include "ESP32/Button.h"
 #include "ESP32/DigitalIO.h"
 #include "ESP32/FileHandler.h"
 #include "ESP32/PWM.h"
