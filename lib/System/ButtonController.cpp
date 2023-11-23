@@ -1,12 +1,16 @@
 #include "ButtonController.h"
+#include <algorithm>
 
 ButtonController::ButtonController() {}
 
 void ButtonController::addObserver(
     std::shared_ptr<IButtonControllerObserver> observer) {
-  if (std::find(_observers.begin(), _observers.end(), observer) ==
-      _observers.end()) {
-    // Observer is unique
+  auto it = std::find_if(
+      _observers.begin(), _observers.end(),
+      [&observer](const std::shared_ptr<IButtonControllerObserver> &o) {
+        return o == observer;
+      });
+  if (it == _observers.end()) {
     _observers.push_back(observer);
   }
 }
@@ -14,6 +18,8 @@ void ButtonController::addObserver(
 void ButtonController::registerButton(const std::string &id,
                                       std::shared_ptr<IButton> button) {
   _buttons[id] = button;
+  button->setOnPressCallback(
+      [this, id](const std::string &) { this->notifyObservers(id); });
 }
 
 void ButtonController::notifyObservers(const std::string &id) {
