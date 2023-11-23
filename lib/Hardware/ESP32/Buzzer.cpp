@@ -22,7 +22,6 @@ Buzzer::~Buzzer() {
 void Buzzer::setVolume(float volume) {
   int dutyCycle = std::max(0.0f, std::min(volume, 1.0f)) * 255;
   ledcWrite(pwmChannel, dutyCycle);
-  Logger::info("Buzzer volume set to: " + std::to_string(volume));
 }
 
 void Buzzer::beep(int frequency, int duration) {
