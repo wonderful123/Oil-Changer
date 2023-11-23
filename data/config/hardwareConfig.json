@@ -35,7 +35,7 @@
     },
     {
       "pinNumber": 32,
-      "id": "ButtonAuto",
+      "id": "ButtonStart",
       "type": "Button"
     },
     {
