@@ -21,6 +21,10 @@ public:
    */
   virtual bool isPressed() const = 0;
 
+  using ButtonPressCallback = std::function<void(const std::string &)>;
+
+  virtual void setOnPressCallback(ButtonPressCallback callback) = 0;
+
 protected:
   explicit IButton(const GpioPinConfig &config) : HardwareComponent(config) {}
 };

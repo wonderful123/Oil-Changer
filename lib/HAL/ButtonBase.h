@@ -16,6 +16,10 @@ public:
   // Check if the button is currently pressed
   virtual bool isPressed() const override { return _isPressed; }
 
+  void setOnPressCallback(ButtonPressCallback callback) override {
+    _onPressCallback = callback;
+  }
+
 protected:
   /**
    * @brief Update the pressed state of the button.
@@ -24,6 +28,8 @@ protected:
    * update the button's pressed state.
    */
   virtual void updatePressedState() = 0;
+
+  ButtonPressCallback _onPressCallback;
 
 private:
   bool _isPressed; // Current pressed state of the Button
