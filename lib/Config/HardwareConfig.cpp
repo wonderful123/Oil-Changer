@@ -60,12 +60,12 @@ Error HardwareConfig::parseHardwarePin(const JsonObjectConst &obj,
       }
     }
 
-    HardwarePinConfig config(id, type, pinNumbers);
+    HardwarePinConfig config(pinNumbers, id, type);
     // Optionally handle options for multi-pin configurations
     _hardwarePinConfigs.push_back(config);
   } else {
     int pin = obj["pinNumber"].as<int>();
-    HardwarePinConfig config(id, type, pin);
+    HardwarePinConfig config(pin, id, type);
     handleOptionsForSinglePin(obj, config);
     _hardwarePinConfigs.push_back(config);
   }
