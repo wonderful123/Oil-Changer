@@ -12,6 +12,8 @@
  */
 class IADC : public HardwareComponent {
 public:
+  using HardwareComponent::HardwareComponent; // Inherit constructor
+  
   virtual ~IADC() = default; // virtual destructor to ensure proper cleanup for
                              // derived classes
   /**
@@ -30,8 +32,4 @@ public:
 
 protected:
   unsigned int _resolution;
-
-  explicit IADC(const HardwarePinConfig &config)
-      : HardwareComponent(config) {
-  } // Protected constructor to prevent direct instantiation of this interface
 };
