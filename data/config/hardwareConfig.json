@@ -16,12 +16,24 @@
     {
       "pinNumber": 14,
       "id": "FlowMeterFill",
-      "type": "FlowMeter"
+      "type": "FlowMeter",
+      "options": {
+        "pcntUnit": PCNT_UNIT_0,
+        "pulseMultiplier": 100,
+        "filterValue": 10,
+        "filterEnabled": true
+      }
     },
     {
       "pinNumber": 15,
       "id": "FlowMeterExtract",
-      "type": "FlowMeter"
+      "type": "FlowMeter",
+      "options": {
+        "pcntUnit": PCNT_UNIT_1,
+        "pulseMultiplier": 100,
+        "filterValue": 10,
+        "filterEnabled": true
+      }
     },
     {
       "pinNumber": 34,
