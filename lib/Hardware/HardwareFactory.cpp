@@ -24,11 +24,11 @@ HardwareFactory::createComponent(const GpioPinConfig &config) {
   } else if (config.type == "Buzzer") {
     hardwareComponent = createBuzzer(config);
   } else if (config.type == "SPI") {
-    return createSPI(config);
+    createSPI(config);
   } else if (config.type == "I2C") {
-    return createI2C(config);
+    createI2C(config);
   } else if (config.type == "Serial") {
-    return createSerial(config);
+    createSerial(config);
   } else {
     Logger::error("Unknown hardware component type in hardware factory: " +
                   config.type);

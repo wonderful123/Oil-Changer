@@ -47,7 +47,7 @@
   ERROR_CODE(ADCInvalidAttenuationValue,                                       \
              "Invalid ADC attenuation value.")                                 \
   ERROR_CODE(FlowMeterInitErrorNoPCNTUnitSpecified,                            \
-             "FlowMeter: No PCNT unit specified for GPIO pin");
+             "FlowMeter: No PCNT unit specified for GPIO pin")
 #undef ERROR_CODE
 
 class Error {

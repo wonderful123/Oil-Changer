@@ -42,17 +42,17 @@ public:
   }
   virtual std::unique_ptr<ISPI>
   createSPI(const GpioPinConfig &config) override {
-    return std::unique_ptr<ISPI>(new ESP32SPI(config));
+  //  return std::unique_ptr<ISPI>(new SPI(config));
   }
 
   virtual std::unique_ptr<II2C>
   createI2C(const GpioPinConfig &config) override {
-    return std::unique_ptr<II2C>(new ESP32I2C(config));
+  //  return std::unique_ptr<II2C>(new I2C(config));
   }
 
   virtual std::unique_ptr<ISerial>
   createSerial(const GpioPinConfig &config) override {
-    return std::unique_ptr<ISerial>(new ESP32Serial(config));
+  //  return std::unique_ptr<ISerial>(new Serial(config));
   }
   
   virtual std::unique_ptr<IFileHandler> createFileHandler() override {
