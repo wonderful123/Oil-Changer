@@ -17,7 +17,9 @@ public:
   virtual ~BaseConfig() = default;
 
   Error load(const std::string &filename) override;
-  virtual Error save(const std::string &filename) const override = 0;
+  virtual Error save(const std::string &filename) const override {
+    return Error(Error::OK);
+  };
 
 protected:
   virtual Error parseJson(const DynamicJsonDocument &doc) = 0;
