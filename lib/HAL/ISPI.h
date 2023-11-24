@@ -1,7 +1,5 @@
 #pragma once
 
-#ifdef PLATFORM_ESP32
-
 #include "HardwarePinConfig.h"
 #include <cstddef> // For size_t
 
@@ -14,5 +12,3 @@ public:
   virtual uint8_t transfer(uint8_t data) = 0;
   virtual void transfer(void *buf, size_t count) = 0;
 };
-
-#endif // PLATFORM_ESP32
