@@ -1,6 +1,6 @@
-#include "ESP32Buzzer.h"
-
 #ifdef PLATFORM_ESP32
+
+#include "ESP32Buzzer.h"
 
 const int pwmChannel = 0;
 const int pwmResolution = 8;

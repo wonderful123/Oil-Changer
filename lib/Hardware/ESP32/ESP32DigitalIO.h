@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef PLATFORM_ESP32
+
 #include "DigitalIOBase.h"
 
 class ESP32DigitalIO : public DigitalIOBase {
@@ -9,3 +11,5 @@ public:
   virtual int read() const override;
   virtual void write(int value) override;
 };
+
+#endif // PLATFORM_ESP32

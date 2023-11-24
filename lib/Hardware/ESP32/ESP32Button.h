@@ -1,8 +1,9 @@
 #pragma once
 
+#ifdef PLATFORM_ESP32
+
 #include "ButtonBase.h"
 
-#ifdef PLATFORM_ESP32
 #include <Arduino.h>
 #include <Bounce2.h>
 #include <functional>

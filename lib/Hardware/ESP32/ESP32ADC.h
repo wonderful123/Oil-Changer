@@ -1,7 +1,8 @@
 #pragma once
 
-#include "ADCBase.h"
 #ifdef PLATFORM_ESP32
+
+#include "ADCBase.h"
 #include <Arduino.h>
 #include <driver/adc.h>
 

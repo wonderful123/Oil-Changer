@@ -1,5 +1,6 @@
-#include "ESP32DAC.h"
 #ifdef PLATFORM_ESP32
+
+#include "ESP32DAC.h"
 #include "Logger.h"
 
 ESP32DAC::ESP32DAC(const HardwarePinConfig &config) : DACBase(config) {

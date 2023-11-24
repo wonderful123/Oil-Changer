@@ -1,7 +1,7 @@
 #pragma once
 
-#include "HardwarePinConfig.h"
 #include "HardwareComponent.h"
+#include "HardwarePinConfig.h"
 
 /**
  * @class IDAC
@@ -12,6 +12,8 @@
  */
 class IDAC : public HardwareComponent {
 public:
+  using HardwareComponent::HardwareComponent; // Inherit constructor
+  
   virtual ~IDAC() = default; // Virtual destructor for proper cleanup
 
   /**
@@ -28,7 +30,4 @@ public:
    * @return Current DAC value.
    */
   virtual int getValue() const = 0;
-
-protected:
-  explicit IDAC(const HardwarePinConfig &config) : HardwareComponent(config) {}
 };

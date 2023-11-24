@@ -1,6 +1,6 @@
-#include "ESP32Button.h"
-
 #ifdef PLATFORM_ESP32
+
+#include "ESP32Button.h"
 #include "Logger.h"
 
 std::unordered_map<int, ESP32Button *> ESP32Button::_instanceMap;

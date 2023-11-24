@@ -1,5 +1,6 @@
-#include "ESP32DigitalIO.h"
 #ifdef PLATFORM_ESP32
+
+#include "ESP32DigitalIO.h"
 #include "Error.h"
 #include <Arduino.h>
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "HardwarePinConfig.h"
 #include "HardwareComponent.h"
+#include "HardwarePinConfig.h"
 
 /**
  * @class IButton
@@ -12,6 +12,8 @@
  */
 class IButton : public HardwareComponent {
 public:
+  using HardwareComponent::HardwareComponent; // Inherit constructor
+  
   virtual ~IButton() = default; // Virtual destructor for proper cleanup
 
   /**
@@ -24,7 +26,4 @@ public:
   using ButtonPressCallback = std::function<void(const std::string &)>;
 
   virtual void setOnPressCallback(ButtonPressCallback callback) = 0;
-
-protected:
-  explicit IButton(const HardwarePinConfig &config) : HardwareComponent(config) {}
 };

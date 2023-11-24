@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef PLATFORM_ESP32
+
 #include "FlowMeterBase.h"
 #include "driver/pcnt.h"
 #include <functional>
@@ -27,3 +29,5 @@ private:
   // Helper function to get the current pulse count
   int16_t getPulseCount() const;
 };
+
+#endif // PLATFORM_ESP32

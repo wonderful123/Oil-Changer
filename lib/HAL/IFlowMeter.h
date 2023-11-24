@@ -1,4 +1,3 @@
-// IFlowMeter.h
 #pragma once
 
 #include "HardwareComponent.h"
@@ -6,6 +5,7 @@
 class IFlowMeter : public HardwareComponent {
 public:
   using HardwareComponent::HardwareComponent; // Inherit constructor
+
   virtual ~IFlowMeter() = default;
 
   // Returns the current flow rate

@@ -14,14 +14,17 @@ struct HardwarePinConfig {
 
   // Constructor for single-pin configuration
   HardwarePinConfig(
-      const std::string &id, const std::string &type, int pinNumber,
+      int pinNumber, 
+      const std::string &id, 
+      const std::string &type,
       const std::unordered_map<std::string, std::string> &options = {})
       : id(id), type(type), pinNumber(pinNumber), options(options) {}
 
   // Constructor for multi-pin configuration
   HardwarePinConfig(
-      const std::string &id, const std::string &type,
       const std::unordered_map<std::string, int> &pins,
+      const std::string &id, 
+      const std::string &type,
       const std::unordered_map<std::string, std::string> &options = {})
       : id(id), type(type), pinNumber(-1), pins(pins), options(options) {}
 

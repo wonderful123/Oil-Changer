@@ -19,9 +19,7 @@ public:
     return totalVolume;
   }
 
-  virtual void reset() override {
-    totalVolume = 0.0;
-  }
+  virtual void reset() override { totalVolume = 0.0; }
 
 protected:
   double totalVolume; // Total volume that has passed through the flow meter
