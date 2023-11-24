@@ -4,15 +4,15 @@
       "id": "Buzzer",
       "type": "Buzzer"
     },
-    {
-      "pinNumber": 13,
-      "id": "VoltageSense",
-      "type": "ADC",
-      "options": {
-        "resolution": 4096,
-        "attenuation": 3
-      }
-    },
+    // {
+    //   "pinNumber": 13,
+    //   "id": "VoltageSense",
+    //   "type": "ADC",
+    //   "options": {
+    //     "resolution": 4096,
+    //     "attenuation": 3
+    //   }
+    // },
     {
       "pinNumber": 14,
       "id": "FlowMeterFill",
