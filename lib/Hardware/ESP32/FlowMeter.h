@@ -8,8 +8,7 @@ class FlowMeter : public FlowMeterBase {
 public:
   using PulseCallback = std::function<void()>;
 
-  FlowMeter(const GpioPinConfig &config, PulseCallback callback,
-            pcnt_unit_t pcntUnit);
+  FlowMeter(const GpioPinConfig &config);
   virtual ~FlowMeter() override;
 
   // Overrides from FlowMeterBase
