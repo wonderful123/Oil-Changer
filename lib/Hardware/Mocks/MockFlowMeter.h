@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IFileHandler.h"
+#include "IFlowMeter.h"
 
 #ifdef PLATFORM_NATIVE
 
@@ -8,9 +8,11 @@
 
 class MockFlowMeter : public IFlowMeter {
 public:
-  MOCK_CONST_FUNC(double, getFlowRate, (), (override));
-  MOCK_CONST_FUNC(double, getTotalVolume, (), (override));
-  MOCK_FUNC(void, reset, (), (override));
+  explicit MockFlowMeter(const HardwarePinConfig &config);
+
+  MOCK_METHOD(double, getFlowRate, (), (const, override));
+  MOCK_METHOD(double, getTotalVolume, (), (const, override));
+  MOCK_METHOD(void, reset, (), (override));
 };
 
 #endif // PLATFORM_NATIVE

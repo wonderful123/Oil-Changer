@@ -2,17 +2,16 @@
 
 #ifdef PLATFORM_NATIVE
 
-#include "HardwarePinConfig.h"
-#include <cstddef> // For size_t
+#include <HardwarePinConfig.h>
+#include <gmock/gmock.h>
+#include "ISPI.h"
 
-class ISPI {
+class MockSPI : public ISPI {
 public:
-  virtual ~ISPI() = default;
-
-  virtual void begin() = 0;
-  virtual void end() = 0;
-  virtual uint8_t transfer(uint8_t data) = 0;
-  virtual void transfer(void *buf, size_t count) = 0;
+  MOCK_METHOD(void, begin, (), (override));
+  MOCK_METHOD(void, end, (), (override));
+  MOCK_METHOD(uint8_t, transfer, (uint8_t data), (override));
+  MOCK_METHOD(void, transfer, (void *buf, size_t count), (override));
 };
 
 #endif // PLATFORM_NATIVE
