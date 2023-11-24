@@ -1,5 +1,5 @@
 #include "ConfigManager.h"
-#include "GpioPinConfig.h"
+#include "HardwarePinConfig.h"
 #include "HardwareFactory.h"
 #include "HardwareManager.h"
 #include "IFileHandler.h"
@@ -86,17 +86,17 @@ protected:
 
 TEST_F(HardwareManagerTest, InitializeWithValidConfig) {
   // Set up mock config and expectations
-  GpioPinConfig pin1{1, "Pin1", "DigitalIO"};
-  GpioPinConfig pin2{2, "Pin2", "PWM"};
-  GpioPinConfig pin3{3, "Pin3", "DigitalIO"};
+  HardwarePinConfig pin1{1, "Pin1", "DigitalIO"};
+  HardwarePinConfig pin2{2, "Pin2", "PWM"};
+  HardwarePinConfig pin3{3, "Pin3", "DigitalIO"};
   pin3.options["mode"] = "INPUT";
 
-  std::vector<GpioPinConfig> gpioConfigurations = {pin1, pin2, pin3};
+  std::vector<HardwarePinConfig> gpioConfigurations = {pin1, pin2, pin3};
 
   EXPECT_CALL(*mockConfigManager, getHardwareConfig())
       .WillOnce(Return(mockHardwareConfig));
 
-  EXPECT_CALL(*mockHardwareConfig, getGpioConfigs())
+  EXPECT_CALL(*mockHardwareConfig, getHardwarePinConfigs())
       .WillOnce(ReturnRef(gpioConfigurations));
 
   // Call initializeHardware()
@@ -119,15 +119,15 @@ TEST_F(HardwareManagerTest, InitializeWithoutConfig) {
 }
 
 TEST_F(HardwareManagerTest, InitializeADCWithValidConfig) {
-  GpioPinConfig adcConfig{13, "VoltageSense", "ADC"};
+  HardwarePinConfig adcConfig{13, "VoltageSense", "ADC"};
   adcConfig.options["resolution"] = "12";
   adcConfig.options["attenuation"] = "3";
 
-  std::vector<GpioPinConfig> gpioConfigurations = {adcConfig};
+  std::vector<HardwarePinConfig> gpioConfigurations = {adcConfig};
 
   EXPECT_CALL(*mockConfigManager, getHardwareConfig())
       .WillOnce(Return(mockHardwareConfig));
-  EXPECT_CALL(*mockHardwareConfig, getGpioConfigs())
+  EXPECT_CALL(*mockHardwareConfig, getHardwarePinConfigs())
       .WillOnce(ReturnRef(gpioConfigurations));
 
   hardwareManager.initializeHardware();
@@ -136,14 +136,14 @@ TEST_F(HardwareManagerTest, InitializeADCWithValidConfig) {
 }
 
 TEST_F(HardwareManagerTest, InitializeDigitalIOWithValidConfig) {
-  GpioPinConfig digitalIOConfig{26, "MotorControlFill", "DigitalIO"};
+  HardwarePinConfig digitalIOConfig{26, "MotorControlFill", "DigitalIO"};
   digitalIOConfig.options["mode"] = "OUTPUT";
 
-  std::vector<GpioPinConfig> gpioConfigurations = {digitalIOConfig};
+  std::vector<HardwarePinConfig> gpioConfigurations = {digitalIOConfig};
 
   EXPECT_CALL(*mockConfigManager, getHardwareConfig())
       .WillOnce(Return(mockHardwareConfig));
-  EXPECT_CALL(*mockHardwareConfig, getGpioConfigs())
+  EXPECT_CALL(*mockHardwareConfig, getHardwarePinConfigs())
       .WillOnce(ReturnRef(gpioConfigurations));
 
   hardwareManager.initializeHardware();
@@ -152,12 +152,12 @@ TEST_F(HardwareManagerTest, InitializeDigitalIOWithValidConfig) {
 }
 
 TEST_F(HardwareManagerTest, InitializePWMWithValidConfig) {
-  GpioPinConfig pwmConfig{25, "MotorSpeed", "PWM"};
-  std::vector<GpioPinConfig> gpioConfigurations = {pwmConfig};
+  HardwarePinConfig pwmConfig{25, "MotorSpeed", "PWM"};
+  std::vector<HardwarePinConfig> gpioConfigurations = {pwmConfig};
 
   EXPECT_CALL(*mockConfigManager, getHardwareConfig())
       .WillOnce(Return(mockHardwareConfig));
-  EXPECT_CALL(*mockHardwareConfig, getGpioConfigs())
+  EXPECT_CALL(*mockHardwareConfig, getHardwarePinConfigs())
       .WillOnce(ReturnRef(gpioConfigurations));
 
   hardwareManager.initializeHardware();
@@ -166,12 +166,12 @@ TEST_F(HardwareManagerTest, InitializePWMWithValidConfig) {
 }
 
 TEST_F(HardwareManagerTest, InitializeBuzzerWithValidConfig) {
-  GpioPinConfig buzzerConfig{12, "Buzzer", "Buzzer"};
-  std::vector<GpioPinConfig> gpioConfigurations = {buzzerConfig};
+  HardwarePinConfig buzzerConfig{12, "Buzzer", "Buzzer"};
+  std::vector<HardwarePinConfig> gpioConfigurations = {buzzerConfig};
 
   EXPECT_CALL(*mockConfigManager, getHardwareConfig())
       .WillOnce(Return(mockHardwareConfig));
-  EXPECT_CALL(*mockHardwareConfig, getGpioConfigs())
+  EXPECT_CALL(*mockHardwareConfig, getHardwarePinConfigs())
       .WillOnce(ReturnRef(gpioConfigurations));
 
   hardwareManager.initializeHardware();
@@ -181,15 +181,15 @@ TEST_F(HardwareManagerTest, InitializeBuzzerWithValidConfig) {
 
 TEST_F(HardwareManagerTest, TestInitializationOfNonExistentHardwareType) {
   // Set up mock config with a non-existent hardware type
-  GpioPinConfig nonExistentTypeConfig{5, "NonExistentID",
+  HardwarePinConfig nonExistentTypeConfig{5, "NonExistentID",
                                       "NonExistentType"};
 
-  std::vector<GpioPinConfig> gpioConfigurations = {nonExistentTypeConfig};
+  std::vector<HardwarePinConfig> gpioConfigurations = {nonExistentTypeConfig};
 
   EXPECT_CALL(*mockConfigManager, getHardwareConfig())
       .WillOnce(Return(mockHardwareConfig));
 
-  EXPECT_CALL(*mockHardwareConfig, getGpioConfigs())
+  EXPECT_CALL(*mockHardwareConfig, getHardwarePinConfigs())
       .WillOnce(ReturnRef(gpioConfigurations));
 
   // Call initializeHardware()
@@ -202,14 +202,14 @@ TEST_F(HardwareManagerTest, TestInitializationOfNonExistentHardwareType) {
 }
 
 TEST_F(HardwareManagerTest, TestErrorHandlingOnFailedInitialization) {
-  GpioPinConfig invalidConfig{1, "FailedPin", "DigitalIO"};
+  HardwarePinConfig invalidConfig{1, "FailedPin", "DigitalIO"};
   invalidConfig.options["mode"] =
       "INVALID_MODE"; // Intentionally invalid to cause failure
-  std::vector<GpioPinConfig> gpioConfigurations = {invalidConfig};
+  std::vector<HardwarePinConfig> gpioConfigurations = {invalidConfig};
 
   EXPECT_CALL(*mockConfigManager, getHardwareConfig())
       .WillOnce(Return(mockHardwareConfig));
-  EXPECT_CALL(*mockHardwareConfig, getGpioConfigs())
+  EXPECT_CALL(*mockHardwareConfig, getHardwarePinConfigs())
       .WillOnce(ReturnRef(gpioConfigurations));
 
   hardwareManager.initializeHardware();
@@ -222,17 +222,17 @@ TEST_F(HardwareManagerTest, TestErrorHandlingOnFailedInitialization) {
 
 TEST_F(HardwareManagerTest, TestLoggingOfSuccessfulInitialization) {
   // Set up mock config and expectations
-  GpioPinConfig pin1{1, "Pin1", "DigitalIO"};
-  GpioPinConfig pin2{2, "Pin2", "PWM"};
-  GpioPinConfig pin3{3, "Pin3", "DigitalIO"};
+  HardwarePinConfig pin1{1, "Pin1", "DigitalIO"};
+  HardwarePinConfig pin2{2, "Pin2", "PWM"};
+  HardwarePinConfig pin3{3, "Pin3", "DigitalIO"};
   pin3.options["mode"] = "INPUT";
 
-  std::vector<GpioPinConfig> gpioConfigurations = {pin1, pin2, pin3};
+  std::vector<HardwarePinConfig> gpioConfigurations = {pin1, pin2, pin3};
 
   // Mock dependencies to simulate successful initialization
   EXPECT_CALL(*mockConfigManager, getHardwareConfig())
       .WillOnce(Return(mockHardwareConfig));
-  EXPECT_CALL(*mockHardwareConfig, getGpioConfigs())
+  EXPECT_CALL(*mockHardwareConfig, getHardwarePinConfigs())
       .WillRepeatedly(
           ReturnRef(gpioConfigurations)); // Provide valid configurations
 

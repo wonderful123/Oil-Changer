@@ -24,8 +24,8 @@
     - SaveFileWriteFailure: Simulates a file write failure to test error
   handling in save method.
 
-  getGpioConfigs Method Tests:
-    - CorrectGpioConfigsRetrieval: Ensures that getGpioConfigs returns the
+  getHardwarePinConfigs Method Tests:
+    - CorrectGpioConfigsRetrieval: Ensures that getHardwarePinConfigs returns the
   correct gpioConfigs state.
 
   parseJson Method Tests:
@@ -143,7 +143,7 @@ TEST_F(HardwareConfigTest, CorrectGpioConfigsRetrieval) {
       << loadError.getFormattedMessage(loadError.code());
   ;
 
-  const auto &gpioConfigs = hardwareConfig.getGpioConfigs();
+  const auto &gpioConfigs = hardwareConfig.getHardwarePinConfigs();
   ASSERT_EQ(gpioConfigs.size(), 1u);
   EXPECT_EQ(gpioConfigs[0].pinNumber, 3)<< loadError.getFormattedMessage(loadError.code());;
   EXPECT_EQ(gpioConfigs[0].id, "pin3");
@@ -177,7 +177,7 @@ TEST_F(HardwareConfigTest, ValidGpioPinParsing) {
       << loadError.getFormattedMessage(loadError.code());
   ;
 
-  const auto &gpioConfigs = hardwareConfig.getGpioConfigs();
+  const auto &gpioConfigs = hardwareConfig.getHardwarePinConfigs();
   ASSERT_EQ(gpioConfigs.size(), 1u);
   EXPECT_EQ(gpioConfigs[0].pinNumber, 4);
   EXPECT_EQ(gpioConfigs[0].id, "pin4");
