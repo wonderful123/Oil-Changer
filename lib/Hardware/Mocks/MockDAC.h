@@ -5,7 +5,7 @@
 
 class MockDAC : public DACBase {
 public:
-  explicit MockDAC(const GpioPinConfig &config) : DACBase(config) {}
+  explicit MockDAC(const HardwarePinConfig &config) : DACBase(config) {}
 
   MOCK_METHOD(void, applyValue, (int value), (override));
 };

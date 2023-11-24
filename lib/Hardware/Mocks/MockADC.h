@@ -8,7 +8,7 @@
 
 class MockADC : public IADC {
 public:
-  explicit MockADC(const GpioPinConfig &config)
+  explicit MockADC(const HardwarePinConfig &config)
       : IADC(config), _mockValue(0), _resolution(12) {
     // Simulate setting resolution and other properties from config
     auto resIt = config.options.find("resolution");

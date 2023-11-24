@@ -37,7 +37,7 @@ management of hardware components.
 #include "ButtonController.h"
 #include "ConfigManager.h"
 #include "Core/IObserver.h"
-#include "GpioPinConfig.h"
+#include "HardwarePinConfig.h"
 #include "HardwareComponent.h" // Include the base class for hardware components
 #include "HardwareFactory.h"
 #include <functional>
@@ -45,6 +45,10 @@ management of hardware components.
 #include <memory>
 #include <tinyfsm.hpp>
 #include <unordered_map>
+
+// Acts as an intermediary between ConfigManager and HardwareFactory. It
+// receives configuration data from ConfigManager, interprets it, and sends the
+// necessary information to HardwareFactory to create hardware objects.
 
 class HardwareManager : public IObserver {
 private:
@@ -55,7 +59,7 @@ private:
   // Unified map to hold all types of components by id
   std::map<std::string, std::shared_ptr<HardwareComponent>> _components;
 
-  void registerComponent(const GpioPinConfig &config,
+  void registerComponent(const HardwarePinConfig &config,
                          const std::shared_ptr<HardwareComponent> &component);
 
       void handleButtonEvent(const std::string &buttonId);
@@ -73,7 +77,7 @@ public:
   // Initializes all hardware components
   void initializeHardware();
 
-  bool initializeComponent(const GpioPinConfig &config);
+  bool initializeComponent(const HardwarePinConfig &config);
   bool isComponentInitialized(const std::string &componentId) const;
   std::shared_ptr<HardwareComponent> getComponentById(const std::string &id) const;
 

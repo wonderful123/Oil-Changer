@@ -15,7 +15,7 @@
  */
 class MockBuzzer : public IBuzzer {
 public:
-  explicit MockBuzzer(const GpioPinConfig &config) : IBuzzer(config) {
+  explicit MockBuzzer(const HardwarePinConfig &config) : IBuzzer(config) {
     // Simulate hardware initialization for testing purposes
     std::cout << "MockBuzzer initialized on pin: " << _pinNumber << std::endl;
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GpioPinConfig.h"
+#include "HardwarePinConfig.h"
 #include "HardwareConfig.h"
 #include "IFileHandler.h"
 #include <gmock/gmock.h>
@@ -11,7 +11,7 @@ public:
   explicit MockHardwareConfig(IFileHandler *fileHandler)
       : HardwareConfig(fileHandler) {}
 
-  // Mock the getGpioConfigs() method
-  MOCK_METHOD(const std::vector<GpioPinConfig> &, getGpioConfigs, (),
+  // Mock the getHardwarePinConfigs() method
+  MOCK_METHOD(const std::vector<HardwarePinConfig> &, getHardwarePinConfigs, (),
               (const, override));
 };
