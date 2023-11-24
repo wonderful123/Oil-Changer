@@ -95,8 +95,12 @@ Error HardwareConfig::save(const std::string &filename) const {
     // Additional fields and checks based on your GpioPinConfig structure
     if (config.type == "ADC") {
       JsonObject options = pinObj.createNestedObject("options");
-      // Populate options based on your ADC config structure
+      for (const auto &option : config.options) {
+        options[option.first] = option.second;
+      }
     }
+
+    // TODO: save other components
   }
 
   return writeJsonToFile(doc, filename);
