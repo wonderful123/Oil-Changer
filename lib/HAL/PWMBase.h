@@ -1,12 +1,12 @@
 #pragma once
 
-#include "GpioPinConfig.h"
+#include "HardwarePinConfig.h"
 #include "IPWM.h"
 #include "Logger.h"
 
 class PWMBase : public IPWM {
 public:
-  explicit PWMBase(const GpioPinConfig &config)
+  explicit PWMBase(const HardwarePinConfig &config)
       : IPWM(config), _dutyCycle(0.0), _frequency(1000.0) { // Default values
     extractFrequency(config);
   }
@@ -27,7 +27,7 @@ public:
   virtual double getFrequency() const override { return _frequency; }
 
 protected:
-  void extractFrequency(const GpioPinConfig &config) {
+  void extractFrequency(const HardwarePinConfig &config) {
     double freq = config.getOptionAs<double>("frequency");
     if (freq > 0.0) {
       _frequency = freq;
