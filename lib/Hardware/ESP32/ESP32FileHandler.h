@@ -6,15 +6,15 @@
 #include <LittleFS.h>
 
 /**
- * @class FileHandler
+ * @class ESP32FileHandler
  * @brief LittleFS-based file handling for the ESP32 platform.
  *
  * Provides an implementation of the IFileHandler interface using the LittleFS
  * file system on ESP32.
  */
-class FileHandler : public IFileHandler {
+class ESP32FileHandler : public IFileHandler {
 public:
-  FileHandler();
+  ESP32FileHandler();
 
   /**
    * @brief Opens a file with a specified mode.

@@ -7,11 +7,11 @@
 #include <Bounce2.h>
 #include <functional>
 
-class Button : public ButtonBase {
+class ESP32Button : public ButtonBase {
 public:
   using ButtonPressCallback = std::function<void(const std::string &)>;
 
-  explicit Button(const GpioPinConfig &config);
+  explicit ESP32Button(const HardwarePinConfig &config);
 
 protected:
   void updatePressedState() override;
@@ -20,6 +20,6 @@ protected:
 private:
   Bounce _debouncer;
   ButtonPressCallback _onPressCallback;
-  static std::unordered_map<int, Button *> _instanceMap;
+  static std::unordered_map<int, ESP32Button *> _instanceMap;
 };
 #endif // PLATFORM_ESP32

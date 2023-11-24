@@ -1,8 +1,8 @@
-#include "DAC.h"
+#include "ESP32DAC.h"
 #ifdef PLATFORM_ESP32
 #include "Logger.h"
 
-DAC::DAC(const GpioPinConfig &config) : DACBase(config) {
+ESP32DAC::ESP32DAC(const HardwarePinConfig &config) : DACBase(config) {
   // Check if the pin is a valid DAC pin
   if (_pinNumber == 25 || _pinNumber == 26) {
     Logger::info("DAC initialized on pin: " + std::to_string(_pinNumber));
@@ -13,7 +13,7 @@ DAC::DAC(const GpioPinConfig &config) : DACBase(config) {
   }
 }
 
-void DAC::applyValue(int value) {
+void ESP32DAC::applyValue(int value) {
   // Apply the value to the DAC, ensuring it's within the valid range
   int clampedValue = std::max(0, std::min(value, 255));
   dacWrite(_pinNumber, clampedValue);

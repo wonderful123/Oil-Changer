@@ -1,22 +1,22 @@
-#include "Button.h"
+#include "ESP32Button.h"
 
 #ifdef PLATFORM_ESP32
 #include "Logger.h"
 
-std::unordered_map<int, Button *> Button::_instanceMap;
+std::unordered_map<int, ESP32Button *> ESP32Button::_instanceMap;
 
-Button::Button(const GpioPinConfig &config) : ButtonBase(config) {
+ESP32Button::ESP32Button(const HardwarePinConfig &config) : ButtonBase(config) {
   pinMode(_pinNumber, INPUT_PULLUP);
   _debouncer.attach(_pinNumber);
   _debouncer.interval(50); // Set debounce interval
   _instanceMap[_pinNumber] = this;
-  attachInterrupt(digitalPinToInterrupt(_pinNumber), Button::handleInterrupt,
+  attachInterrupt(digitalPinToInterrupt(_pinNumber), ESP32Button::handleInterrupt,
                   CHANGE);
   std::string logMessage = "Button: " + id() + " initialized.";
   Logger::info(logMessage);
 }
 
-void Button::updatePressedState() {
+void ESP32Button::updatePressedState() {
   if (_debouncer.rose()) {
     if (_onPressCallback) {
       _onPressCallback(_id);
@@ -24,7 +24,7 @@ void Button::updatePressedState() {
   }
 }
 
-void IRAM_ATTR Button::handleInterrupt() {
+void IRAM_ATTR ESP32Button::handleInterrupt() {
   std::string logMessage = "button interrupt";
   Logger::info(logMessage);
   for (auto &kv : _instanceMap) {

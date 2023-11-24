@@ -1,10 +1,10 @@
-#include "PWM.h"
+#include "ESP32PWM.h"
 #include "Logger.h"
 
 #ifdef PLATFORM_ESP32
 #include <Arduino.h>
 
-PWM::PWM(const GpioPinConfig &config) : PWMBase(config) {
+ESP32PWM::ESP32PWM(const HardwarePinConfig &config) : PWMBase(config) {
   initializePWM();
   setInitialized(true);
   Logger::info("PWM initialized on pin: " + std::to_string(config.pinNumber) +
@@ -13,19 +13,19 @@ PWM::PWM(const GpioPinConfig &config) : PWMBase(config) {
                "%");
 }
 
-void PWM::applyDutyCycle(double dutyCycle) {
+void ESP32PWM::applyDutyCycle(double dutyCycle) {
   int pwmValue = static_cast<int>(dutyCycle * (1 << PWM_RESOLUTION));
   ledcWrite(MAX_PWM_CHANNEL, pwmValue);
   Logger::info("PWM duty cycle set to: " + std::to_string(dutyCycle * 100) +
                "%");
 }
 
-void PWM::applyFrequency(double frequency) {
+void ESP32PWM::applyFrequency(double frequency) {
   ledcSetup(MAX_PWM_CHANNEL, frequency, PWM_RESOLUTION);
   Logger::info("PWM frequency set to: " + std::to_string(frequency) + " Hz");
 }
 
-void PWM::initializePWM() {
+void ESP32PWM::initializePWM() {
   ledcSetup(MAX_PWM_CHANNEL, getFrequency(), PWM_RESOLUTION);
   ledcAttachPin(_pinNumber, MAX_PWM_CHANNEL);
   applyDutyCycle(getDutyCycle());

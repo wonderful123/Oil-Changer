@@ -1,12 +1,12 @@
 #pragma once
 
-#include "DACBase.h"
 #ifdef PLATFORM_ESP32
+#include "DACBase.h"
 #include <Arduino.h>
 
-class DAC : public DACBase {
+class ESP32DAC : public DACBase {
 public:
-  explicit DAC(const GpioPinConfig &config);
+  explicit ESP32DAC(const HardwarePinConfig &config);
 
 protected:
   void applyValue(int value) override;

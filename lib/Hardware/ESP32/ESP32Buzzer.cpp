@@ -1,4 +1,4 @@
-#include "Buzzer.h"
+#include "ESP32Buzzer.h"
 
 #ifdef PLATFORM_ESP32
 
@@ -6,7 +6,7 @@ const int pwmChannel = 0;
 const int pwmResolution = 8;
 const int pwmFrequency = 2713;
 
-Buzzer::Buzzer(const GpioPinConfig &config)
+ESP32Buzzer::ESP32Buzzer(const HardwarePinConfig &config)
     : IBuzzer(config), _isBeeping(false) {
   ledcSetup(pwmChannel, pwmFrequency, pwmResolution);
   ledcAttachPin(config.pinNumber, pwmChannel);
@@ -15,16 +15,16 @@ Buzzer::Buzzer(const GpioPinConfig &config)
                std::to_string(config.pinNumber));
 }
 
-Buzzer::~Buzzer() {
+ESP32Buzzer::~ESP32Buzzer() {
   stop(); // Ensure the buzzer is stopped
 }
 
-void Buzzer::setVolume(float volume) {
+void ESP32Buzzer::setVolume(float volume) {
   int dutyCycle = std::max(0.0f, std::min(volume, 1.0f)) * 255;
   ledcWrite(pwmChannel, dutyCycle);
 }
 
-void Buzzer::beep(int frequency, int duration) {
+void ESP32Buzzer::beep(int frequency, int duration) {
   ledcWriteTone(pwmChannel, frequency);
   _timer.once_ms(duration, timerCallback, this);
   _isBeeping = true;
@@ -32,7 +32,7 @@ void Buzzer::beep(int frequency, int duration) {
   //              " Hz for " + std::to_string(duration) + " ms");
 }
 
-void Buzzer::stop() {
+void ESP32Buzzer::stop() {
   if (_isBeeping) {
     ledcWriteTone(pwmChannel, 0);
     _timer.detach();
@@ -40,9 +40,9 @@ void Buzzer::stop() {
   }
 }
 
-bool Buzzer::isBeeping() const { return _isBeeping; }
+bool ESP32Buzzer::isBeeping() const { return _isBeeping; }
 
-void Buzzer::timerCallback(Buzzer *buzzer) {
+void ESP32Buzzer::timerCallback(ESP32Buzzer *buzzer) {
   if (buzzer) {
     buzzer->stop();
   }

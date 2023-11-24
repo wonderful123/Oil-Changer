@@ -4,12 +4,12 @@
 #include "driver/pcnt.h"
 #include <functional>
 
-class FlowMeter : public FlowMeterBase {
+class ESP32FlowMeter : public FlowMeterBase {
 public:
   using PulseCallback = std::function<void()>;
 
-  FlowMeter(const GpioPinConfig &config);
-  virtual ~FlowMeter() override;
+  ESP32FlowMeter(const HardwarePinConfig &config);
+  virtual ~ESP32FlowMeter() override;
 
   // Overrides from FlowMeterBase
   virtual double getFlowRate() const override;
