@@ -1,7 +1,7 @@
 #pragma once
 
-#include "HardwarePinConfig.h"
 #include "HardwareComponent.h"
+#include "HardwarePinConfig.h"
 #include "Logger.h"
 
 class IBuzzer : public HardwareComponent {
@@ -13,5 +13,6 @@ public:
   virtual void setVolume(float volume) = 0;
 
 protected:
-  explicit IBuzzer(const HardwarePinConfig &config) : HardwareComponent(config) {}
+  explicit IBuzzer(const HardwarePinConfig &config)
+      : HardwareComponent(config) {}
 };

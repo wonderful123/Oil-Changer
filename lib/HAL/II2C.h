@@ -3,7 +3,7 @@
 #include <cstddef>
 #include <cstdint>
 
-    class II2C {
+class II2C {
 public:
   virtual ~II2C() = default;
 

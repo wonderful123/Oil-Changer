@@ -26,9 +26,11 @@ public:
   std::unique_ptr<IDAC> createDAC(const HardwarePinConfig &config) override {
     return std::unique_ptr<IDAC>(new MockDAC(config));
   }
-  std::unique_ptr<IFlowMeter> createFlowMeter(const HardwarePinConfig &config) {
-    return std::unique_ptr<IFlowMeter>(new FlowMeter(config));
+
+  std::unique_ptr<IFlowMeter> createFlowMeter(const HardwarePinConfig &config) override {
+    return std::unique_ptr<IFlowMeter>(new MockFlowMeter(config));
   }
+
   std::unique_ptr<IDigitalIO> createDigitalIO(const HardwarePinConfig &config) override {
     return std::unique_ptr<IDigitalIO>(new MockDigitalIO(config));
   }
@@ -45,15 +47,15 @@ public:
     return std::unique_ptr<IFileHandler>(new MockFileHandler());
   }
 
-  std::unique_ptr<II2C> createI2C() override {
+  std::unique_ptr<II2C> createI2C(const HardwarePinConfig &config) override {
     return std::unique_ptr<II2C>(new MockI2C());
   }
 
-  std::unique_ptr<ISPI> createSPI() override {
+  std::unique_ptr<ISPI> createSPI(const HardwarePinConfig &config) override {
     return std::unique_ptr<ISPI>(new MockSPI());
   }
 
-  std::unique_ptr<ISerial> createSerial() override {
+  std::unique_ptr<ISerial> createSerial(const HardwarePinConfig &config) override {
     return std::unique_ptr<ISerial>(new MockSerial());
   }
 };
