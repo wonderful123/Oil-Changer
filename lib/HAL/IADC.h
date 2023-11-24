@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GpioPinConfig.h"
+#include "HardwarePinConfig.h"
 #include "HardwareComponent.h"
 
 /**
@@ -31,7 +31,7 @@ public:
 protected:
   unsigned int _resolution;
 
-  explicit IADC(const GpioPinConfig &config)
+  explicit IADC(const HardwarePinConfig &config)
       : HardwareComponent(config) {
   } // Protected constructor to prevent direct instantiation of this interface
 };

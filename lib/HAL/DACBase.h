@@ -10,7 +10,7 @@
  */
 class DACBase : public IDAC {
 public:
-  explicit DACBase(const GpioPinConfig &config) : IDAC(config), _value(0) {}
+  explicit DACBase(const HardwarePinConfig &config) : IDAC(config), _value(0) {}
 
   // Set the output value of the DAC
   void setValue(int value) override {

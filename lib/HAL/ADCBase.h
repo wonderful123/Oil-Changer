@@ -1,13 +1,13 @@
 #pragma once
 
-#include "GpioPinConfig.h"
+#include "HardwarePinConfig.h"
 #include "HardwareComponent.h"
 #include "IADC.h"
 #include "Logger.h"
 
 class ADCBase : public IADC {
 public:
-  explicit ADCBase(const GpioPinConfig &config)
+  explicit ADCBase(const HardwarePinConfig &config)
       : IADC(config) { // Default resolution
     extractResolution(config);
   }
@@ -15,7 +15,7 @@ public:
   virtual int resolution() const override { return _resolution; }
 
 protected:
-  void extractResolution(const GpioPinConfig &config) {
+  void extractResolution(const HardwarePinConfig &config) {
     int res = config.getOptionAs<int>("resolution");
     if (res > 0) {
       _resolution = res;

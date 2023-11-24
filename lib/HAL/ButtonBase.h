@@ -10,7 +10,7 @@
  */
 class ButtonBase : public IButton {
 public:
-  explicit ButtonBase(const GpioPinConfig &config)
+  explicit ButtonBase(const HardwarePinConfig &config)
       : IButton(config), _isPressed(false) {}
 
   // Check if the button is currently pressed
