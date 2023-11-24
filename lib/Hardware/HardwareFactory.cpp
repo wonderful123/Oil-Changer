@@ -17,17 +17,27 @@ HardwareFactory::createComponent(const GpioPinConfig &config) {
     hardwareComponent = createDAC(config);
   } else if (config.type == "DigitalIO") {
     hardwareComponent = createDigitalIO(config);
+  } else if (config.type == "FlowMeter") {
+    hardwareComponent = createFlowMeter(config);
   } else if (config.type == "PWM") {
     hardwareComponent = createPWM(config);
   } else if (config.type == "Buzzer") {
     hardwareComponent = createBuzzer(config);
+  } else if (config.type == "SPI") {
+    return createSPI(config);
+  } else if (config.type == "I2C") {
+    return createI2C(config);
+  } else if (config.type == "Serial") {
+    return createSerial(config);
   } else {
-    Logger::error("Unknown hardware component type in hardware factory: " + config.type);
+    Logger::error("Unknown hardware component type in hardware factory: " +
+                  config.type);
     return nullptr;
   }
 
   if (!hardwareComponent) {
-    Logger::error("Failed to create hardware component in hardware factory: " + config.type);
+    Logger::error("Failed to create hardware component in hardware factory: " +
+                  config.type);
   }
 
   return hardwareComponent;

@@ -45,7 +45,9 @@
   ERROR_CODE(DigitalIOModeOptionMissingOrInvalid,                              \
              "Missing or invalid mode in DigitalIO options")                   \
   ERROR_CODE(ADCInvalidAttenuationValue,                                       \
-             "Invalid ADC attenuation value.")
+             "Invalid ADC attenuation value.")                                 \
+  ERROR_CODE(FlowMeterInitErrorNoPCNTUnitSpecified,                            \
+             "FlowMeter: No PCNT unit specified for GPIO pin");
 #undef ERROR_CODE
 
 class Error {

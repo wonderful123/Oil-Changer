@@ -22,7 +22,9 @@ public:
   std::unique_ptr<IDAC> createDAC(const GpioPinConfig &config) override {
     return std::unique_ptr<IDAC>(new MockDAC(config));
   }
-
+  std::unique_ptr<IFlowMeter> createFlowMeter(const GpioPinConfig &config) {
+    return std::unique_ptr<IFlowMeter>(new FlowMeter(config));
+  }
   std::unique_ptr<IDigitalIO>
   createDigitalIO(const GpioPinConfig &config) override {
     return std::unique_ptr<IDigitalIO>(new MockDigitalIO(config));
