@@ -8,6 +8,10 @@
 #include "Mocks/MockFileHandler.h"
 #include "Mocks/MockPWM.h"
 #include "Mocks/MockButton.h"
+#include "Mocks/MockFlowMeter.h"
+#include "Mocks/MockI2C.h"
+#include "Mocks/MockSPI.h"
+#include "Mocks/MockSerial.h"
 
 class MockHardwareFactory : public HardwareFactory {
 public:
@@ -25,8 +29,7 @@ public:
   std::unique_ptr<IFlowMeter> createFlowMeter(const HardwarePinConfig &config) {
     return std::unique_ptr<IFlowMeter>(new FlowMeter(config));
   }
-  std::unique_ptr<IDigitalIO>
-  createDigitalIO(const HardwarePinConfig &config) override {
+  std::unique_ptr<IDigitalIO> createDigitalIO(const HardwarePinConfig &config) override {
     return std::unique_ptr<IDigitalIO>(new MockDigitalIO(config));
   }
 
@@ -40,5 +43,17 @@ public:
 
   std::unique_ptr<IFileHandler> createFileHandler() override {
     return std::unique_ptr<IFileHandler>(new MockFileHandler());
+  }
+
+  std::unique_ptr<II2C> createI2C() override {
+    return std::unique_ptr<II2C>(new MockI2C());
+  }
+
+  std::unique_ptr<ISPI> createSPI() override {
+    return std::unique_ptr<ISPI>(new MockSPI());
+  }
+
+  std::unique_ptr<ISerial> createSerial() override {
+    return std::unique_ptr<ISerial>(new MockSerial());
   }
 };
