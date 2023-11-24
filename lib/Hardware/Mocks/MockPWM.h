@@ -8,7 +8,7 @@
 
 class MockPWM : public IPWM {
 public:
-    explicit MockPWM(const GpioPinConfig& config) : IPWM(config), _dutyCycle(0.0), _frequency(1000.0) {
+    explicit MockPWM(const HardwarePinConfig& config) : IPWM(config), _dutyCycle(0.0), _frequency(1000.0) {
         // Simulate setting frequency from config if available
         auto frequencyIter = config.options.find("frequency");
         if (frequencyIter != config.options.end()) {

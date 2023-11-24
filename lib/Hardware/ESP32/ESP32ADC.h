@@ -5,17 +5,17 @@
 #include <Arduino.h>
 #include <driver/adc.h>
 
-class ADC : public ADCBase {
+class ESP32ADC : public ADCBase {
 private:
   adc_atten_t _attenuation;
 
 public:
   /**
-   * @brief Construct a new ADC object.
+   * @brief Construct a new ESP32ADC object.
    *
    * @param config Configuration for the ADC pin.
    */
-  ADC(const GpioPinConfig &config);
+  ESP32ADC(const HardwarePinConfig &config);
 
   virtual int read() const override;
 
@@ -25,7 +25,7 @@ private:
    *
    * @param config Configuration for the ADC pin.
    */
-  void configureAttenuation(const GpioPinConfig &config);
+  void configureAttenuation(const HardwarePinConfig &config);
 };
 
 #endif // PLATFORM_ESP32

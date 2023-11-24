@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GpioPinConfig.h"
+#include "HardwarePinConfig.h"
 #include "HardwareComponent.h"
 
 /**
@@ -10,7 +10,7 @@
  * This interface provides the fundamental operations for digital I/O
  * operations, such as reading a digital input or setting a digital output.
  * Implementations of this interface should provide platform-specific details
- * for these operations, using the GpioPinConfig structure for configuration.
+ * for these operations, using the HardwarePinConfig structure for configuration.
  */
 class IDigitalIO : public HardwareComponent {
   public:
@@ -43,7 +43,7 @@ class IDigitalIO : public HardwareComponent {
      * @brief Get the current pin mode.
      *
      * This method returns the current mode of the digital pin
-     * (e.g., INPUT, OUTPUT), which is part of the GpioPinConfig.
+     * (e.g., INPUT, OUTPUT), which is part of the HardwarePinConfig.
      *
      * @return int Current pin mode.
      */

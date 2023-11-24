@@ -1,20 +1,20 @@
-#include "ADC.h"
+#include "ESP32ADC.h"
 #include "Logger.h"
 
 #ifdef PLATFORM_ESP32
 
-ADC::ADC(const GpioPinConfig &config)
+ESP32ADC::ESP32ADC(const HardwarePinConfig &config)
     : ADCBase(config) {
     configureAttenuation(config);
     setInitialized(true); // Mark ADC as initialized
     Logger::info("ADC initialized on pin: " + std::to_string(config.pinNumber));
 }
 
-int ADC::read() const {
+int ESP32ADC::read() const {
     return analogRead(_pinNumber);
 }
 
-void ADC::configureAttenuation(const GpioPinConfig &config) {
+void ESP32ADC::configureAttenuation(const HardwarePinConfig &config) {
     int attenuationValue = config.getOptionAs<int>("attenuation");
     if (attenuationValue >= 0 && attenuationValue <= 3) {
         _attenuation = static_cast<adc_atten_t>(attenuationValue);

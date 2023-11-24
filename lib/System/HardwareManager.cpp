@@ -21,7 +21,7 @@ void HardwareManager::initializeHardware() {
   }
 
   bool allComponentsInitialized = true;
-  for (const auto &config : hardwareConfig->getGpioConfigs()) {
+  for (const auto &config : hardwareConfig->getHardwarePinConfigs()) {
     auto component = initializeComponent(config);
     if (!component) {
       allComponentsInitialized = false;
@@ -36,7 +36,7 @@ void HardwareManager::initializeHardware() {
   }
 }
 
-bool HardwareManager::initializeComponent(const GpioPinConfig &config) {
+bool HardwareManager::initializeComponent(const HardwarePinConfig &config) {
   auto component = _hardwareFactory->createComponent(config);
   if (component) {
     // Convert unique_ptr to shared_ptr
@@ -64,7 +64,7 @@ bool HardwareManager::initializeComponent(const GpioPinConfig &config) {
  * @throws None.
  */
 void HardwareManager::registerComponent(
-    const GpioPinConfig &config,
+    const HardwarePinConfig &config,
     const std::shared_ptr<HardwareComponent> &component) {
 
   if (config.type == "Button") {

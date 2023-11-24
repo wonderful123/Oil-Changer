@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GpioPinConfig.h"
+#include "HardwarePinConfig.h"
 #include "HardwareComponent.h"
 #include "Logger.h"
 
@@ -13,5 +13,5 @@ public:
   virtual void setVolume(float volume) = 0;
 
 protected:
-  explicit IBuzzer(const GpioPinConfig &config) : HardwareComponent(config) {}
+  explicit IBuzzer(const HardwarePinConfig &config) : HardwareComponent(config) {}
 };

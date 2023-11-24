@@ -6,10 +6,10 @@
 #include <Ticker.h>
 
 
-class Buzzer : public IBuzzer {
+class ESP32Buzzer : public IBuzzer {
 public:
-  Buzzer(const GpioPinConfig &config);
-  virtual ~Buzzer();
+  ESP32Buzzer(const HardwarePinConfig &config);
+  virtual ~ESP32Buzzer();
   void beep(int frequency, int duration) override;
   void stop() override;
   bool isBeeping() const override;
@@ -19,7 +19,7 @@ private:
   Ticker _timer; // Ticker object for software timing
   bool _isBeeping;
 
-  static void timerCallback(Buzzer *buzzer);
+  static void timerCallback(ESP32Buzzer *buzzer);
 };
 
 #endif // PLATFORM_ESP32

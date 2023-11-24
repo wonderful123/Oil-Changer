@@ -1,0 +1,86 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "components": {
+      "type": "object",
+      "properties": {
+        "singlePin": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "type", "pinNumber"],
+            "properties": {
+              "id": {"type": "string"},
+              "type": {"type": "string"},
+              "pinNumber": {"type": "integer"},
+              "options": {
+                "type": "object",
+                "properties": {
+                  "attenuation": {"type": "integer", "minimum": 0},
+                  "resolution": {"type": "integer", "minimum": 0},
+                  "pcntUnit": {"type": "string", "enum": ["PCNT_UNIT_0", "PCNT_UNIT_1"]},
+                  "pulseMultiplier": {"type": "integer", "minimum": 1},
+                  "filterValue": {"type": "integer", "minimum": 0},
+                  "filterEnabled": {"type": "boolean"}
+                },
+                "additionalProperties": true
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        "multiPin": {
+          "type": "object",
+          "properties": {
+            "SPI": {
+              "type": "object",
+              "patternProperties": {
+                "^.*$": {
+                  "type": "object",
+                  "properties": {
+                    "MOSI": {"type": "integer", "minimum": 0, "maximum": 40},
+                    "MISO": {"type": "integer", "minimum": 0, "maximum": 40},
+                    "SCLK": {"type": "integer", "minimum": 0, "maximum": 40},
+                    "CS": {"type": "integer", "minimum": 0, "maximum": 40}
+                  },
+                  "additionalProperties": false
+                }
+              }
+            },
+            "I2C": {
+              "type": "object",
+              "patternProperties": {
+                "^.*$": {
+                  "type": "object",
+                  "properties": {
+                    "SCL": {"type": "integer", "minimum": 0, "maximum": 40},
+                    "SDA": {"type": "integer", "minimum": 0, "maximum": 40}
+                  },
+                  "additionalProperties": false
+                }
+              }
+            },
+            "Serial": {
+              "type": "object",
+              "patternProperties": {
+                "^.*$": {
+                  "type": "object",
+                  "properties": {
+                    "TXD": {"type": "integer", "minimum": 0, "maximum": 40},
+                    "RXD": {"type": "integer", "minimum": 0, "maximum": 40}
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": ["components"],
+  "additionalProperties": false
+}

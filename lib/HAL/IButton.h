@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GpioPinConfig.h"
+#include "HardwarePinConfig.h"
 #include "HardwareComponent.h"
 
 /**
@@ -26,5 +26,5 @@ public:
   virtual void setOnPressCallback(ButtonPressCallback callback) = 0;
 
 protected:
-  explicit IButton(const GpioPinConfig &config) : HardwareComponent(config) {}
+  explicit IButton(const HardwarePinConfig &config) : HardwareComponent(config) {}
 };

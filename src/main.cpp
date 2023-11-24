@@ -1,8 +1,8 @@
 #include "ButtonController.h"
 #include "BuzzerPlayer/BuzzerPlayer.h"
 #include "ConfigManager.h"
-#include "ESP32/Buzzer.h"
-#include "ESP32/FileHandler.h"
+#include "ESP32/ESP32Buzzer.h"
+#include "ESP32/ESP32FileHandler.h"
 #include "Error.h"
 #include "FSM/States.h"
 #include "HardwareConfig.h"
@@ -14,7 +14,7 @@
 #include <memory>
 #include <tinyfsm.hpp>
 
-FileHandler fileHandler;
+ESP32FileHandler fileHandler;
 std::shared_ptr<ConfigManager> configManager =
     std::make_shared<ConfigManager>(&fileHandler);
 auto &hardwareFactory = HardwareFactory::getHardwareFactory();
@@ -25,7 +25,7 @@ std::shared_ptr<HardwareManager> hardwareManager(new HardwareManager(
 std::shared_ptr<SystemController>
     systemController(new SystemController(hardwareManager, buttonController));
 
-std::unique_ptr<Buzzer> buzzer;
+std::unique_ptr<ESP32Buzzer> buzzer;
 std::unique_ptr<BuzzerPlayer> player;
 
 FSM_INITIAL_STATE(BaseState, IdleState);
@@ -89,11 +89,11 @@ void setup() {
   std::shared_ptr<HardwareConfig> hardwareConfig =
       configManager->getHardwareConfig();
   if (hardwareConfig) {
-    const auto &gpioConfigs = hardwareConfig->getGpioConfigs();
+    const auto &gpioConfigs = hardwareConfig->getHardwarePinConfigs();
     for (const auto &gpioConfig : gpioConfigs) {
       if (gpioConfig.id == "Buzzer") {
         Logger::info("Initializing buzzer...");
-        buzzer.reset(new Buzzer(gpioConfig));
+        buzzer.reset(new ESP32Buzzer(gpioConfig));
         player.reset(new BuzzerPlayer(*buzzer));
 
         Logger::info("Playing super mario tune...");

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GpioPinConfig.h"
+#include "HardwarePinConfig.h"
 #include "HardwareComponent.h"
 
 /**
@@ -30,5 +30,5 @@ public:
   virtual int getValue() const = 0;
 
 protected:
-  explicit IDAC(const GpioPinConfig &config) : HardwareComponent(config) {}
+  explicit IDAC(const HardwarePinConfig &config) : HardwareComponent(config) {}
 };

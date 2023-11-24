@@ -1,12 +1,12 @@
 #ifdef PLATFORM_ESP32
 
-#include "FileHandler.h"
+#include "ESP32FileHandler.h"
 #include "Error.h"
 #include "FS.h"
 #include "Logger.h"
 #include <LittleFS.h>
 
-FileHandler::FileHandler() {
+ESP32FileHandler::ESP32FileHandler() {
   _isFileSystemMounted = LittleFS.begin();
   if (!_isFileSystemMounted) {
     // Log the error using the Error class
@@ -14,7 +14,7 @@ FileHandler::FileHandler() {
   }
 }
 
-bool FileHandler::open(const std::string &filePath, const std::string &mode) {
+bool ESP32FileHandler::open(const std::string &filePath, const std::string &mode) {
   if (_file) {
     _file.close(); // Close any previously opened file
   }
@@ -29,7 +29,7 @@ bool FileHandler::open(const std::string &filePath, const std::string &mode) {
   return true;
 }
 
-bool FileHandler::write(const std::string &data) {
+bool ESP32FileHandler::write(const std::string &data) {
   if (!_file) {
     Logger::warn("Write attempted on unopened file");
     return false;
@@ -42,7 +42,7 @@ bool FileHandler::write(const std::string &data) {
   return true;
 }
 
-std::string FileHandler::read() {
+std::string ESP32FileHandler::read() {
   std::string content;
   if (!_file) {
     Logger::warn("Read attempted on unopened file");
@@ -54,18 +54,18 @@ std::string FileHandler::read() {
   return content;
 }
 
-bool FileHandler::exists(const std::string &filePath) const {
+bool ESP32FileHandler::exists(const std::string &filePath) const {
   return LittleFS.exists(filePath.c_str());
 }
 
-void FileHandler::close() {
+void ESP32FileHandler::close() {
   if (_file) {
     _file.close();
   }
   _currentFilePath.clear();
 }
 
-bool FileHandler::remove(const std::string &filePath) {
+bool ESP32FileHandler::remove(const std::string &filePath) {
   if (!LittleFS.exists(filePath.c_str())) {
     Logger::warn("Attempt to remove non-existing file: " + filePath);
     return false;

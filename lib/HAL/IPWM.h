@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GpioPinConfig.h"
+#include "HardwarePinConfig.h"
 #include "HardwareComponent.h"
 
 class IPWM : public HardwareComponent {
@@ -12,5 +12,5 @@ public:
   virtual double getFrequency() const = 0;
 
 protected:
-  explicit IPWM(const GpioPinConfig &config) : HardwareComponent(config) {}
+  explicit IPWM(const HardwarePinConfig &config) : HardwareComponent(config) {}
 };

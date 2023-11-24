@@ -110,7 +110,7 @@ TEST_F(ConfigManagerTest, LoadSuccess) {
   EXPECT_NE(hardwareConfig, nullptr);
 
   // Additional checks on hardwareConfig
-  const auto &gpioConfigs = hardwareConfig->getGpioConfigs();
+  const auto &gpioConfigs = hardwareConfig->getHardwarePinConfigs();
   EXPECT_EQ(gpioConfigs.size(), 2); // Check the number of configured GPIO pins
 
   // Further checks can be added to validate individual GPIO pin configurations

@@ -5,17 +5,17 @@
 #ifdef PLATFORM_ESP32
 
 /**
- * @class PWM
+ * @class ESP32PWM
  * @brief ESP32-specific implementation of PWM functionality.
  */
-class PWM : public PWMBase {
+class ESP32PWM : public PWMBase {
 public:
   /**
-   * @brief Construct a new PWM object for ESP32.
+   * @brief Construct a new ESP32PWM object for ESP32.
    *
    * @param config Configuration for the PWM pin.
    */
-  PWM(const GpioPinConfig &config);
+  ESP32PWM(const HardwarePinConfig &config);
 
 protected:
   /**

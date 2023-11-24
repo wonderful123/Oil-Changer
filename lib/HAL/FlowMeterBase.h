@@ -4,7 +4,7 @@
 
 class FlowMeterBase : public IFlowMeter {
 public:
-  explicit FlowMeterBase(const GpioPinConfig &config)
+  explicit FlowMeterBase(const HardwarePinConfig &config)
       : IFlowMeter(config), totalVolume(0.0), flowRate(0.0) {}
 
   virtual ~FlowMeterBase() override = default;

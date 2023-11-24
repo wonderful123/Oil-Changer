@@ -5,7 +5,7 @@
 
 class DigitalIOBase : public IDigitalIO {
 public:
-  explicit DigitalIOBase(const GpioPinConfig &config) : IDigitalIO(config) {
+  explicit DigitalIOBase(const HardwarePinConfig &config) : IDigitalIO(config) {
     setPinModeFromConfig(config);
     setInitialized(true);
   }
@@ -18,7 +18,7 @@ public:
   virtual Mode getMode() const override { return _mode; }
 
 protected:
-  void setPinModeFromConfig(const GpioPinConfig &config) {
+  void setPinModeFromConfig(const HardwarePinConfig &config) {
     std::string mode = config.getOptionAs<std::string>("mode");
 
     if (mode == "INPUT") {

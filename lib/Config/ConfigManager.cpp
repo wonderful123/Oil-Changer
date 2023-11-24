@@ -3,6 +3,9 @@
 #include "HardwareConfig.h"
 #include <memory>
 
+// Responsible for loading configuration data from a source (like a JSON file)
+// and passing it to the appropriate managers
+
 std::shared_ptr<HardwareConfig> ConfigManager::getHardwareConfig() const {
   auto it = configs.find("HardwareConfig");
   if (it != configs.end()) {
@@ -14,11 +17,8 @@ std::shared_ptr<HardwareConfig> ConfigManager::getHardwareConfig() const {
 Error ConfigManager::loadConfig(const std::string &configType) {
   if (configType == "HardwareConfig") {
     auto hardwareConfig = std::make_shared<HardwareConfig>(_fileHandler);
-    Error loadError = hardwareConfig->load("/config/hardwareConfig.json");
-    if (loadError) {
-      return loadError; // Propagate the error
-    }
     configs[configType] = hardwareConfig;
+
     return Error(Error::OK); // Return success if everything goes well
   }
 

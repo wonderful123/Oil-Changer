@@ -6,7 +6,7 @@
 #endif
 
 std::unique_ptr<HardwareComponent>
-HardwareFactory::createComponent(const GpioPinConfig &config) {
+HardwareFactory::createComponent(const HardwarePinConfig &config) {
   std::unique_ptr<HardwareComponent> hardwareComponent;
 
   if (config.type == "ADC") {

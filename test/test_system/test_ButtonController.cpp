@@ -30,7 +30,7 @@
 #include <gtest/gtest.h>
 #include "MockButtonController.h"
 #include "Mocks/MockButton.h"
-#include "GpioPinConfig.h"
+#include "HardwarePinConfig.h"
 
 using ::testing::_;
 using ::testing::DoAll;
@@ -41,7 +41,7 @@ using ::testing::ReturnRef;
 // Test Fixture for ButtonController
 class ButtonControllerTest : public ::testing::Test {
 protected:
-  GpioPinConfig testConfig{1, "Button1", "Button"};
+  HardwarePinConfig testConfig{1, "Button1", "Button"};
   std::shared_ptr<MockButton> mockButton;
   ButtonController buttonController;
   std::shared_ptr<MockButtonControllerObserver> mockObserver;

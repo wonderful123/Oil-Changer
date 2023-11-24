@@ -10,7 +10,7 @@
 #pragma once
 
 #include "Error.h"
-#include "GpioPinConfig.h"
+#include "HardwarePinConfig.h"
 
 /**
  * @class HardwareComponent
@@ -32,7 +32,7 @@ public:
    *
    * @param config The GPIO pin configuration.
    */
-  explicit HardwareComponent(const GpioPinConfig &config)
+  explicit HardwareComponent(const HardwarePinConfig &config)
       : _pinNumber(config.pinNumber), _id(config.id), _type(config.type),
         _initialized(false) {}
 
