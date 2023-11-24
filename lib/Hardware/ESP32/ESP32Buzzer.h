@@ -1,7 +1,8 @@
 #pragma once
 
-#include "IBuzzer.h"
 #ifdef PLATFORM_ESP32
+
+#include "IBuzzer.h"
 #include <Arduino.h>
 #include <Ticker.h>
 

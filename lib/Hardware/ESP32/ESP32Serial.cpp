@@ -1,6 +1,6 @@
-#include "ESP32Serial.h"
-
 #ifdef PLATFORM_ESP32
+
+#include "ESP32Serial.h"
 
 ESP32Serial::ESP32Serial(const HardwarePinConfig &config)
     : _serial(0),               // Default to UART0. Adjust as needed.

@@ -1,3 +1,5 @@
+#ifdef PLATFORM_ESP32
+
 #include "ESP32FlowMeter.h"
 #include "driver/pcnt.h"
 
@@ -62,3 +64,5 @@ int16_t ESP32FlowMeter::getPulseCount() const {
   pcnt_get_counter_value(_pcntUnit, &count);
   return count;
 }
+
+#endif // PLATFORM_ESP32

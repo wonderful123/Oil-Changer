@@ -1,7 +1,7 @@
+#ifdef PLATFORM_ESP32
+
 #include "ESP32ADC.h"
 #include "Logger.h"
-
-#ifdef PLATFORM_ESP32
 
 ESP32ADC::ESP32ADC(const HardwarePinConfig &config)
     : ADCBase(config) {

@@ -1,7 +1,7 @@
+#ifdef PLATFORM_ESP32
+
 #include "ESP32PWM.h"
 #include "Logger.h"
-
-#ifdef PLATFORM_ESP32
 #include <Arduino.h>
 
 ESP32PWM::ESP32PWM(const HardwarePinConfig &config) : PWMBase(config) {

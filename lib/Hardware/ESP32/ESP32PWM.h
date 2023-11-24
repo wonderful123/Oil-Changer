@@ -1,8 +1,8 @@
 #pragma once
 
-#include "PWMBase.h"
-
 #ifdef PLATFORM_ESP32
+
+#include "PWMBase.h"
 
 /**
  * @class ESP32PWM

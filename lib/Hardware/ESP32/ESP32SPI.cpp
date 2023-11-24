@@ -1,8 +1,7 @@
-#include "ESP32SPI.h"
-#include <SPI.h>
-
 #ifdef PLATFORM_ESP32
 
+#include "ESP32SPI.h"
+#include <SPI.h>
 #include <Arduino.h>
 
 
