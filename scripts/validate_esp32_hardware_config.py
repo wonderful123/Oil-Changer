@@ -13,6 +13,6 @@ def validate_json(data, schema):
         print("Validation error:", e)
 
 if __name__ == "__main__":
-    config = load_json('hardwareConfig.json')
-    schema = load_json('schema.json')  # Assuming your schema is stored in schema.json
+    config = load_json('../data/config/hardwareConfig.json')
+    schema = load_json('hardwareConfig-schema.json')  # Assuming your schema is stored in schema.json
     validate_json(config, schema)
