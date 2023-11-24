@@ -1,107 +1,93 @@
 #include "HardwareConfig.h"
 #include <FileGuard.h>
+#include "HardwarePinConfig.h"
 
 HardwareConfig::HardwareConfig(IFileHandler *fileHandler)
-    : BaseConfig(fileHandler) {} // Initializing base class constructor
+    : BaseConfig(fileHandler) {
+  load("/config/hardwareConfig.json");
+}
 
-const std::vector<GpioPinConfig> &HardwareConfig::getGpioConfigs() const {
-  return gpioConfigs;
+const std::vector<HardwarePinConfig> &
+HardwareConfig::getHardwarePinConfigs() const {
+  return _hardwarePinConfigs;
 }
 
 Error HardwareConfig::parseJson(const DynamicJsonDocument &doc) {
-  if (!doc.containsKey("gpioPins")) {
-    return Error(Error::HardwareConfigGpioPinsKeyMissing);
+  if (!doc.containsKey("components")) {
+    return Error(Error::JsonInputInvalid);
   }
 
-  if (!doc["gpioPins"].is<JsonArrayConst>()) {
-    return Error(Error::HardwareConfigGpioPinsTypeMismatch);
+  // Parse singlePin and multiPin components
+  static const std::pair<const char *, bool> componentTypes[] = {
+      {"singlePin", false}, {"multiPin", true}};
+
+  for (const auto &component : componentTypes) {
+    if (doc["components"].containsKey(component.first)) {
+      Error error = parseHardwarePinGroup(doc["components"][component.first],
+                                          component.second);
+      if (error) {
+        return error;
+      }
+    }
   }
 
-  JsonArrayConst gpioPins = doc["gpioPins"].as<JsonArrayConst>();
-  for (JsonObjectConst obj : gpioPins) {
-    Error pinParseError = parseGpioPin(obj);
+  return Error(Error::OK);
+}
+
+Error HardwareConfig::parseHardwarePinGroup(const JsonObjectConst &groupObj,
+                                            bool isMultiPin) {
+  for (auto kv : groupObj) {
+    JsonObjectConst obj = kv.value().as<JsonObjectConst>();
+    Error pinParseError = parseHardwarePin(obj, isMultiPin);
     if (pinParseError) {
       return pinParseError;
     }
   }
-
   return Error(Error::OK);
 }
 
-Error HardwareConfig::parseGpioPin(const JsonObjectConst &obj) {
-  if (!obj.containsKey("pinNumber") || !obj["pinNumber"].is<int>())
-    return Error(Error::HardwareConfigGpioPinNumberMissing);
-  int pin = obj["pinNumber"].as<int>();
-
-  if (!obj.containsKey("id") || !obj["id"].is<std::string>())
-    return Error(Error::HardwareConfigGpioPinIdMissing);
+Error HardwareConfig::parseHardwarePin(const JsonObjectConst &obj,
+                                       bool isMultiPin) {
   std::string id = obj["id"].as<std::string>();
-
-  if (!obj.containsKey("type") || !obj["type"].is<std::string>())
-    return Error(Error::HardwareConfigGpioPinTypeMissing);
   std::string type = obj["type"].as<std::string>();
 
-  GpioPinConfig config(pin, id, type);
+  if (isMultiPin) {
+    std::unordered_map<std::string, int> pinNumbers;
 
-  if (type == "ADC") {
-    Error validationError = validateADCOptions(obj);
-    if (validationError) {
-      return validationError;
-    }
-  }
-
-  if (obj.containsKey("options")) {
-    JsonObjectConst options = obj["options"].as<JsonObjectConst>();
-    for (auto kv : options) {
-      config.options[kv.key().c_str()] = kv.value().as<int>();
-    }
-  }
-
-  gpioConfigs.push_back(config);
-  return Error(Error::OK);
-}
-
-Error HardwareConfig::validateADCOptions(const JsonObjectConst &obj) {
-  if (!obj.containsKey("options") || !obj["options"].is<JsonObjectConst>()) {
-    return Error(Error::HardwareConfigAdcOptionsKeyMissing);
-  }
-
-  JsonObjectConst options = obj["options"].as<JsonObjectConst>();
-  if (!options.containsKey("resolution") || !options["resolution"].is<int>()) {
-    return Error(Error::HardwareConfigAdcResolutionOptionMissing);
-  }
-
-  return Error(Error::OK);
-}
-
-Error HardwareConfig::save(const std::string &filename) const {
-  // Calculate the required size for the JSON document
-  const size_t capacity =
-      JSON_ARRAY_SIZE(gpioConfigs.size()) +
-      gpioConfigs.size() *
-          JSON_OBJECT_SIZE(3); // Adjust size based on your structure
-  DynamicJsonDocument doc(capacity);
-
-  // Create a JSON array
-  JsonArray gpioPinsArray = doc.createNestedArray("gpioPins");
-
-  // Serialize gpioConfigs to JSON
-  for (const auto &config : gpioConfigs) {
-    JsonObject pinObj = gpioPinsArray.createNestedObject();
-    pinObj["pinNumber"] = config.pinNumber;
-    pinObj["id"] = config.id;
-    pinObj["type"] = config.type;
-
-    // Additional fields and checks based on your GpioPinConfig structure
-    if (config.type == "ADC") {
-      JsonObject options = pinObj.createNestedObject("options");
-      for (const auto &option : config.options) {
-        options[option.first] = option.second;
+    for (auto kv : obj) {
+      if (kv.key() != "id" && kv.key() != "type" && kv.key() != "options") {
+        pinNumbers[kv.key().c_str()] = kv.value().as<int>();
       }
     }
 
-    // TODO: save other components
+    HardwarePinConfig config(id, type, pinNumbers);
+    // Optionally handle options for multi-pin configurations
+    _hardwarePinConfigs.push_back(config);
+  } else {
+    int pin = obj["pinNumber"].as<int>();
+    HardwarePinConfig config(id, type, pin);
+    handleOptionsForSinglePin(obj, config);
+    _hardwarePinConfigs.push_back(config);
   }
+  return Error(Error::OK);
+}
 
-  return writeJsonToFile(doc, filename);
+std::vector<int> HardwareConfig::extractPinNumbers(const JsonObjectConst &obj) {
+  std::vector<int> pinNumbers;
+  for (auto kv : obj) {
+    if (kv.key() != "id" && kv.key() != "type" && kv.key() != "options") {
+      pinNumbers.push_back(kv.value().as<int>());
+    }
+  }
+  return pinNumbers;
+}
+
+void HardwareConfig::handleOptionsForSinglePin(const JsonObjectConst &obj,
+                                               HardwarePinConfig &config) {
+  if (obj.containsKey("options")) {
+    JsonObjectConst options = obj["options"].as<JsonObjectConst>();
+    for (auto kv : options) {
+      config.options[kv.key().c_str()] = kv.value().as<std::string>();
+    }
+  }
 }

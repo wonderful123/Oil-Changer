@@ -6,19 +6,24 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include "GpioPinConfig.h"
+#include "HardwarePinConfig.h"
 
 class HardwareConfig : public BaseConfig {
 public:
   explicit HardwareConfig(IFileHandler *fileHandler);
-  Error save(const std::string &filename) const override;
 
-  virtual const std::vector<GpioPinConfig> &getGpioConfigs() const;
+  // Method to get the hardware configurations
+  const std::vector<HardwarePinConfig> &getHardwarePinConfigs() const;
 
 private:
-  std::vector<GpioPinConfig> gpioConfigs;
+  std::vector<HardwarePinConfig> _hardwarePinConfigs;
 
   Error parseJson(const DynamicJsonDocument &doc) override;
-  Error validateADCOptions(const JsonObjectConst &obj);
-  Error parseGpioPin(const JsonObjectConst &obj);
+  Error parseSinglePin(const JsonArrayConst &singlePinArray);
+  Error parseMultiPin(const JsonObjectConst &multiPinObj);
+  Error parseHardwarePinGroup(const JsonObjectConst &groupObj, bool isMultiPin);
+  Error parseHardwarePin(const JsonObjectConst &obj, bool isMultiPin);
+  std::vector<int> extractPinNumbers(const JsonObjectConst &obj);
+  void handleOptionsForSinglePin(const JsonObjectConst &obj,
+                                 HardwarePinConfig &config);
 };
