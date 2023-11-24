@@ -1,5 +1,7 @@
 #pragma once
 
+#define ARDUINOJSON_ENABLE_COMMENTS 1
+
 #include "Error.h"
 #include <ArduinoJson.h>
 #include <string>
