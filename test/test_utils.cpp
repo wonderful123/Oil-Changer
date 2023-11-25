@@ -5,6 +5,6 @@ void expectOpenReadCloseForContent(MockFileHandler &mockFileHandler,
                                    const std::string &filePath) {
   EXPECT_CALL(mockFileHandler, open(filePath, "r"))
       .WillOnce(::testing::Return(true));
-  EXPECT_CALL(mockFileHandler, read()).WillOnce(::testing::Return(content));
-  EXPECT_CALL(mockFileHandler, close()).Times(1);
+  EXPECT_CALL(mockFileHandler, read).WillOnce(::testing::Return(content));
+  EXPECT_CALL(mockFileHandler, close);
 }
