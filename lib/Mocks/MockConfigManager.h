@@ -2,6 +2,7 @@
 
 #include "ConfigManager.h"
 #include <gmock/gmock.h>
+#include <memory>
 
 class MockConfigManager : public ConfigManager {
 public:
