@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef PLATFORM_NATIVE
+
 #include <IFileHandler.h>
 #include <fstream>
 #include <gmock/gmock.h>
@@ -35,3 +37,5 @@ public:
 private:
   std::string realFileContent;
 };
+
+#endif // PLATFORM_NATIVE
