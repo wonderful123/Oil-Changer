@@ -6,9 +6,9 @@
 #include <vector>
 
 struct HardwarePinConfig {
+  int pinNumber;
   std::string id;
   std::string type;
-  int pinNumber;
   std::unordered_map<std::string, int> pins;
   std::unordered_map<std::string, std::string> options; // Additional options
 
