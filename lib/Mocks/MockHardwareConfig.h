@@ -1,6 +1,5 @@
 #pragma once
 
-#include "HardwareConfig.h"
 #include "HardwarePinConfig.h"
 #include "IFileHandler.h"
 #include <gmock/gmock.h>
