@@ -88,7 +88,7 @@
     ],
     "multiPin": {
       "SPI": {
-        "VSPI": {
+        "SPI": {
           "MOSI": 23,
           "MISO": 19,
           "SCLK": 18,
@@ -102,7 +102,7 @@
         }
       },
       "Serial": {
-        "Serial0": {
+        "Serial": {
           "TXD": 1,
           "RXD": 3
         }
