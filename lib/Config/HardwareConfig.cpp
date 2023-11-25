@@ -1,11 +1,6 @@
 #include "HardwareConfig.h"
-#include <FileGuard.h>
 #include "HardwarePinConfig.h"
-
-HardwareConfig::HardwareConfig(IFileHandler *fileHandler)
-    : BaseConfig(fileHandler) {
-  load("/config/hardwareConfig.json");
-}
+#include <iostream>
 
 const std::vector<HardwarePinConfig> &
 HardwareConfig::getHardwarePinConfigs() const {
@@ -14,76 +9,60 @@ HardwareConfig::getHardwarePinConfigs() const {
 
 Error HardwareConfig::parseJson(const DynamicJsonDocument &doc) {
   if (!doc.containsKey("components")) {
-    return Error(Error::JsonInputInvalid);
+    return Error(Error::HardwareConfigComponentsKeyMissing);
   }
 
-  // Parse singlePin and multiPin components
-  static const std::pair<const char *, bool> componentTypes[] = {
-      {"singlePin", false}, {"multiPin", true}};
+  if (doc["components"].containsKey("singlePin")) {
+    Error error = parsePinGroup(
+        doc["components"]["singlePin"].as<JsonArrayConst>(), false);
+    if (error)
+      return error;
+  }
 
-  for (const auto &component : componentTypes) {
-    if (doc["components"].containsKey(component.first)) {
-      Error error = parseHardwarePinGroup(doc["components"][component.first],
-                                          component.second);
-      if (error) {
-        return error;
-      }
-    }
+  if (doc["components"].containsKey("multiPin")) {
+    Error error =
+        parsePinGroup(doc["components"]["multiPin"].as<JsonArrayConst>(), true);
+    if (error)
+      return error;
   }
 
   return Error(Error::OK);
 }
 
-Error HardwareConfig::parseHardwarePinGroup(const JsonObjectConst &groupObj,
-                                            bool isMultiPin) {
-  for (auto kv : groupObj) {
-    JsonObjectConst obj = kv.value().as<JsonObjectConst>();
-    Error pinParseError = parseHardwarePin(obj, isMultiPin);
-    if (pinParseError) {
-      return pinParseError;
-    }
-  }
-  return Error(Error::OK);
-}
+Error HardwareConfig::parsePinGroup(const JsonArrayConst &groupObj,
+                                    bool isMultiPin) {
+  for (JsonObjectConst obj : groupObj) {
+    std::string id = obj["id"].as<std::string>();
+    std::string type = obj["type"].as<std::string>();
 
-Error HardwareConfig::parseHardwarePin(const JsonObjectConst &obj,
-                                       bool isMultiPin) {
-  std::string id = obj["id"].as<std::string>();
-  std::string type = obj["type"].as<std::string>();
-
-  if (isMultiPin) {
-    std::unordered_map<std::string, int> pinNumbers;
-
-    for (auto kv : obj) {
-      if (kv.key() != "id" && kv.key() != "type" && kv.key() != "options") {
-        pinNumbers[kv.key().c_str()] = kv.value().as<int>();
-      }
-    }
-
-    HardwarePinConfig config(pinNumbers, id, type);
-    // Optionally handle options for multi-pin configurations
-    _hardwarePinConfigs.push_back(config);
-  } else {
-    int pin = obj["pinNumber"].as<int>();
-    HardwarePinConfig config(pin, id, type);
-    handleOptionsForSinglePin(obj, config);
+    HardwarePinConfig config = isMultiPin ? parseMultiPin(obj, id, type)
+                                          : parseSinglePin(obj, id, type);
+    parseOptions(obj, config);
     _hardwarePinConfigs.push_back(config);
   }
   return Error(Error::OK);
 }
 
-std::vector<int> HardwareConfig::extractPinNumbers(const JsonObjectConst &obj) {
-  std::vector<int> pinNumbers;
-  for (auto kv : obj) {
-    if (kv.key() != "id" && kv.key() != "type" && kv.key() != "options") {
-      pinNumbers.push_back(kv.value().as<int>());
-    }
-  }
-  return pinNumbers;
+HardwarePinConfig HardwareConfig::parseSinglePin(const JsonObjectConst &obj,
+                                                 const std::string &id,
+                                                 const std::string &type) {
+  int pin = obj["pinNumber"].as<int>();
+  return HardwarePinConfig(pin, id, type);
 }
 
-void HardwareConfig::handleOptionsForSinglePin(const JsonObjectConst &obj,
-                                               HardwarePinConfig &config) {
+HardwarePinConfig HardwareConfig::parseMultiPin(const JsonObjectConst &obj,
+                                                const std::string &id,
+                                                const std::string &type) {
+  JsonObjectConst pinsObj = obj["pins"].as<JsonObjectConst>();
+  std::unordered_map<std::string, int> pins;
+  for (auto pin : pinsObj) {
+    pins[pin.key().c_str()] = pin.value().as<int>();
+  }
+  return HardwarePinConfig(pins, id, type);
+}
+
+void HardwareConfig::parseOptions(const JsonObjectConst &obj,
+                                  HardwarePinConfig &config) {
   if (obj.containsKey("options")) {
     JsonObjectConst options = obj["options"].as<JsonObjectConst>();
     for (auto kv : options) {
