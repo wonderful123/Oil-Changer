@@ -12,22 +12,8 @@
   ERROR_CODE(FileReadFailure, "Error encountered while reading the file.")     \
   ERROR_CODE(FileSystemMountError, "Failed to mount the file system.")         \
   ERROR_CODE(FileWriteFailure, "Error encountered while writing the file.")    \
-  ERROR_CODE(HardwareConfigHardwareKeyMissing,                                 \
-             "Missing 'hardware' key in hardware configuration.")              \
-  ERROR_CODE(HardwareConfigGpioPinsKeyMissing,                                 \
-             "Missing or undefined 'gpioPins' key in hardware configuration.") \
-  ERROR_CODE(HardwareConfigGpioPinsTypeMismatch,                               \
-             "The 'gpioPins' key is expected to be an array.")                 \
-  ERROR_CODE(HardwareConfigGpioPinNumberMissing,                               \
-             "GPIO pin number is undefined in hardware configuration.")        \
-  ERROR_CODE(HardwareConfigGpioPinIdMissing,                                   \
-             "Missing GPIO pin ID in hardware configuration.")                 \
-  ERROR_CODE(HardwareConfigGpioPinTypeMissing,                                 \
-             "GPIO pin type is not specified in hardware configuration.")      \
-  ERROR_CODE(HardwareConfigAdcOptionsKeyMissing,                               \
-             "'options' key for ADC pin configuration is missing.")            \
-  ERROR_CODE(HardwareConfigAdcResolutionOptionMissing,                         \
-             "Missing 'resolution' key in ADC 'options'.")                     \
+  ERROR_CODE(HardwareConfigComponentsKeyMissing,                               \
+             "Missing 'components' key in hardware configuration.")            \
   ERROR_CODE(JsonInputInvalid,                                                 \
              "The provided JSON input is invalid or malformed.")               \
   ERROR_CODE(JsonMemoryError,                                                  \
@@ -40,12 +26,9 @@
   ERROR_CODE(                                                                  \
       ConfigTypeNotRecognized,                                                 \
       "The specified configuration type is not recognized or supported.")      \
-  ERROR_CODE(HardwareConfigAdcInitializationFailure,                           \
-             "Failed to initialize ADC with the given configuration.")         \
   ERROR_CODE(DigitalIOModeOptionMissingOrInvalid,                              \
              "Missing or invalid mode in DigitalIO options")                   \
-  ERROR_CODE(ADCInvalidAttenuationValue,                                       \
-             "Invalid ADC attenuation value.")                                 \
+  ERROR_CODE(ADCInvalidAttenuationValue, "Invalid ADC attenuation value.")     \
   ERROR_CODE(FlowMeterInitErrorNoPCNTUnitSpecified,                            \
              "FlowMeter: No PCNT unit specified for GPIO pin")
 #undef ERROR_CODE
