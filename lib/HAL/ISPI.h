@@ -2,6 +2,7 @@
 
 #include "HardwarePinConfig.h"
 #include <cstddef> // For size_t
+#include <cstdint> // For uint8_t
 
 class ISPI {
 public:

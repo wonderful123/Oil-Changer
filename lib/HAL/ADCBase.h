@@ -1,7 +1,5 @@
 #pragma once
 
-#include "HardwareComponent.h"
-#include "HardwarePinConfig.h"
 #include "IADC.h"
 #include "Logger.h"
 

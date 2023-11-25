@@ -1,5 +1,6 @@
 #pragma once
 
+#include "HardwarePinConfig.h"
 #include <string>
 
 class ISerial {

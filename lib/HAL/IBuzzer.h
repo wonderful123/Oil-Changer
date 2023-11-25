@@ -2,7 +2,6 @@
 
 #include "HardwareComponent.h"
 #include "HardwarePinConfig.h"
-#include "Logger.h"
 
 class IBuzzer : public HardwareComponent {
 public:

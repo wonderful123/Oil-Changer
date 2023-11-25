@@ -1,6 +1,5 @@
 #pragma once
 
-#include "HardwarePinConfig.h"
 #include "IPWM.h"
 #include "Logger.h"
 

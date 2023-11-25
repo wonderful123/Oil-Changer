@@ -1,6 +1,7 @@
 #pragma once
 
 #include "HardwareComponent.h"
+#include "HardwarePinConfig.h"
 
 class IFlowMeter : public HardwareComponent {
 public:

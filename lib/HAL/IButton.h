@@ -2,6 +2,7 @@
 
 #include "HardwareComponent.h"
 #include "HardwarePinConfig.h"
+#include <functional>
 
 /**
  * @class IButton
