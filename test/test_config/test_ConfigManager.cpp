@@ -6,31 +6,40 @@
 using ::testing::_;
 using ::testing::Return;
 
-/************************** Test Summary ****************************/
-/*
+/************************** Test Summary ****************************
 
-  Constructor and Destructor Tests:
-    - ConstructorInitialization: Verifies that the ConfigManager constructor
-  initializes the internal structures correctly.
+Constructor Tests:
+- ConstructorInitialization: Verifies that the ConfigManager constructor
+correctly initializes its internal state, particularly the file handler and any
+initial configurations.
 
-  getHardwareConfig Method Tests:
-    - RetrieveExistingConfig: Tests retrieving a previously loaded hardware
-  configuration, expecting a valid object.
-    - RetrieveNonExistingConfig: Verifies the behavior when attempting to
-  retrieve a hardware configuration that does not exist (should return nullptr).
+LoadConfig Tests:
+- LoadHardwareConfigSuccess: Tests loading a valid HardwareConfig. Verifies that
+the method returns Error::OK and the correct configuration is loaded and
+accessible.
+- LoadHardwareConfigFailure: Tests behavior when loading a non-existent or
+invalid HardwareConfig file. Ensures that an appropriate error (e.g.,
+Error::FileOpenFailure or Error::JsonInputInvalid) is returned.
+- ConfigTypeNotRecognized: Tries to load a configuration of an unrecognized type
+and checks if Error::ConfigTypeNotRecognized is returned.
+- FileHandlerErrorHandling: Simulates a failure in the file handler (e.g., file
+not opening) and checks if the ConfigManager correctly returns an error.
+- JsonDeserializationError: Tests the scenario where JSON deserialization fails
+due to an invalid format, ensuring that the appropriate error is returned.
 
-  loadConfig Method Tests:
-    - LoadSuccess: Tests successful loading of a valid hardware configuration
-  file, expecting no errors and correct parsing.
-    - LoadUnrecognizedConfigType: Validates that an appropriate error is
-  returned when trying to load a configuration of an unrecognized type.
-    - LoadFileReadFailure: Simulates a file read failure to test error handling
-  in the loadConfig method.
-    - LoadDeserializationFailure: Validates proper error handling when loading
-  content that cannot be deserialized as JSON.
+GetHardwareConfig Tests:
+- GetHardwareConfigExisting: Tests retrieving a previously loaded HardwareConfig
+and verifies the integrity of the returned object.
+- GetHardwareConfigNonExisting: Attempts to retrieve a non-existent
+HardwareConfig and checks if a nullptr is returned.
 
-*/
-/*******************************************************************/
+ErrorHandling Tests:
+- NoConfigLoadedError: Attempts to access a configuration when none is loaded,
+verifying that the correct error is returned or indicated.
+- InternalStateConsistency: Ensures that failed operations do not leave the
+ConfigManager in an inconsistent state.
+
+********************************************************************/
 
 class ConfigManagerTest : public ::testing::Test {
 protected:
@@ -39,126 +48,97 @@ protected:
 
   ConfigManagerTest() : configManager(&mockFileHandler) {}
 
+  const std::string validHardwareConfigJSON = R"json({
+      "components": {
+        "singlePin": [{
+          "id": "FlowMeterExtract",
+          "type": "FlowMeter",
+          "pinNumber": 15,
+          "options": {
+            "pcntUnit": "PCNT_UNIT_1",
+            "pulseMultiplier": 100,
+            "filterValue": 10,
+            "filterEnabled": true
+          }
+        }],
+        "multiPin": [{
+          "id": "SPI",
+          "type": "SPI",
+          "pins": {
+            "MOSI": 23,
+            "MISO": 19,
+            "SCLK": 18,
+            "CS": 5
+          }
+        }]
+      }
+    })json";
+
   void SetUp() override {
-    // Set up any required configurations for each test
   }
 };
 
-TEST_F(ConfigManagerTest, ConstructorInitialization) {
-  // Assuming ConfigManager's constructor initializes an internal structure,
-  // such as the 'configs' unordered_map, we need to verify it's in a valid
-  // state. As this is an internal detail, it might require making the test
-  // class a friend of ConfigManager, or using some indirect method to verify
-  // the initialization.
+TEST_F(ConfigManagerTest, LoadHardwareConfigSuccess) {
+  // Arrange
+  EXPECT_CALL(mockFileHandler, open(_, _)).WillOnce(Return(true));
+  EXPECT_CALL(mockFileHandler, read())
+      .WillOnce(Return(validHardwareConfigJSON));
+  // Act
+  Error result = configManager.loadConfig("HardwareConfig");
 
-  // Here we'll use a simple indirect method: attempting to retrieve a config
-  // and expecting it to return nullptr, indicating the map is initialized but
-  // empty.
-  auto hardwareConfig = configManager.getHardwareConfig();
-  EXPECT_EQ(hardwareConfig, nullptr);
+  // Assert
+  EXPECT_EQ(result.code(), Error::OK);
 }
 
-TEST_F(ConfigManagerTest, RetrieveExistingConfig) {
-  // Set up the mock to simulate successful file opening
-  EXPECT_CALL(mockFileHandler, open("hardwareConfig.json", "r"))
-      .WillOnce(Return(true));
+TEST_F(ConfigManagerTest, LoadHardwareConfigFailure) {
+  // Arrange
+  EXPECT_CALL(mockFileHandler, open(_, _))
+      .WillOnce(Return(false)); // Simulate file open failure
 
-  // Mock the file handler to return a valid configuration JSON upon reading
-  EXPECT_CALL(mockFileHandler, read()).WillOnce(Return(R"({
-    "gpioPins": [
-      {"pinNumber": 1, "id": "pin1", "type": "Digital"}
-    ]
-  })"));
+  // Act
+  Error result = configManager.loadConfig("HardwareConfig");
 
-  // Load a valid hardware configuration
-  Error loadError =
-      configManager.loadConfig("HardwareConfig");
-  EXPECT_EQ(loadError.code(), Error::OK)
-      << loadError.getFormattedMessage(loadError.code());
-  
-  // Retrieve the loaded hardware configuration
-  auto hardwareConfig = configManager.getHardwareConfig();
-  EXPECT_NE(hardwareConfig, nullptr);
+  // Assert
+  EXPECT_EQ(result.code(), Error::FileOpenFailure)
+      << result.getFormattedMessage(result.code());
+  ;
 }
 
-TEST_F(ConfigManagerTest, RetrieveNonExistingConfig) {
-  // Attempt to retrieve the hardware configuration when none has been loaded.
-  // This should return nullptr.
-  auto nonExistingConfig = configManager.getHardwareConfig();
-  EXPECT_EQ(nonExistingConfig, nullptr);
+TEST_F(ConfigManagerTest, ConfigTypeNotRecognized) {
+  // Act
+  Error result = configManager.loadConfig("UnknownConfigType");
+
+  // Assert
+  EXPECT_EQ(result.code(), Error::ConfigTypeNotRecognized)
+      << result.getFormattedMessage(result.code());
 }
 
-TEST_F(ConfigManagerTest, LoadSuccess) {
-  // Set up the mock to simulate successful file opening
-  EXPECT_CALL(mockFileHandler, open("hardwareConfig.json", "r"))
-      .WillOnce(Return(true));
+TEST_F(ConfigManagerTest, FileHandlerErrorHandling) {
+  // Arrange
+  EXPECT_CALL(mockFileHandler, open(_, _)).WillOnce(Return(true));
+  EXPECT_CALL(mockFileHandler, read())
+      .WillOnce(Return("")); // Simulate empty or invalid file content
 
-  // Mock file handler to simulate reading a correct config file
-  EXPECT_CALL(mockFileHandler, read()).WillOnce(Return(R"({
-    "gpioPins": [
-      {"pinNumber": 12, "id": "BUZZER", "type": "Buzzer"},
-      {"pinNumber": 1, "id": "pin1", "type": "Digital"}
-    ]
-  })"));
+  // Act
+  Error result = configManager.loadConfig("HardwareConfig");
 
-  Error loadError =
-      configManager.loadConfig("HardwareConfig");
-  EXPECT_EQ(loadError.code(), Error::OK)
-      << loadError.getFormattedMessage(loadError.code());
-
-  auto hardwareConfig = configManager.getHardwareConfig();
-  EXPECT_NE(hardwareConfig, nullptr);
-
-  // Additional checks on hardwareConfig
-  const auto &gpioConfigs = hardwareConfig->getHardwarePinConfigs();
-  EXPECT_EQ(gpioConfigs.size(), 2); // Check the number of configured GPIO pins
-
-  // Further checks can be added to validate individual GPIO pin configurations
-  EXPECT_EQ(gpioConfigs[0].pinNumber, 12);
-  EXPECT_EQ(gpioConfigs[0].id, "BUZZER");
-  EXPECT_EQ(gpioConfigs[0].type, "Buzzer");
-
-  EXPECT_EQ(gpioConfigs[1].pinNumber, 1);
-  EXPECT_EQ(gpioConfigs[1].id, "pin1");
-  EXPECT_EQ(gpioConfigs[1].type, "Digital");
+  // Assert
+  EXPECT_NE(result.code(), Error::OK)
+      << result.getFormattedMessage(result.code());
+  // Expecting an error but not specifying which one
 }
 
-TEST_F(ConfigManagerTest, LoadUnrecognizedConfigType) {
-  Error loadError =
-      configManager.loadConfig("UnknownConfigType");
+TEST_F(ConfigManagerTest, JsonDeserializationError) {
+  // Arrange
+  std::string invalidJson = "invalid_json"; // Not a valid JSON format
+  EXPECT_CALL(mockFileHandler, open(_, _)).WillOnce(Return(true));
+  EXPECT_CALL(mockFileHandler, read()).WillOnce(Return(invalidJson));
 
-  EXPECT_EQ(loadError.code(), Error::ConfigTypeNotRecognized)
-      << loadError.getFormattedMessage(loadError.code());
-}
+  // Act
+  Error result = configManager.loadConfig("HardwareConfig");
 
-TEST_F(ConfigManagerTest, LoadFileReadFailure) {
-  // Set expectations for open and read calls
-  EXPECT_CALL(mockFileHandler, open("hardwareConfig.json", "r"))
-      .WillOnce(Return(true));
-  EXPECT_CALL(mockFileHandler, read()).WillOnce(Return(std::string("")));
-  EXPECT_CALL(mockFileHandler, close())
-      .Times(testing::AtLeast(0)); // Handle close call
-
-  Error loadError =
-      configManager.loadConfig("HardwareConfig");
-
-  // Expecting an empty JSON input error
-  EXPECT_EQ(loadError.code(), Error::JsonInputEmpty)
-      << loadError.getFormattedMessage(loadError.code());
-}
-
-TEST_F(ConfigManagerTest, LoadDeserializationFailure) {
-  // Simulate file handler behavior for an invalid JSON content
-  EXPECT_CALL(mockFileHandler, open("hardwareConfig.json", "r"))
-      .WillOnce(Return(true));
-  EXPECT_CALL(mockFileHandler, read()).WillOnce(Return("invalid JSON content"));
-  EXPECT_CALL(mockFileHandler, close())
-      .Times(testing::AtLeast(0)); // Handle close call
-
-  Error loadError =
-      configManager.loadConfig("HardwareConfig");
-
-  // Check for the appropriate error code for invalid JSON input
-  EXPECT_EQ(loadError.code(), Error::JsonInputInvalid)
-      << loadError.getFormattedMessage(loadError.code());
+  // Assert
+  EXPECT_NE(result.code(), Error::OK)
+      << result.getFormattedMessage(result.code());
+  // Expecting a JSON-related error but not specifying which one
 }

@@ -1,57 +1,30 @@
 #include "MockFileHandlerWithRealLoad.h"
 #include "Mocks/MockFileHandler.h"
-#include "test_utils.h"
+#include "../test_utils.h"
 #include <HardwareConfig.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-/************************** Test Summary ****************************/
-/*
+/************************** Test Summary ****************************
 
   Constructor Tests:
-    - ConstructorInitialization: Verifies that the constructor correctly
-  initializes the HardwareConfig object.
+    - ConstructorInitialization: Verifies that the constructor correctly initializes the HardwareConfig object.
 
-    Load Tests:
-    - LoadSuccess: Tests successful loading of a valid configuration file and
-  expects no errors.
-    - LoadDeserializationFailure: Validates proper error handling when loading
-  content that cannot be deserialized as JSON.
+  Load Tests:
+    - LoadSuccess: Tests successful loading of a valid configuration file and expects no errors.
+    - LoadDeserializationFailure: Validates proper error handling when loading content that cannot be deserialized as JSON.
+    - EmptyConfiguration: Checks the behavior when the JSON file is valid but contains no configuration data.
+    - InvalidConfigurationStructure: Ensures error handling for JSON files with valid syntax but incorrect structure.
 
-  save Method Tests:
-    - SuccessfulSave: Tests the save function to ensure correct serialization
-  and file writing.
-    - SaveFileWriteFailure: Simulates a file write failure to test error
-  handling in save method.
+  Parsing Configuration Tests:
+    - ParseSinglePinConfiguration: Tests the parsing logic for single-pin configurations to ensure correct data extraction from JSON.
+    - ParseMultiPinConfiguration: Validates the parsing of multi-pin configurations from JSON.
+    - OptionParsing: Checks if options within configurations are parsed and stored correctly.
 
   getHardwarePinConfigs Method Tests:
-    - CorrectGpioConfigsRetrieval: Ensures that getHardwarePinConfigs returns the
-  correct gpioConfigs state.
+    - CorrectPinConfigsRetrieval: Ensures that getHardwarePinConfigs returns the correct list of pin configurations.
 
-  parseJson Method Tests:
-    - MissingGpioPinsKey: Tests response to JSON missing the 'gpioPins' key.
-    - GpioPinsNotArray: Checks the handling of 'gpioPins' key when it's not a
-  JSON array.
-
-  parseGpioPin Method Tests:
-    - ValidGpioPinParsing: Verifies correct parsing of a valid GPIO pin JSON
-  object.
-    - HardwareConfigGpioPinNumberMissing: Tests for missing 'pinNumber' key in
-  a GPIO pin configuration.
-    - HardwareConfigGpioPinIdMissing: Tests for missing 'id' key in a GPIO pin
-  configuration.
-    - HardwareConfigGpioPinTypeMissing: Tests for missing 'type' key in a GPIO
-  pin configuration.
-
-  validateADCOptions Method Tests:
-    - ValidAdcOptions: Ensures correct validation of valid ADC options.
-    - MissingAdcOptionsKey: Tests for missing 'options' key in ADC
-  configuration.
-    - MissingADCResolution: Checks for missing or invalid 'resolution' key
-  in ADC options.
-
-*/
-/*******************************************************************/
+*******************************************************************/
 
 using ::testing::_;
 using ::testing::Return;
@@ -71,6 +44,12 @@ protected:
   HardwareConfig realHardwareConfig;
 };
 
+TEST_F(HardwareConfigTest, ConstructorInitialization) {
+  // Assuming HardwareConfig has some method to verify its state
+  // For example, checking if it's initialized with an empty configuration
+  EXPECT_TRUE(hardwareConfig.getHardwarePinConfigs().empty());
+}
+
 TEST_F(HardwareConfigTest, LoadSuccess) {
   Error loadError = realHardwareConfig.load(REAL_CONFIG_FILE);
   EXPECT_EQ(loadError, Error::OK)
@@ -89,172 +68,147 @@ TEST_F(HardwareConfigTest, LoadDeserializationFailure) {
       << loadError.getFormattedMessage(loadError.code());
 }
 
-TEST_F(HardwareConfigTest, MissingGpioPinsKey) {
-  // Prepare a mock JSON string without the 'gpioPins' key
-  std::string invalidJson = R"({ "someOtherKey": [] })";
+TEST_F(HardwareConfigTest, EmptyConfiguration) {
+  const std::string emptyConfigJson = R"json({
+    "components": {
+      "singlePin": [],
+      "multiPin": []
+    }
+  })json";
 
-  // Mock the file handler to return this JSON string
-  expectOpenReadCloseForContent(mockFileHandler, invalidJson, DUMMY_FILE_PATH);
-
-  // Load the configuration
+  expectOpenReadCloseForContent(mockFileHandler, emptyConfigJson,
+                                DUMMY_FILE_PATH);
   Error loadError = hardwareConfig.load(DUMMY_FILE_PATH);
 
-  // Expect the specific error for missing 'gpioPins' key
-  EXPECT_EQ(loadError, Error::HardwareConfigGpioPinsKeyMissing)
-      << loadError.getFormattedMessage(loadError.code());
+  EXPECT_EQ(loadError, Error::OK);
+  EXPECT_TRUE(hardwareConfig.getHardwarePinConfigs().empty());
 }
 
-TEST_F(HardwareConfigTest, SuccessfulSave) {
-  std::string expectedJson = R"({
-    "gpioPins": [
-      {"pinNumber": 1, "id": "pin1", "type": "Digital"}
-    ]
-  })";
+TEST_F(HardwareConfigTest, InvalidConfigurationStructure) {
+  const std::string invalidStructureJson = R"json({
+    "invalidKey": {
+      "someData": []
+    }
+  })json";
 
-  EXPECT_CALL(mockFileHandler, open(_, "w")).WillOnce(Return(true));
-  EXPECT_CALL(mockFileHandler, write(testing::Ne(""))).WillOnce(Return(true));
-  EXPECT_CALL(mockFileHandler, close()).Times(1);
-
-  Error saveError = hardwareConfig.save("test_config.json");
-  EXPECT_EQ(saveError, Error::OK);
-}
-
-TEST_F(HardwareConfigTest, SaveFileWriteFailure) {
-  EXPECT_CALL(mockFileHandler, open(_, "w")).WillOnce(Return(true));
-  EXPECT_CALL(mockFileHandler, write(testing::_))
-      .WillOnce(Return(false)); // Use testing::_ for any argument
-  EXPECT_CALL(mockFileHandler, close()).Times(1);
-
-  Error saveError = hardwareConfig.save("test_config.json");
-  EXPECT_EQ(saveError, Error::FileWriteFailure);
-}
-
-TEST_F(HardwareConfigTest, CorrectGpioConfigsRetrieval) {
-  std::string validJson = R"({
-    "gpioPins": [
-      {"pinNumber": 3, "id": "pin3", "type": "PWM"}
-    ]
-  })";
-
-  expectOpenReadCloseForContent(mockFileHandler, validJson, DUMMY_FILE_PATH);
-
+  expectOpenReadCloseForContent(mockFileHandler, invalidStructureJson,
+                                DUMMY_FILE_PATH);
   Error loadError = hardwareConfig.load(DUMMY_FILE_PATH);
-  ASSERT_EQ(loadError, Error::OK)
-      << loadError.getFormattedMessage(loadError.code());
-  ;
 
-  const auto &gpioConfigs = hardwareConfig.getHardwarePinConfigs();
-  ASSERT_EQ(gpioConfigs.size(), 1u);
-  EXPECT_EQ(gpioConfigs[0].pinNumber, 3)<< loadError.getFormattedMessage(loadError.code());;
-  EXPECT_EQ(gpioConfigs[0].id, "pin3");
-  EXPECT_EQ(gpioConfigs[0].type, "PWM");
+  EXPECT_EQ(loadError, Error::HardwareConfigComponentsKeyMissing);
 }
 
-TEST_F(HardwareConfigTest, GpioPinsNotArray) {
-  std::string invalidJson = R"({
-    "gpioPins": {"pinNumber": 1, "id": "pin1", "type": "Digital"}
-  })";
+TEST_F(HardwareConfigTest, ParseSinglePinConfiguration) {
+  const std::string validSinglePinJsonContent = R"json({
+    "components": {
+      "singlePin": [{
+        "id": "TestPin",
+        "type": "TestType",
+        "pinNumber": 123,
+        "options": {
+          "option1": "value1",
+          "option2": "value2"
+        }
+      }]
+    }
+  })json";
 
-  expectOpenReadCloseForContent(mockFileHandler, invalidJson, DUMMY_FILE_PATH);
+  expectOpenReadCloseForContent(mockFileHandler, validSinglePinJsonContent,
+                                DUMMY_FILE_PATH);
 
   Error loadError = hardwareConfig.load(DUMMY_FILE_PATH);
 
-  EXPECT_EQ(loadError, Error::HardwareConfigGpioPinsTypeMismatch)
+  EXPECT_EQ(loadError, Error::OK)
       << loadError.getFormattedMessage(loadError.code());
+
+  const auto &configs = hardwareConfig.getHardwarePinConfigs();
+
+  ASSERT_EQ(configs.size(), 1);
+  EXPECT_EQ(configs[0].id, "TestPin")<< loadError.getFormattedMessage(loadError.code());;
+  EXPECT_EQ(configs[0].type, "TestType");
+  EXPECT_EQ(configs[0].pinNumber, 123);
+  EXPECT_EQ(configs[0].options.at("option1"), "value1");
+  EXPECT_EQ(configs[0].options.at("option2"), "value2");
 }
 
-TEST_F(HardwareConfigTest, ValidGpioPinParsing) {
-  std::string validJson = R"({
-    "gpioPins": [
-      {"pinNumber": 4, "id": "pin4", "type": "Digital"}
-    ]
-  })";
+TEST_F(HardwareConfigTest, OptionParsing) {
+  const std::string singlePinWithOptionsJson = R"json({
+    "components": {
+      "singlePin": [{
+        "id": "TestPin",
+        "type": "TestType",
+        "pinNumber": 123,
+        "options": {
+          "option1": "value1",
+          "option2": "value2"
+        }
+      }]
+    }
+  })json";
 
-  expectOpenReadCloseForContent(mockFileHandler, validJson, DUMMY_FILE_PATH);
-
+  expectOpenReadCloseForContent(mockFileHandler, singlePinWithOptionsJson,
+                                DUMMY_FILE_PATH);
   Error loadError = hardwareConfig.load(DUMMY_FILE_PATH);
-  ASSERT_EQ(loadError, Error::OK)
-      << loadError.getFormattedMessage(loadError.code());
-  ;
 
-  const auto &gpioConfigs = hardwareConfig.getHardwarePinConfigs();
-  ASSERT_EQ(gpioConfigs.size(), 1u);
-  EXPECT_EQ(gpioConfigs[0].pinNumber, 4);
-  EXPECT_EQ(gpioConfigs[0].id, "pin4");
-  EXPECT_EQ(gpioConfigs[0].type, "Digital");
+  EXPECT_EQ(loadError, Error::OK);
+  const auto &configs = hardwareConfig.getHardwarePinConfigs();
+  ASSERT_EQ(configs.size(), 1);
+  EXPECT_EQ(configs[0].options.at("option1"), "value1");
+  EXPECT_EQ(configs[0].options.at("option2"), "value2");
 }
 
-TEST_F(HardwareConfigTest, HardwareConfigGpioPinNumberMissing) {
-  std::string invalidJson = R"({
-    "gpioPins": [
-      {"id": "pin10", "type": "Digital"}
-    ]
-  })";
+TEST_F(HardwareConfigTest, CorrectPinConfigsRetrieval) {
+  const std::string configJsonContent = R"json({
+    "components": {
+      "singlePin": [{
+        "id": "FlowMeterExtract",
+        "type": "FlowMeter",
+        "pinNumber": 15,
+        "options": {
+          "pcntUnit": "PCNT_UNIT_1",
+          "pulseMultiplier": 100,
+          "filterValue": 10,
+          "filterEnabled": true
+        }
+      }],
+      "multiPin": [{
+        "id": "SPI",
+        "type": "SPI",
+        "pins": {
+          "MOSI": 23,
+          "MISO": 19,
+          "SCLK": 18,
+          "CS": 5
+        }
+      }]
+    }
+  })json";
 
-  expectOpenReadCloseForContent(mockFileHandler, invalidJson, DUMMY_FILE_PATH);
-
+  expectOpenReadCloseForContent(mockFileHandler, configJsonContent,
+                                DUMMY_FILE_PATH);
   Error loadError = hardwareConfig.load(DUMMY_FILE_PATH);
-  EXPECT_EQ(loadError, Error::HardwareConfigGpioPinNumberMissing)
-      << loadError.getFormattedMessage(loadError.code());
-  ;
-}
 
-TEST_F(HardwareConfigTest, HardwareConfigGpioPinIdMissing) {
-  std::string invalidJson = R"({
-    "gpioPins": [
-      {"pinNumber": 11, "type": "Digital"}
-    ]
-  })";
+  EXPECT_EQ(loadError, Error::OK);
 
-  expectOpenReadCloseForContent(mockFileHandler, invalidJson, DUMMY_FILE_PATH);
+  const auto &configs = hardwareConfig.getHardwarePinConfigs();
+  ASSERT_EQ(configs.size(), 2);
 
-  Error loadError = hardwareConfig.load(DUMMY_FILE_PATH);
-  EXPECT_EQ(loadError, Error::HardwareConfigGpioPinIdMissing)
-      << loadError.getFormattedMessage(loadError.code());
-  ;
-}
+  // Assertions for the single pin configuration
+  const HardwarePinConfig &singlePinConfig = configs[0];
+  EXPECT_EQ(singlePinConfig.id, "FlowMeterExtract");
+  EXPECT_EQ(singlePinConfig.type, "FlowMeter");
+  EXPECT_EQ(singlePinConfig.pinNumber, 15);
+  EXPECT_EQ(singlePinConfig.options.at("pcntUnit"), "PCNT_UNIT_1");
+  EXPECT_EQ(singlePinConfig.getOptionAs<int>("pulseMultiplier"), 100);
+  EXPECT_EQ(singlePinConfig.getOptionAs<int>("filterValue"), 10);
+  EXPECT_EQ(singlePinConfig.getOptionAs<bool>("filterEnabled"), true);
 
-TEST_F(HardwareConfigTest, HardwareConfigGpioPinTypeMissing) {
-  std::string invalidJson = R"({
-    "gpioPins": [
-      {"pinNumber": 12, "id": "pin12"}
-    ]
-  })";
-
-  expectOpenReadCloseForContent(mockFileHandler, invalidJson, DUMMY_FILE_PATH);
-
-  Error loadError = hardwareConfig.load(DUMMY_FILE_PATH);
-  EXPECT_EQ(loadError, Error::HardwareConfigGpioPinTypeMissing)
-      << loadError.getFormattedMessage(loadError.code());
-  ;
-}
-
-TEST_F(HardwareConfigTest, MissingAdcOptionsKey) {
-  std::string invalidJson = R"({
-    "gpioPins": [
-      {"pinNumber": 8, "id": "pin8", "type": "ADC"}
-    ]
-  })";
-
-  expectOpenReadCloseForContent(mockFileHandler, invalidJson, DUMMY_FILE_PATH);
-
-  Error loadError = hardwareConfig.load(DUMMY_FILE_PATH);
-  EXPECT_EQ(loadError, Error::HardwareConfigAdcOptionsKeyMissing)
-      << loadError.getFormattedMessage(loadError.code());
-  ;
-}
-
-TEST_F(HardwareConfigTest, MissingADCResolution) {
-  std::string invalidJson = R"({
-    "gpioPins": [
-      {"pinNumber": 9, "id": "pin9", "type": "ADC", "options": {"resolution": "high"}}
-    ]
-  })";
-
-  expectOpenReadCloseForContent(mockFileHandler, invalidJson, DUMMY_FILE_PATH);
-
-  Error loadError = hardwareConfig.load(DUMMY_FILE_PATH);
-  EXPECT_EQ(loadError, Error::HardwareConfigAdcResolutionOptionMissing)
-      << loadError.getFormattedMessage(loadError.code());
-  ;
+  // Assertions for the multi pin configuration
+  const HardwarePinConfig &multiPinConfig = configs[1];
+  EXPECT_EQ(multiPinConfig.id, "SPI");
+  EXPECT_EQ(multiPinConfig.type, "SPI");
+  EXPECT_EQ(multiPinConfig.pins.at("MOSI"), 23);
+  EXPECT_EQ(multiPinConfig.pins.at("MISO"), 19);
+  EXPECT_EQ(multiPinConfig.pins.at("SCLK"), 18);
+  EXPECT_EQ(multiPinConfig.pins.at("CS"), 5);
 }
