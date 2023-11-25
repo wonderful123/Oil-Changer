@@ -79,14 +79,13 @@ protected:
 };
 
 TEST_F(ConfigManagerTest, LoadHardwareConfigSuccess) {
-  // Arrange
   EXPECT_CALL(mockFileHandler, open(_, _)).WillOnce(Return(true));
   EXPECT_CALL(mockFileHandler, read())
       .WillOnce(Return(validHardwareConfigJSON));
-  // Act
+  EXPECT_CALL(mockFileHandler, close);
+
   Error result = configManager.loadConfig("HardwareConfig");
 
-  // Assert
   EXPECT_EQ(result.code(), Error::OK);
 }
 
@@ -118,6 +117,7 @@ TEST_F(ConfigManagerTest, FileHandlerErrorHandling) {
   EXPECT_CALL(mockFileHandler, open(_, _)).WillOnce(Return(true));
   EXPECT_CALL(mockFileHandler, read())
       .WillOnce(Return("")); // Simulate empty or invalid file content
+  EXPECT_CALL(mockFileHandler, close);
 
   // Act
   Error result = configManager.loadConfig("HardwareConfig");
@@ -133,6 +133,7 @@ TEST_F(ConfigManagerTest, JsonDeserializationError) {
   std::string invalidJson = "invalid_json"; // Not a valid JSON format
   EXPECT_CALL(mockFileHandler, open(_, _)).WillOnce(Return(true));
   EXPECT_CALL(mockFileHandler, read()).WillOnce(Return(invalidJson));
+  EXPECT_CALL(mockFileHandler, close);
 
   // Act
   Error result = configManager.loadConfig("HardwareConfig");
@@ -141,4 +142,28 @@ TEST_F(ConfigManagerTest, JsonDeserializationError) {
   EXPECT_NE(result.code(), Error::OK)
       << result.getFormattedMessage(result.code());
   // Expecting a JSON-related error but not specifying which one
+}
+
+TEST_F(ConfigManagerTest, GetHardwareConfigExisting) {
+  // Arrange
+  EXPECT_CALL(mockFileHandler, open(_, _)).WillOnce(Return(true));
+  EXPECT_CALL(mockFileHandler, read())
+      .WillOnce(Return(validHardwareConfigJSON));
+  EXPECT_CALL(mockFileHandler, close);
+  
+  configManager.loadConfig("HardwareConfig");
+
+  auto hardwareConfig = configManager.getHardwareConfig();
+
+  EXPECT_NE(hardwareConfig,
+            nullptr); // The returned config should not be nullptr
+}
+
+TEST_F(ConfigManagerTest, GetHardwareConfigNonExisting) {
+  // Act
+  auto hardwareConfig = configManager.getHardwareConfig();
+
+  // Assert
+  EXPECT_EQ(hardwareConfig,
+            nullptr); // Expecting nullptr for non-existing config
 }

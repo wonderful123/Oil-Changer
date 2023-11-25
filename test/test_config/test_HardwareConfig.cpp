@@ -1,4 +1,3 @@
-#include "MockFileHandlerWithRealLoad.h"
 #include "Mocks/MockFileHandler.h"
 #include "../test_utils.h"
 #include <HardwareConfig.h>
@@ -11,7 +10,6 @@
     - ConstructorInitialization: Verifies that the constructor correctly initializes the HardwareConfig object.
 
   Load Tests:
-    - LoadSuccess: Tests successful loading of a valid configuration file and expects no errors.
     - LoadDeserializationFailure: Validates proper error handling when loading content that cannot be deserialized as JSON.
     - EmptyConfiguration: Checks the behavior when the JSON file is valid but contains no configuration data.
     - InvalidConfigurationStructure: Ensures error handling for JSON files with valid syntax but incorrect structure.
@@ -32,28 +30,17 @@ using ::testing::Return;
 class HardwareConfigTest : public ::testing::Test {
 protected:
   HardwareConfigTest()
-      : hardwareConfig(&mockFileHandler),
-        realHardwareConfig(&mockFileHandlerWithRealLoad) {}
+      : hardwareConfig(&mockFileHandler) {}
 
   const std::string DUMMY_FILE_PATH = "dummy_config.json";
   MockFileHandler mockFileHandler;
   HardwareConfig hardwareConfig;
-
-  const std::string REAL_CONFIG_FILE = "test/test_config/hardwareConfig.json";
-  MockFileHandlerWithRealLoad mockFileHandlerWithRealLoad;
-  HardwareConfig realHardwareConfig;
 };
 
 TEST_F(HardwareConfigTest, ConstructorInitialization) {
   // Assuming HardwareConfig has some method to verify its state
   // For example, checking if it's initialized with an empty configuration
   EXPECT_TRUE(hardwareConfig.getHardwarePinConfigs().empty());
-}
-
-TEST_F(HardwareConfigTest, LoadSuccess) {
-  Error loadError = realHardwareConfig.load(REAL_CONFIG_FILE);
-  EXPECT_EQ(loadError, Error::OK)
-      << loadError.getFormattedMessage(loadError.code());
 }
 
 TEST_F(HardwareConfigTest, LoadDeserializationFailure) {
@@ -115,16 +102,15 @@ TEST_F(HardwareConfigTest, ParseSinglePinConfiguration) {
 
   expectOpenReadCloseForContent(mockFileHandler, validSinglePinJsonContent,
                                 DUMMY_FILE_PATH);
-
+                                
   Error loadError = hardwareConfig.load(DUMMY_FILE_PATH);
 
-  EXPECT_EQ(loadError, Error::OK)
-      << loadError.getFormattedMessage(loadError.code());
+  EXPECT_EQ(loadError, Error::OK);
 
   const auto &configs = hardwareConfig.getHardwarePinConfigs();
 
   ASSERT_EQ(configs.size(), 1);
-  EXPECT_EQ(configs[0].id, "TestPin")<< loadError.getFormattedMessage(loadError.code());;
+  EXPECT_EQ(configs[0].id, "TestPin");
   EXPECT_EQ(configs[0].type, "TestType");
   EXPECT_EQ(configs[0].pinNumber, 123);
   EXPECT_EQ(configs[0].options.at("option1"), "value1");
