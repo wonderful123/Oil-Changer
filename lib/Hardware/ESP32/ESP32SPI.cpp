@@ -8,7 +8,6 @@
 ESP32SPI::ESP32SPI(const HardwarePinConfig &config)
     : _mosiPin(config.pins.at("MOSI")), _misoPin(config.pins.at("MISO")),
       _sclkPin(config.pins.at("SCLK")), _csPin(config.pins.at("CS")) {
-  // Additional initialization as needed
 }
 
 void ESP32SPI::begin() { SPI.begin(_sclkPin, _misoPin, _mosiPin, _csPin); }
