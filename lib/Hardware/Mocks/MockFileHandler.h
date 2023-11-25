@@ -1,9 +1,8 @@
 #pragma once
 
-#include "IFileHandler.h"
-
 #ifdef PLATFORM_NATIVE
 
+#include "IFileHandler.h"
 #include <gmock/gmock.h>
 #include <string>
 

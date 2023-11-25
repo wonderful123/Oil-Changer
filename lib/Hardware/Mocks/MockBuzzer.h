@@ -1,8 +1,8 @@
 #pragma once
 
-#include "IBuzzer.h"
-
 #ifdef PLATFORM_NATIVE
+
+#include "IBuzzer.h"
 #include <iostream>
 #include <string>
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef PLATFORM_NATIVE
+
 #include "IButtonControllerObserver.h"
 #include "ButtonController.h"
 #include "IButton.h"
@@ -16,3 +18,5 @@ public:
   MOCK_METHOD(void, registerButton,
               (const std::string &, std::shared_ptr<IButton>), (override));
 };
+
+#endif // PLATFORM_NATIVE

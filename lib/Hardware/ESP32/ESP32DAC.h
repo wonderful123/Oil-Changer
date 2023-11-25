@@ -12,4 +12,5 @@ public:
 protected:
   void applyValue(int value) override;
 };
+
 #endif // PLATFORM_ESP32

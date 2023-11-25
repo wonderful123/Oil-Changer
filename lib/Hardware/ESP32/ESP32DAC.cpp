@@ -21,4 +21,5 @@ void ESP32DAC::applyValue(int value) {
   Logger::debug("DAC applyValue: Pin " + std::to_string(_pinNumber) +
                 ", Value " + std::to_string(clampedValue));
 }
+
 #endif // PLATFORM_ESP32

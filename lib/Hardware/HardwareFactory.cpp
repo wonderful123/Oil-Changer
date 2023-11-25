@@ -1,4 +1,5 @@
 #include "HardwareFactory.h"
+
 #ifdef PLATFORM_ESP32
 #include "ESP32HardwareFactory.h"
 #else

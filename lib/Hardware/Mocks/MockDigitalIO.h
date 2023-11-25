@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef PLATFORM_NATIVE
+
 #include "DigitalIOBase.h"
 #include <gmock/gmock.h>
 
@@ -10,3 +12,5 @@ public:
   MOCK_METHOD(int, read, (), (const, override));
   MOCK_METHOD(void, write, (int value), (override));
 };
+
+#endif // PLATFORM_NATIVE

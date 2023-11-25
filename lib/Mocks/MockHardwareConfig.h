@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef PLATFORM_NATIVE
+
 #include "HardwarePinConfig.h"
 #include "IFileHandler.h"
 #include <gmock/gmock.h>
@@ -13,3 +15,5 @@ public:
   MOCK_METHOD(const std::vector<HardwarePinConfig> &, getHardwarePinConfigs, (),
               (const));
 };
+
+#endif // PLATFORM_NATIVE

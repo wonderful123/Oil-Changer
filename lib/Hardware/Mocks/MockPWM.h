@@ -1,9 +1,8 @@
 #pragma once
 
-#include "IPWM.h"
-
 #ifdef PLATFORM_NATIVE
 
+#include "IPWM.h"
 #include <iostream>
 
 class MockPWM : public IPWM {

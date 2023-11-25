@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef PLATFORM_NATIVE
+
 #include "DACBase.h"
 #include <gmock/gmock.h>
 
@@ -9,3 +11,5 @@ public:
 
   MOCK_METHOD(void, applyValue, (int value), (override));
 };
+
+#endif // PLATFORM_NATIVE

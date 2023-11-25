@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef PLATFORM_ESP32
+
 #include "ESP32/ESP32ADC.h"
 #include "ESP32/ESP32Button.h"
 #include "ESP32/ESP32Buzzer.h"
@@ -60,3 +62,5 @@ public:
     return std::unique_ptr<IFileHandler>(new ESP32FileHandler());
   }
 };
+
+#endif

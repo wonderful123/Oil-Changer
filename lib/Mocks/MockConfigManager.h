@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef PLATFORM_NATIVE
+
 #include "ConfigManager.h"
 #include <gmock/gmock.h>
 #include <memory>
@@ -12,3 +14,5 @@ public:
   MOCK_METHOD(std::shared_ptr<HardwareConfig>, getHardwareConfig, (),
               (const, override));
 };
+
+#endif // PLATFORM_NATIVE

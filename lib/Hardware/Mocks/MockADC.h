@@ -1,8 +1,8 @@
 #pragma once
 
-#include "IADC.h"
-
 #ifdef PLATFORM_NATIVE
+
+#include "IADC.h"
 #include <iostream>
 #include <unordered_map>
 

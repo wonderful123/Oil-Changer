@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef PLATFORM_NATIVE
+
 #include "HardwareFactory.h"
 #include "Mocks/MockADC.h"
 #include "Mocks/MockDAC.h"
@@ -59,3 +61,5 @@ public:
     return std::unique_ptr<ISerial>(new MockSerial());
   }
 };
+
+#endif
