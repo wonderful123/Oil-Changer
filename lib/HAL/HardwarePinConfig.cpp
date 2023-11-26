@@ -31,3 +31,5 @@ template std::string
 HardwarePinConfig::getOptionAs<std::string>(const std::string &key) const;
 template bool
 HardwarePinConfig::getOptionAs<bool>(const std::string &key) const;
+template double
+HardwarePinConfig::getOptionAs<double>(const std::string &key) const;
