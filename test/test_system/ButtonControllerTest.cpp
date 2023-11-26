@@ -105,9 +105,11 @@ TEST_F(ButtonControllerTest, NotifyWithNoObservers) {
 TEST_F(ButtonControllerTest, ButtonPressSimulation) {
   // Simulate button press
   ON_CALL(*mockButton, isPressed()).WillByDefault(Return(true));
+  EXPECT_CALL(*mockButton, isPressed()).Times(1);
 
   // Expect the observer to be notified for the test button press
   EXPECT_CALL(*mockObserver, onButtonPress(testButtonId)).Times(1);
+
 
   // Trigger the button press event
   // This part depends on how your ButtonController detects button presses.

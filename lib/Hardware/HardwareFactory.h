@@ -26,7 +26,7 @@ public:
   // Singleton getter function
   static std::shared_ptr<HardwareFactory> &getHardwareFactory();
 
-  virtual std::unique_ptr<HardwareComponent>
+  virtual std::shared_ptr<HardwareComponent>
   createComponent(const HardwarePinConfig &config);
 
   // Factory methods for creating hardware components
@@ -48,5 +48,5 @@ public:
   createSerial(const HardwarePinConfig &config) = 0;
 
 private:
-  std::unique_ptr<HardwareFactory> _hardwareFactory;
+  std::shared_ptr<HardwareFactory> _hardwareFactory;
 };

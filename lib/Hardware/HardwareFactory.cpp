@@ -6,9 +6,9 @@
 #include <MockHardwareFactory.h>
 #endif
 
-std::unique_ptr<HardwareComponent>
+std::shared_ptr<HardwareComponent>
 HardwareFactory::createComponent(const HardwarePinConfig &config) {
-  std::unique_ptr<HardwareComponent> hardwareComponent;
+  std::shared_ptr<HardwareComponent> hardwareComponent;
 
   if (config.type == "ADC") {
     hardwareComponent = createADC(config);

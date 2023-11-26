@@ -7,10 +7,9 @@
 
 HardwareManager::HardwareManager(
     std::shared_ptr<ConfigManager> configManager,
-    std::unique_ptr<HardwareFactory> hardwareFactory,
+    std::shared_ptr<HardwareFactory> hardwareFactory,
     std::shared_ptr<ButtonController> buttonController)
-    : _configManager(std::move(configManager)),
-      _hardwareFactory(std::move(hardwareFactory)),
+    : _configManager(configManager), _hardwareFactory(hardwareFactory),
       _buttonController(buttonController) {}
 
 void HardwareManager::initializeHardware() {
@@ -19,7 +18,7 @@ void HardwareManager::initializeHardware() {
     Logger::error("Hardware configuration is not available");
     return;
   }
-  
+
   bool allComponentsInitialized = true;
   for (const auto &config : hardwareConfig->getHardwarePinConfigs()) {
     auto component = initializeComponent(config);
@@ -78,16 +77,8 @@ void HardwareManager::registerComponent(
   // Add similar checks for other component types if needed
 }
 
-std::shared_ptr<HardwareComponent>
-HardwareManager::getComponentById(const std::string &id) const {
-  auto it = _components.find(id);
-  if (it != _components.end()) {
-    return it->second;
-  }
-  return nullptr; // Return nullptr if component not found
-}
-
-bool HardwareManager::isComponentInitialized(const std::string &componentId) const {
+bool HardwareManager::isComponentInitialized(
+    const std::string &componentId) const {
   // Iterate through all components in the _components map
   for (const auto &pair : _components) {
     const auto &id = pair.first;
@@ -98,6 +89,16 @@ bool HardwareManager::isComponentInitialized(const std::string &componentId) con
     }
   }
   return false;
+}
+
+std::shared_ptr<HardwareComponent>
+HardwareManager::getComponentById(const std::string &id) const {
+  auto it = _components.find(id);
+  if (it != _components.end()) {
+    return it->second;
+  }
+  
+  return nullptr; // Return nullptr if component not found
 }
 
 void HardwareManager::update() {

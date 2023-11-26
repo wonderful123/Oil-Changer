@@ -39,7 +39,7 @@ public:
     return std::unique_ptr<IFileHandler>(new MockFileHandler());
   }
 
-  std::unique_ptr<HardwareComponent>
+  std::shared_ptr<HardwareComponent>
   createComponent(const HardwarePinConfig &config) override {
     if (config.type == "ADC") {
       return createADC(config);
