@@ -14,7 +14,6 @@
 #include "ISPI.h"
 #include "ISerial.h"
 #include <memory>
-#include "Logger.h"
 
 // Responsible for the actual creation of hardware objects. It receives
 // specifications or configurations from HardwareManager and creates hardware
@@ -27,7 +26,7 @@ public:
   // Singleton getter function
   static std::shared_ptr<HardwareFactory> &getHardwareFactory();
 
-  std::unique_ptr<HardwareComponent>
+  virtual std::unique_ptr<HardwareComponent>
   createComponent(const HardwarePinConfig &config);
 
   // Factory methods for creating hardware components

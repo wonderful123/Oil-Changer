@@ -1,7 +1,6 @@
 #pragma once
 
 #include "IPWM.h"
-#include "Logger.h"
 
 class PWMBase : public IPWM {
 public:
