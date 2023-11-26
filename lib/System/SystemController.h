@@ -12,13 +12,13 @@ public:
   SystemController(std::shared_ptr<HardwareManager> hardwareManager,
                    std::shared_ptr<ButtonController> buttonController);
 
-  void initialize();
-  void onButtonPress(const std::string &id) override;
+  virtual void initialize();
+  virtual void onButtonPress(const std::string &id) override;
 
-  void startSystem();
-  void stopSystem();
+  virtual void startSystem();
+  virtual void stopSystem();
 
-  void update() override;
+  virtual void update() override;
 
 private:
   std::shared_ptr<HardwareManager> _hardwareManager;

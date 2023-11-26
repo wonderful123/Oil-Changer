@@ -10,13 +10,13 @@ class ButtonController {
 public:
   ButtonController();
 
-  void addObserver(std::shared_ptr<IButtonControllerObserver> observer);
+  virtual void addObserver(std::shared_ptr<IButtonControllerObserver> observer);
   virtual void registerButton(const std::string &id,
                               std::shared_ptr<IButton> button);
 
-  void notifyObservers(const std::string &id);
+  virtual void notifyObservers(const std::string &id);
 
-  void checkButtonStates();
+  virtual void checkButtonStates();
 
 private:
   std::vector<std::shared_ptr<IButtonControllerObserver>> _observers;

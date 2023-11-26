@@ -37,9 +37,9 @@ management of hardware components.
 #include "ButtonController.h"
 #include "ConfigManager.h"
 #include "Core/IObserver.h"
-#include "HardwarePinConfig.h"
 #include "HardwareComponent.h" // Include the base class for hardware components
 #include "HardwareFactory.h"
+#include "HardwarePinConfig.h"
 #include <functional>
 #include <map>
 #include <memory>
@@ -53,47 +53,40 @@ management of hardware components.
 class HardwareManager : public IObserver {
 private:
   std::shared_ptr<ConfigManager> _configManager;
-  std::unique_ptr<HardwareFactory> _hardwareFactory;
+  std::shared_ptr<HardwareFactory> _hardwareFactory;
   std::shared_ptr<ButtonController> _buttonController;
 
   // Unified map to hold all types of components by id
   std::map<std::string, std::shared_ptr<HardwareComponent>> _components;
 
+  virtual bool initializeComponent(const HardwarePinConfig &config);
+
   void registerComponent(const HardwarePinConfig &config,
                          const std::shared_ptr<HardwareComponent> &component);
 
-      void handleButtonEvent(const std::string &buttonId);
+  virtual void onButtonEvent(const std::string &buttonId, bool pressed);
+
+  void handleButtonEvent(const std::string &buttonId);
+
   void changeStateBasedOnButton(const std::string &buttonId);
 
 public:
   HardwareManager(std::shared_ptr<ConfigManager> configManager,
-                  std::unique_ptr<HardwareFactory> hardwareFactory,
+                  std::shared_ptr<HardwareFactory> hardwareFactory,
                   std::shared_ptr<ButtonController> buttonController);
 
   virtual ~HardwareManager() = default;
 
-  void setupInitializerMap();
-
   // Initializes all hardware components
-  void initializeHardware();
+  virtual void initializeHardware();
 
-  bool initializeComponent(const HardwarePinConfig &config);
-  bool isComponentInitialized(const std::string &componentId) const;
-  std::shared_ptr<HardwareComponent> getComponentById(const std::string &id) const;
+  virtual bool isComponentInitialized(const std::string &componentId) const;
 
-  // Manages the states of hardware components using TinyFSM
-  void manageHardwareStates();
-
-  // Notifies other components about hardware events (Observer pattern)
-  void notifyEvent();
-
-  // Receives commands and reports status to the SystemController
-  void communicateWithSystemController();
+  virtual std::shared_ptr<HardwareComponent>
+  getComponentById(const std::string &id) const;
 
   // Observer pattern implementation
   virtual void update() override;
 
-  void onButtonEvent(const std::string &buttonId, bool pressed);
-
-  void triggerBuzzer();
+  virtual void triggerBuzzer();
 };
