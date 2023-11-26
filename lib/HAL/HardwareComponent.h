@@ -24,49 +24,28 @@
  */
 class HardwareComponent {
 public:
-  /**
-   * @brief Protected constructor for the HardwareComponent.
-   *
-   * Initializes the hardware component with the given GPIO pin configuration.
-   * Marked explicit to prevent accidental conversions.
-   *
-   * @param config The GPIO pin configuration.
-   */
   explicit HardwareComponent(const HardwarePinConfig &config)
       : _pinNumber(config.pinNumber), _id(config.id), _type(config.type),
-        _initialized(false) {}
+        _initialized(false), _pins(config.pins) {}
 
-  /**
-   * @brief Virtual destructor.
-   *
-   * Ensures derived classes are destructed properly.
-   */
   virtual ~HardwareComponent() = default;
 
-  /**
-   * @brief Checks if the hardware component is initialized.
-   *
-   * @return true if the component is initialized, false otherwise.
-   */
   virtual bool isInitialized() const { return _initialized; }
 
-  // Getters
   std::string id() const { return _id; }
-
   std::string type() const { return _type; }
-
   unsigned int pinNumber() const { return _pinNumber; }
 
+  // Returns a map of pin labels to pin numbers for multi-pin components
+  const std::unordered_map<std::string, int> &pins() const { return _pins; }
+
 protected:
-  /**
-   * @brief Sets the initialization state of the hardware component.
-   *
-   * @param state The initialization state to set (true or false).
-   */
   void setInitialized(bool state) { _initialized = state; }
 
-  unsigned int _pinNumber; // GPIO pin number associated with the component.
-  std::string _id;         // Unique identifier for the component.
-  std::string _type;       // Type of the component.
-  bool _initialized; // Flag indicating whether the component is initialized.
+  unsigned int _pinNumber; // GPIO pin number (single-pin components)
+  std::unordered_map<std::string, int>
+      _pins; // Pin numbers for multi-pin components
+  std::string _id;
+  std::string _type;
+  bool _initialized;
 };
