@@ -19,7 +19,7 @@ void HardwareManager::initializeHardware() {
     Logger::error("Hardware configuration is not available");
     return;
   }
-
+  
   bool allComponentsInitialized = true;
   for (const auto &config : hardwareConfig->getHardwarePinConfigs()) {
     auto component = initializeComponent(config);
