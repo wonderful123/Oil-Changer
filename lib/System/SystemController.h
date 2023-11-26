@@ -18,7 +18,7 @@ public:
   void startSystem();
   void stopSystem();
 
-  void update();
+  void update() override;
 
 private:
   std::shared_ptr<HardwareManager> _hardwareManager;
