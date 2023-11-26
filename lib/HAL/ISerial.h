@@ -1,10 +1,13 @@
 #pragma once
 
+#include "HardwareComponent.h"
 #include "HardwarePinConfig.h"
 #include <string>
 
-class ISerial {
+class ISerial : public HardwareComponent {
 public:
+  explicit ISerial(const HardwarePinConfig &config) : HardwareComponent(config) {}
+
   virtual ~ISerial() = default;
 
   virtual void begin(unsigned long baudrate) = 0;
