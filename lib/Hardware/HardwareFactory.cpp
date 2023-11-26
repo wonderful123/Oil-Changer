@@ -25,11 +25,11 @@ HardwareFactory::createComponent(const HardwarePinConfig &config) {
   } else if (config.type == "Buzzer") {
     hardwareComponent = createBuzzer(config);
   } else if (config.type == "SPI") {
-    createSPI(config);
+    hardwareComponent = createSPI(config);
   } else if (config.type == "I2C") {
-    createI2C(config);
+    hardwareComponent = createI2C(config);
   } else if (config.type == "Serial") {
-    createSerial(config);
+    hardwareComponent = createSerial(config);
   } else {
     Logger::error("Unknown hardware component type in hardware factory: " +
                   config.type);
@@ -44,8 +44,8 @@ HardwareFactory::createComponent(const HardwarePinConfig &config) {
   return hardwareComponent;
 }
 
-std::unique_ptr<HardwareFactory> &HardwareFactory::getHardwareFactory() {
-  static std::unique_ptr<HardwareFactory> hardwareFactory;
+std::shared_ptr<HardwareFactory> &HardwareFactory::getHardwareFactory() {
+  static std::shared_ptr<HardwareFactory> hardwareFactory;
 #ifdef PLATFORM_ESP32
   if (!hardwareFactory)
     hardwareFactory.reset(new ESP32HardwareFactory());
