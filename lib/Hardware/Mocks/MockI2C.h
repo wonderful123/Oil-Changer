@@ -9,6 +9,8 @@
 
 class MockI2C : public II2C {
 public:
+  explicit MockI2C(const HardwarePinConfig &config) : II2C(config) {}
+
   MOCK_METHOD(void, begin, (), (override));
   MOCK_METHOD(void, end, (), (override));
   MOCK_METHOD(void, beginTransmission, (uint8_t address), (override));

@@ -8,6 +8,8 @@
 
 class MockSerial : public ISerial {
 public:
+  explicit MockSerial(const HardwarePinConfig &config) : ISerial(config) {}
+
   MOCK_METHOD(void, begin, (unsigned long baudrate), (override));
   MOCK_METHOD(void, end, (), (override));
   MOCK_METHOD(size_t, write, (uint8_t byte), (override));
