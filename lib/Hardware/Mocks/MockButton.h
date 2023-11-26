@@ -7,7 +7,9 @@
 
 class MockButton : public ButtonBase {
 public:
-  explicit MockButton(const HardwarePinConfig &config) : ButtonBase(config) {}
+  explicit MockButton(const HardwarePinConfig &config) : ButtonBase(config) {
+    setInitialized(true); // Set initialized flag to true
+  }
 
   MOCK_METHOD(void, updatePressedState, (), (override));
   MOCK_METHOD(bool, isPressed, (), (const, override));

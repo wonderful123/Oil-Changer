@@ -7,7 +7,9 @@
 
 class MockPWM : public PWMBase {
 public:
-  explicit MockPWM(const HardwarePinConfig &config) : PWMBase(config) {}
+  explicit MockPWM(const HardwarePinConfig &config) : PWMBase(config) {
+    setInitialized(true); // Set initialized flag to true
+  }
 
   MOCK_METHOD(void, setDutyCycle, (double dutyCycle), (override));
   MOCK_METHOD(double, getDutyCycle, (), (const, override));

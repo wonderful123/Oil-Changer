@@ -8,8 +8,10 @@
 
 class MockSPI : public ISPI {
 public:
-  explicit MockSPI(const HardwarePinConfig &config) : ISPI(config) {}
-  
+  explicit MockSPI(const HardwarePinConfig &config) : ISPI(config) {
+    setInitialized(true); // Set initialized flag to true
+  }
+
   MOCK_METHOD(void, begin, (), (override));
   MOCK_METHOD(void, end, (), (override));
   MOCK_METHOD(uint8_t, transfer, (uint8_t data), (override));

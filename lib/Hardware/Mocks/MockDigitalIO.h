@@ -7,7 +7,10 @@
 
 class MockDigitalIO : public DigitalIOBase {
 public:
-  explicit MockDigitalIO(const HardwarePinConfig &config) : DigitalIOBase(config) {}
+  explicit MockDigitalIO(const HardwarePinConfig &config)
+      : DigitalIOBase(config) {
+    setInitialized(true); // Set initialized flag to true
+  }
 
   MOCK_METHOD(int, read, (), (const, override));
   MOCK_METHOD(void, write, (int value), (override));

@@ -8,7 +8,9 @@
 class MockFlowMeter : public FlowMeterBase {
 public:
   explicit MockFlowMeter(const HardwarePinConfig &config)
-      : FlowMeterBase(config) {}
+      : FlowMeterBase(config) {
+    setInitialized(true); // Set initialized flag to true
+  }
 
     MOCK_METHOD(double, getFlowRate, (), (const, override));
     MOCK_METHOD(double, getTotalVolume, (), (const, override));

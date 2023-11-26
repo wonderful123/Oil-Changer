@@ -8,7 +8,9 @@
 
 class MockSerial : public ISerial {
 public:
-  explicit MockSerial(const HardwarePinConfig &config) : ISerial(config) {}
+  explicit MockSerial(const HardwarePinConfig &config) : ISerial(config) {
+    setInitialized(true); // Set initialized flag to true
+  }
 
   MOCK_METHOD(void, begin, (unsigned long baudrate), (override));
   MOCK_METHOD(void, end, (), (override));

@@ -7,7 +7,9 @@
 
 class MockBuzzer : public IBuzzer {
 public:
-  explicit MockBuzzer(const HardwarePinConfig &config) : IBuzzer(config) {}
+  explicit MockBuzzer(const HardwarePinConfig &config) : IBuzzer(config) {
+    setInitialized(true); // Set initialized flag to true
+  }
 
   MOCK_METHOD(void, beep, (int frequency, int duration), (override));
   MOCK_METHOD(void, stop, (), (override));
