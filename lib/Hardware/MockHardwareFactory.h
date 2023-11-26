@@ -17,6 +17,9 @@
 
 class MockHardwareFactory : public HardwareFactory {
 public:
+  MOCK_METHOD(std::unique_ptr<HardwareComponent>, createComponent,
+              (const HardwarePinConfig &));
+
   std::unique_ptr<IADC> createADC(const HardwarePinConfig &config) override {
     return std::unique_ptr<IADC>(new MockADC(config));
   }
@@ -50,15 +53,15 @@ public:
   }
 
   std::unique_ptr<II2C> createI2C(const HardwarePinConfig &config) override {
-    return std::unique_ptr<II2C>(new MockI2C());
+    return std::unique_ptr<II2C>(new MockI2C(config));
   }
 
   std::unique_ptr<ISPI> createSPI(const HardwarePinConfig &config) override {
-    return std::unique_ptr<ISPI>(new MockSPI());
+    return std::unique_ptr<ISPI>(new MockSPI(config));
   }
 
   std::unique_ptr<ISerial> createSerial(const HardwarePinConfig &config) override {
-    return std::unique_ptr<ISerial>(new MockSerial());
+    return std::unique_ptr<ISerial>(new MockSerial(config));
   }
 };
 
