@@ -25,7 +25,7 @@ public:
   virtual ~HardwareFactory() = default;
 
   // Singleton getter function
-  static std::unique_ptr<HardwareFactory> &getHardwareFactory();
+  static std::shared_ptr<HardwareFactory> &getHardwareFactory();
 
   std::unique_ptr<HardwareComponent>
   createComponent(const HardwarePinConfig &config);
