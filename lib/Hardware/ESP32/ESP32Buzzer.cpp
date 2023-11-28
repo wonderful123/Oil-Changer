@@ -26,8 +26,8 @@ void ESP32Buzzer::setVolume(float volume) {
 
 void ESP32Buzzer::beep(int frequency, int duration) {
   ledcWriteTone(pwmChannel, frequency);
-  _timer.once_ms(duration, timerCallback, this);
   _isBeeping = true;
+  _timer.once_ms(duration, timerCallback, this);
   // Logger::info("Buzzer beeping at frequency: " + std::to_string(frequency) +
   //              " Hz for " + std::to_string(duration) + " ms");
 }
