@@ -1,7 +1,5 @@
 #include "HardwareConfig.h"
 #include "HardwarePinConfig.h"
-#include <iostream>
-
 const std::vector<HardwarePinConfig> &
 HardwareConfig::getHardwarePinConfigs() const {
   return _hardwarePinConfigs;
