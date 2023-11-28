@@ -15,9 +15,6 @@ public:
   virtual void initialize();
   virtual void onButtonPress(const std::string &id) override;
 
-  virtual void startSystem();
-  virtual void stopSystem();
-
   virtual void update() override;
 
 private:
@@ -25,6 +22,5 @@ private:
   std::shared_ptr<ButtonController> _buttonController;
   StateMachine _stateMachine;
 
-  void changeSystemState();
   void registerAsButtonObserver();
 };

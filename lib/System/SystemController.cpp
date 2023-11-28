@@ -6,39 +6,18 @@ SystemController::SystemController(
     std::shared_ptr<HardwareManager> hardwareManager,
     std::shared_ptr<ButtonController> buttonController)
     : _hardwareManager(std::move(hardwareManager)),
-      _buttonController(std::move(buttonController)) {
-}
+      _buttonController(std::move(buttonController)) {}
 
 void SystemController::initialize() {
   _hardwareManager->initializeHardware();
   registerAsButtonObserver();
 }
 
-void SystemController::startSystem() { Logger::info("STARTING SYSTEM"); }
-
-void SystemController::stopSystem() { Logger::info("STOPPING SYSTEM"); }
 void SystemController::onButtonPress(const std::string &id) {
-  Logger::info("BUTTON PRESS IN SYS CONTROLLER");
   _hardwareManager->triggerBuzzer();
-
-  // Create a ButtonPressEvent
   ButtonPressEvent event(id);
-
   // Use the state machine to handle the event
-  // Assuming _stateMachine is an instance of StateMachine
   _stateMachine.handleEvent(event);
-
-  // Note: The actual state transition logic is handled within the state classes
-
-  if (id == "startButton") {
-    startSystem();
-  } else if (id == "stopButton") {
-    stopSystem();
-  }
-}
-
-void SystemController::changeSystemState() {
-  // Logic to change the state of the system
 }
 
 void SystemController::registerAsButtonObserver() {
@@ -47,6 +26,4 @@ void SystemController::registerAsButtonObserver() {
   }
 }
 
-void SystemController::update() {
-  // Implementation details...
-}
+void SystemController::update() { _buttonController->processButtonStates(); }
