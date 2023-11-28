@@ -133,7 +133,7 @@ void HardwareManager::triggerBuzzer() {
   if (it != _components.end() && it->second->type() == "Buzzer") {
     auto buzzer = std::static_pointer_cast<IBuzzer>(it->second);
     if (buzzer) {
-      buzzer->beep(1000, 1000); // Example frequency and duration
+      buzzer->beep(2731, 150); // Example frequency and duration
       Logger::info("Buzzer beep triggered.");
     } else {
       Logger::error("Buzzer component cast failed.");
