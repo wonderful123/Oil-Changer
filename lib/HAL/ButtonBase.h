@@ -29,8 +29,8 @@ protected:
    */
   virtual void updatePressedState() = 0;
 
-  ButtonPressCallback _onPressCallback;
+  ButtonPressCallback _onPressCallback =
+      nullptr; // Function pointer for the callback
 
-private:
   bool _isPressed; // Current pressed state of the Button
 };
