@@ -1,8 +1,6 @@
 #include "ButtonController.h"
+#include <Arduino.h>
 #include <algorithm>
-
-ButtonController::ButtonController() {}
-
 void ButtonController::addObserver(
     std::shared_ptr<IButtonControllerObserver> observer) {
   auto it = std::find_if(
@@ -17,10 +15,16 @@ void ButtonController::addObserver(
 
 void ButtonController::registerButton(const std::string &id,
                                       std::shared_ptr<IButton> button) {
+  // Check if button is already registered
+  if (_buttons.find(id) != _buttons.end()) {
+    return;
+  }
   _buttons[id] = button;
-  button->setOnPressCallback(
-      [this, id](const std::string &) { this->notifyObservers(id); });
+  _controllers[id] = this;
+  button->setOnPressCallback(ButtonController::buttonCallback);
 }
+
+void registerButton(const std::string &id, std::shared_ptr<IButton> button) {}
 
 void ButtonController::notifyObservers(const std::string &id) {
   // Check if button is registered
@@ -42,5 +46,16 @@ void ButtonController::checkButtonStates() {
     if (button->isPressed()) {
       notifyObservers(id);
     }
+  }
+}
+
+std::unordered_map<std::string, ButtonController *>
+    ButtonController::_controllers;
+
+void ButtonController::buttonCallback(const std::string &id) {
+  Logger::info("buttonCallback");
+  delay(1000);
+  if (_controllers.find(id) != _controllers.end()) {
+    _controllers[id]->notifyObservers(id);
   }
 }
