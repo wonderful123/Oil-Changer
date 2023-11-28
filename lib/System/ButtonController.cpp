@@ -20,17 +20,9 @@ void ButtonController::registerButton(const std::string &id,
     return;
   }
   _buttons[id] = button;
-  _controllers[id] = this;
-  button->setOnPressCallback(ButtonController::buttonCallback);
 }
 
-void registerButton(const std::string &id, std::shared_ptr<IButton> button) {}
-
 void ButtonController::notifyObservers(const std::string &id) {
-  // Check if button is registered
-  if (_buttons.find(id) == _buttons.end()) {
-    return;
-  }
   // Notify observers of button press event
   for (auto &observer : _observers) {
     if (observer) {
@@ -39,23 +31,26 @@ void ButtonController::notifyObservers(const std::string &id) {
   }
 }
 
-void ButtonController::checkButtonStates() {
+void ButtonController::processButtonStates() {
   for (const auto &buttonPair : _buttons) {
     const std::string &id = buttonPair.first;
     std::shared_ptr<IButton> button = buttonPair.second;
-    if (button->isPressed()) {
+
+    bool wasPressed = button->isPressed();
+    button->update(); // Update button state
+
+    // Notify if the button was not pressed before and is pressed now
+    if (!wasPressed && button->isPressed()) {
       notifyObservers(id);
     }
   }
 }
 
-std::unordered_map<std::string, ButtonController *>
-    ButtonController::_controllers;
-
-void ButtonController::buttonCallback(const std::string &id) {
-  Logger::info("buttonCallback");
-  delay(1000);
-  if (_controllers.find(id) != _controllers.end()) {
-    _controllers[id]->notifyObservers(id);
+std::shared_ptr<IButton>
+ButtonController::getButtonById(const std::string &id) const {
+  auto it = _buttons.find(id);
+  if (it != _buttons.end()) {
+    return it->second;
   }
+  return nullptr; // Return nullptr if the button is not found
 }
