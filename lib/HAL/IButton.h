@@ -4,27 +4,16 @@
 #include "HardwarePinConfig.h"
 #include <functional>
 
-/**
- * @class IButton
- * @brief Interface for Button implementations.
- *
- * This class defines a Button interface that should be implemented by
- * platform-specific classes.
- */
 class IButton : public HardwareComponent {
 public:
   using HardwareComponent::HardwareComponent; // Inherit constructor
-  
-  virtual ~IButton() = default; // Virtual destructor for proper cleanup
 
-  /**
-   * @brief Check if the button is currently pressed.
-   *
-   * @return True if pressed, false otherwise.
-   */
-  virtual bool isPressed() const = 0;
+  virtual ~IButton() = default; // Virtual destructor for cleanup
 
-  // using ButtonPressCallback = std::function<void(const std::string &)>;
+  virtual bool isPressed() const = 0; // Check if the button is pressed
+
   using ButtonPressCallback = void (*)(const std::string &);
   virtual void setOnPressCallback(ButtonPressCallback callback) = 0;
+
+  virtual void update() = 0; // Update the button's state
 };

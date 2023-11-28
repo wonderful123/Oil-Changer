@@ -1,35 +1,21 @@
-#ifdef PLATFORM_ESP32
-
 #include "ESP32Button.h"
 #include "Logger.h"
-
-std::unordered_map<int, ESP32Button *> ESP32Button::_instanceMap;
+#include <Arduino.h>
 
 ESP32Button::ESP32Button(const HardwarePinConfig &config) : ButtonBase(config) {
-  pinMode(_pinNumber, INPUT_PULLUP);
-  _debouncer.attach(_pinNumber);
-  _debouncer.interval(50); // Set debounce interval
-  _instanceMap[_pinNumber] = this;
-  attachInterrupt(digitalPinToInterrupt(_pinNumber), ESP32Button::handleInterrupt,
-                  CHANGE);
-  std::string logMessage = "Button: " + id() + " initialized.";
-  Logger::info(logMessage);
-  setInitialized(true);
+  _debouncer.attach(_pinNumber, INPUT_PULLUP);
+  _debouncer.interval(50); // Debounce interval
+  Logger::info("Button: " + id() + " initialized.");
 }
 
-void ESP32Button::updatePressedState() {
-  Logger::info("Button: " + _id + " updatePressedState");
-  if (_debouncer.rose()) {
+void ESP32Button::update() {
+  _debouncer.update();
+  if (_debouncer.fell()) {
+    _isPressed = true;
     if (_onPressCallback) {
       _onPressCallback(_id);
     }
+  } else if (_debouncer.rose()) {
+    _isPressed = false;
   }
 }
-
-void IRAM_ATTR ESP32Button::handleInterrupt() {
-  for (auto &kv : _instanceMap) {
-    kv.second->_debouncer.update();
-  }
-}
-
-#endif // PLATFORM_ESP32
