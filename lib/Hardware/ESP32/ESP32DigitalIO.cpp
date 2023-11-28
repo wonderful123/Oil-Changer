@@ -7,6 +7,7 @@
 ESP32DigitalIO::ESP32DigitalIO(const HardwarePinConfig &config)
     : DigitalIOBase(config) {
   pinMode(config.pinNumber, _mode);
+  setInitialized(true);
 }
 
 int ESP32DigitalIO::read() const { return digitalRead(_pinNumber); }

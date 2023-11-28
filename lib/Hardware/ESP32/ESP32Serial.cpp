@@ -3,10 +3,10 @@
 #include "ESP32Serial.h"
 
 ESP32Serial::ESP32Serial(const HardwarePinConfig &config)
-    : _serial(0),               // Default to UART0. Adjust as needed.
-      _rxPin(config.pinNumber), // Assuming pinNumber is RX
-      _txPin(-1) {              // TX pin not specified in this example
-  // Here, you can extract and use additional config details as needed
+    : ISerial(config), _serial(0), // Default to UART0. Adjust as needed.
+      _rxPin(config.pinNumber),    // Assuming pinNumber is RX
+      _txPin(-1) {                 // TX pin not specified in this example
+  setInitialized(true);            // Set initialized flag to true
 }
 
 void ESP32Serial::begin(unsigned long baudrate) {

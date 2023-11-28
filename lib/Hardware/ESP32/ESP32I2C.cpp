@@ -5,9 +5,9 @@
 #include <Wire.h>
 
 ESP32I2C::ESP32I2C(const HardwarePinConfig &config)
-    : _sdaPin(config.pinNumber), // Assuming pinNumber is SDA
-      _sclPin(-1) {              // SCL pin not specified in this example
-  // Here, you can extract and use additional config details as needed
+    : II2C(config), _sdaPin(config.pinNumber), // Assuming pinNumber is SDA
+      _sclPin(-1) { // SCL pin not specified in this example
+  setInitialized(true);
 }
 
 void ESP32I2C::begin() {

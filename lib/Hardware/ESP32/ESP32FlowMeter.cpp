@@ -2,7 +2,8 @@
 
 #include "ESP32FlowMeter.h"
 #include "driver/pcnt.h"
-
+#include "Logger.h"
+#include <iostream>
 ESP32FlowMeter::ESP32FlowMeter(const HardwarePinConfig &config)
     : FlowMeterBase(config), _pulseCount(0) {
 
@@ -18,6 +19,7 @@ ESP32FlowMeter::ESP32FlowMeter(const HardwarePinConfig &config)
     pcntUnit = PCNT_UNIT_3;
   else {
     Error(Error::FlowMeterInitErrorNoPCNTUnitSpecified);
+    setInitialized(true);
   }
 
   pcnt_config_t pcntConfig = {

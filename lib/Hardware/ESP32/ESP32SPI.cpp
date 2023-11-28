@@ -1,13 +1,14 @@
 #ifdef PLATFORM_ESP32
 
 #include "ESP32SPI.h"
-#include <SPI.h>
 #include <Arduino.h>
-
+#include <SPI.h>
 
 ESP32SPI::ESP32SPI(const HardwarePinConfig &config)
-    : _mosiPin(config.pins.at("MOSI")), _misoPin(config.pins.at("MISO")),
-      _sclkPin(config.pins.at("SCLK")), _csPin(config.pins.at("CS")) {
+    : ISPI(config), _mosiPin(config.pins.at("MOSI")),
+      _misoPin(config.pins.at("MISO")), _sclkPin(config.pins.at("SCLK")),
+      _csPin(config.pins.at("CS")) {
+  setInitialized(true); // Set initialized flag to true
 }
 
 void ESP32SPI::begin() { SPI.begin(_sclkPin, _misoPin, _mosiPin, _csPin); }
