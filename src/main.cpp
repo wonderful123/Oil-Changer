@@ -97,9 +97,15 @@ void setup() {
         player.reset(new BuzzerPlayer(*buzzer));
 
         Logger::info("Playing super mario tune...");
-        player->playTune(SUPER_MARIO_THEME);
+        // player->playTune(SUPER_MARIO_THEME);
         Logger::info("Playing starwars tune...");
-        player->playTune(STARWARS_THEME);
+        // player->playTune(STARWARS_THEME);
+        Logger::info("Playing super mario with articulation tune ...");
+        // player->playTune(SUPER_MARIO_ARTICULATION_THEME);
+        Logger::info("Playing last ninja intro tune...");
+        // player->playTune(LAST_NINJA_INTRO_THEME);
+        Logger::info("Playing wonderboy theme tune...");
+        // player->playTune(WONDERBOY_THEME);
         break; // Exit loop after initializing the buzzer
       }
     }
