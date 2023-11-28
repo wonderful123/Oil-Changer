@@ -14,64 +14,40 @@
 #include <memory>
 #include <tinyfsm.hpp>
 
+// Global objects
 ESP32FileHandler fileHandler;
-std::shared_ptr<ConfigManager> configManager =
-    std::make_shared<ConfigManager>(&fileHandler);
-auto &hardwareFactory = HardwareFactory::getHardwareFactory();
+std::shared_ptr<ConfigManager> configManager = std::make_shared<ConfigManager>(&fileHandler);
+std::shared_ptr<ButtonController> buttonController = std::make_shared<ButtonController>();
+std::shared_ptr<SystemController> systemController;
 
-std::shared_ptr<ButtonController> buttonController(new ButtonController());
-std::shared_ptr<HardwareManager> hardwareManager(new HardwareManager(
-    configManager, std::move(hardwareFactory), buttonController));
-std::shared_ptr<SystemController>
-    systemController(new SystemController(hardwareManager, buttonController));
-
-std::unique_ptr<ESP32Buzzer> buzzer;
-std::unique_ptr<BuzzerPlayer> player;
+// Forward Declarations
+void initializeLogger();
+void initializeHardware();
+void initializeSystemController();
+void initializeBuzzerPlayer();
+void serialLogCallback(Logger::Level level, const std::string &message);
 
 FSM_INITIAL_STATE(BaseState, IdleState);
 
-void serialLogCallback(Logger::Level level, const std::string &message) {
-  // Check if Serial is ready (important for some boards)
-  if (!Serial) {
-    return;
-  }
-
-  // Prefix each message with the log level
-  switch (level) {
-  case Logger::DEBUG:
-    Serial.print("[DEBUG] ");
-    break;
-  case Logger::INFO:
-    Serial.print("[INFO] ");
-    break;
-  case Logger::WARN:
-    Serial.print("[WARN] ");
-    break;
-  case Logger::ERROR:
-    Serial.print("[ERROR] ");
-    break;
-  default:
-    Serial.print("[LOG] ");
-  }
-
-  // Print the message and a new line
-  Serial.println(message.c_str());
+void setup() {
+  initializeLogger();
+  initializeHardware();
+  initializeSystemController();
+  initializeBuzzerPlayer();
 }
 
-void setup() {
-  // Initialize Serial Communication
+void loop() { systemController->update(); }
+
+void initializeLogger() {
   Serial.begin(115200);
-  while (!Serial) {
-    ; // Wait for Serial port to connect.
-  }
+  while (!Serial)
+    ; // Wait for Serial port to connect
 
-  // Set the log callback to the function defined above
   Logger::setLogCallback(serialLogCallback);
-
-  // Test logging
   Logger::info("Logger initialized and ready.");
+}
 
-  // Set up logging (assuming Logger setup code here)
+void initializeHardware() {
   Logger::info("Loading hardware configuration...");
   Error configLoadError = configManager->loadConfig("HardwareConfig");
   if (configLoadError) {
@@ -79,13 +55,20 @@ void setup() {
                   Error::getFormattedMessage(configLoadError.code()));
     return;
   }
+}
 
-  // Initialize state machine
-  IdleState::start(); // Start state machine in IdleState
-
-  // Initialize system controller
+void initializeSystemController() {
+  auto &hardwareFactory = HardwareFactory::getHardwareFactory();
+  std::shared_ptr<HardwareManager> hardwareManager =
+      std::make_shared<HardwareManager>(
+          configManager, std::move(hardwareFactory), buttonController);
+  systemController =
+      std::make_shared<SystemController>(hardwareManager, buttonController);
   systemController->initialize();
+  IdleState::start(); // Start state machine in IdleState
+}
 
+void initializeBuzzerPlayer() {
   std::shared_ptr<HardwareConfig> hardwareConfig =
       configManager->getHardwareConfig();
   if (hardwareConfig) {
@@ -93,8 +76,8 @@ void setup() {
     for (const auto &gpioConfig : gpioConfigs) {
       if (gpioConfig.id == "Buzzer") {
         Logger::info("Initializing buzzer...");
-        buzzer.reset(new ESP32Buzzer(gpioConfig));
-        player.reset(new BuzzerPlayer(*buzzer));
+        auto buzzer = std::unique_ptr<ESP32Buzzer>(new ESP32Buzzer(gpioConfig));
+        auto player = std::unique_ptr<BuzzerPlayer>(new BuzzerPlayer(*buzzer));
 
         Logger::info("Playing super mario tune...");
         // player->playTune(SUPER_MARIO_THEME);
@@ -114,12 +97,13 @@ void setup() {
   }
 }
 
-void loop() {
-  // Update the button states. This might involve polling or handling button
-  // events.
-  buttonController->checkButtonStates();
+void serialLogCallback(Logger::Level level, const std::string &message) {
+  if (!Serial)
+    return;
 
-  // Update the system controller. This might involve processing events,
-  // handling state changes, etc.
-  systemController->update();
+  const char *levelStr[] = {"DEBUG", "INFO", "WARN", "ERROR", "LOG"};
+  Serial.print('[');
+  Serial.print(levelStr[static_cast<int>(level)]);
+  Serial.print("] ");
+  Serial.println(message.c_str());
 }
