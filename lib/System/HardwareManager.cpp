@@ -41,7 +41,7 @@ bool HardwareManager::initializeComponent(const HardwarePinConfig &config) {
     // Convert unique_ptr to shared_ptr
     std::shared_ptr<HardwareComponent> sharedComponent = std::move(component);
     _components[config.id] = sharedComponent;
-    Logger::info("Created component: " + config.id);
+    Logger::info("Created component: " + config.id + " on pin: " + std::to_string(config.pinNumber));
 
     // Register the component if needed
     registerComponent(config, sharedComponent);
