@@ -1,28 +1,30 @@
 #pragma once
 
+#ifdef PLATFORM_ESP32
+
 #include "Logger.h"
 #include "Melody.h"
 #include "Notes.h"
 #include <IBuzzer.h>
+#include <Ticker.h>
+#include <queue>
 
 class BuzzerPlayer {
 private:
-  IBuzzer &_buzzer; // Reference to a buzzer object
+  IBuzzer &_buzzer;
+  Ticker _noteTimer;
+  std::queue<MelodyName> _tuneQueue;
+  Melody _currentMelody;
+  float _notePauseFactor = 1.0;
+  int _currentNoteIndex = 0;
+  bool _isPlaying = false;
 
-public:
-  explicit BuzzerPlayer(IBuzzer &buzzer) : _buzzer(buzzer) {}
-
-  void playTune(MelodyName melodyName) {
-    Melody melody = getMelody(melodyName);
-    Logger::info("Starting to play tune");
-
-    for (int thisNote = 0; thisNote < melody.length; thisNote++) {
-      int noteDuration = melody.notes[thisNote].duration;
-      Articulation articulation = melody.notes[thisNote].articulation;
-      Dynamics dynamics = melody.notes[thisNote].dynamics;
+  void playNote() {
+    if (_currentNoteIndex < _currentMelody.length) {
+      Note note = _currentMelody.notes[_currentNoteIndex];
 
       // Set the volume based on the dynamics
-      switch (dynamics) {
+      switch (note.dynamics) {
       case DYNAMICS_SOFT:
         _buzzer.setVolume(0.25);
         break;
@@ -35,20 +37,62 @@ public:
       }
 
       // Play the note
-      _buzzer.beep(melody.notes[thisNote].frequency, noteDuration);
+      _buzzer.beep(note.frequency, note.duration);
 
       // Determine the pause duration based on articulation
-      int pauseBetweenNotes = noteDuration;
-      if (articulation == ARTICULATION_STACCATO) {
-        pauseBetweenNotes = noteDuration * 1.5; // Longer pause for staccato
-      } else if (articulation == ARTICULATION_LEGATO) {
-        pauseBetweenNotes = noteDuration * 0.8; // Shorter pause for legato
+      int pauseDuration = note.duration;
+      if (note.articulation == ARTICULATION_STACCATO) {
+        pauseDuration *= 1.5; // Longer pause for staccato
+      } else if (note.articulation == ARTICULATION_LEGATO) {
+        pauseDuration *= 0.8; // Shorter pause for legato
       }
 
-      // Pause between notes
-      _buzzer.beep(0, pauseBetweenNotes);
-    }
+      pauseDuration *= _notePauseFactor; // Include a slight pause between notes
 
+      _currentNoteIndex++;
+      // Schedule the next note or pause
+      _noteTimer.once_ms(pauseDuration, noteTimerCallback, this);
+    } else {
+      finishTune();
+    }
+  }
+
+  static void noteTimerCallback(BuzzerPlayer *player) {
+    if (player) {
+      player->playNote();
+    }
+  }
+
+  void finishTune() {
     Logger::info("Finished playing tune");
+    _currentNoteIndex = 0;
+    _isPlaying = false;
+    playNextInQueue();
+  }
+
+  void playNextInQueue() {
+    if (!_tuneQueue.empty()) {
+      MelodyName nextTune = _tuneQueue.front();
+      _tuneQueue.pop();
+      playTune(nextTune);
+    }
+  }
+
+public:
+  explicit BuzzerPlayer(IBuzzer &buzzer) : _buzzer(buzzer) {}
+
+  void playTune(MelodyName melodyName) {
+    if (!_isPlaying) {
+      _isPlaying = true;
+      _currentMelody = getMelody(melodyName);
+      _currentNoteIndex = 0;
+      Logger::info("Starting to play tune: " + melodyName);
+      playNote(); // Start playing the first note
+    } else {
+      Logger::info("Enqueueing tune: " + melodyName);
+      _tuneQueue.push(melodyName);
+    }
   }
 };
+
+#endif // PLATFORM_ESP32
