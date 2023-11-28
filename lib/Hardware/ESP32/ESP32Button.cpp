@@ -14,9 +14,11 @@ ESP32Button::ESP32Button(const HardwarePinConfig &config) : ButtonBase(config) {
                   CHANGE);
   std::string logMessage = "Button: " + id() + " initialized.";
   Logger::info(logMessage);
+  setInitialized(true);
 }
 
 void ESP32Button::updatePressedState() {
+  Logger::info("Button: " + _id + " updatePressedState");
   if (_debouncer.rose()) {
     if (_onPressCallback) {
       _onPressCallback(_id);
@@ -25,8 +27,6 @@ void ESP32Button::updatePressedState() {
 }
 
 void IRAM_ATTR ESP32Button::handleInterrupt() {
-  std::string logMessage = "button interrupt";
-  Logger::info(logMessage);
   for (auto &kv : _instanceMap) {
     kv.second->_debouncer.update();
   }

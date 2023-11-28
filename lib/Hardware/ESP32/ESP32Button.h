@@ -23,4 +23,5 @@ private:
   ButtonPressCallback _onPressCallback;
   static std::unordered_map<int, ESP32Button *> _instanceMap;
 };
+
 #endif // PLATFORM_ESP32
