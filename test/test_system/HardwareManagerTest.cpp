@@ -73,30 +73,14 @@ using ::testing::Return;
 using ::testing::ReturnNew;
 using ::testing::ReturnRef;
 
-// HardwareManagerTest()
-//     : mockFileHandler(new MockFileHandler()),
-//       mockConfigManager(new MockConfigManager(mockFileHandler.get())),
-//       mockHardwareConfig(new MockHardwareConfig(mockFileHandler.get())),
-//       mockHardwareFactory(new MockHardwareFactory()),
-//       hardwareManager(mockConfigManager, std::move(mockHardwareFactory),
-//                       mockButtonController) {}
 class HardwareManagerTest : public ::testing::Test {
 protected:
   std::shared_ptr<MockFileHandler> mockFileHandler;
   std::shared_ptr<MockConfigManager> mockConfigManager;
-  std::unique_ptr<MockHardwareConfig> mockHardwareConfig;
-  std::unique_ptr<MockHardwareFactory> mockHardwareFactory;
+  std::shared_ptr<MockHardwareConfig> mockHardwareConfig;
+  std::shared_ptr<MockHardwareFactory> mockHardwareFactory;
   std::shared_ptr<MockButtonController> mockButtonController;
-  HardwareManager hardwareManager;
-
-  HardwareManagerTest()
-      : mockFileHandler(new MockFileHandler()),
-        mockConfigManager(new MockConfigManager(mockFileHandler.get())),
-        mockHardwareConfig(new MockHardwareConfig(mockFileHandler.get())),
-        mockHardwareFactory(new MockHardwareFactory()),
-        mockButtonController(new MockButtonController()),
-        hardwareManager(mockConfigManager, std::move(mockHardwareFactory),
-                        mockButtonController) {}
+  std::shared_ptr<HardwareManager> hardwareManager;
 
   std::ostringstream capturedLog;
 
@@ -107,6 +91,16 @@ protected:
                                                 digitalIOConfig};
 
   void SetUp() override {
+    mockFileHandler = std::make_shared<MockFileHandler>();
+    mockConfigManager =
+        std::make_shared<MockConfigManager>(mockFileHandler.get());
+    mockHardwareConfig =
+        std::make_shared<MockHardwareConfig>(mockFileHandler.get());
+    mockHardwareFactory = std::make_shared<MockHardwareFactory>();
+    mockButtonController = std::make_shared<MockButtonController>();
+    hardwareManager = std::make_shared<HardwareManager>(
+        mockConfigManager, mockHardwareFactory, mockButtonController);
+
     Logger::setLogCallback(
         [this](Logger::Level level, const std::string &message) {
           capturedLog << Logger::levelToString(level) << ": " << message
@@ -123,40 +117,51 @@ TEST_F(HardwareManagerTest, CheckConfigBeforeInitialization) {
   EXPECT_CALL(*mockConfigManager, getHardwareConfig())
       .WillOnce(Return(nullptr));
 
-  hardwareManager.initializeHardware();
+  hardwareManager->initializeHardware();
 
   EXPECT_THAT(capturedLog.str(),
               HasSubstr("Hardware configuration is not available"));
 }
 
-// NOTE: Can't get the mocking working. The mocking library doesn't seem to be
-// able to mock a unique_ptr correctly for the hardware components.
-
-// TEST_F(HardwareManagerTest, InitializeHardwareSuccess) {
-//   //EXPECT_CALL(*mockHardwareFactory, createADC(_));
-//       //.WillRepeatedly(ReturnNew<MockADC>());
-//   // Correcting the usage of Return for a vector reference
-//   ON_CALL(*mockHardwareConfig, getHardwarePinConfigs())
-//       .WillByDefault(ReturnRef(mockConfigs));
-
-//   // Correcting the usage of Return for a unique_ptr
-//   EXPECT_CALL(*mockConfigManager, getHardwareConfig())
-//       .WillOnce(Return(testing::ByMove(std::move(mockHardwareConfig))));
-
-//   hardwareManager.initializeHardware();
-
-//   for (const auto &config : mockConfigs) {
-//     EXPECT_TRUE(hardwareManager.isComponentInitialized(config.id))
-//         << "CONFIG ID: " << config.id; // Using dot operator
-//   }
-// }
-
 TEST_F(HardwareManagerTest, InitializeHardwareConfigNotFound) {
   EXPECT_CALL(*mockConfigManager, getHardwareConfig())
       .WillOnce(Return(nullptr)); // Simulate no hardware config available
 
-  hardwareManager.initializeHardware();
+  hardwareManager->initializeHardware();
 
   EXPECT_THAT(capturedLog.str(),
               testing::HasSubstr("Hardware configuration is not available"));
+}
+
+TEST_F(HardwareManagerTest, InitializeSingleComponent) {
+  ON_CALL(*mockConfigManager, getHardwareConfig())
+      .WillByDefault(Return(mockHardwareConfig));
+
+  ON_CALL(*mockHardwareConfig, getHardwarePinConfigs())
+      .WillByDefault(ReturnRef(mockConfigs));
+
+  // ON_CALL(*mockHardwareFactory, createComponent(_))
+  //     .WillByDefault(ReturnNew<MockADC>());
+  // Expect the HardwareFactory to create an ADC component
+  // EXPECT_CALL(*mockHardwareFactory, createADC(_))
+  //     .Times(1)
+  //     .WillOnce(ReturnNew<MockADC>());
+  mockHardwareFactory->createComponent(adcConfig);
+
+      // Expect the HardwareManager to register the component
+      EXPECT_CALL(*mockButtonController, registerButton(_, _))
+          .Times(0); // ADC is not a button
+
+  hardwareManager->initializeHardware();
+
+  // Verify that the component is initialized and added to the manager
+  auto component = hardwareManager->getComponentById("VoltageSense");
+  ASSERT_NE(component, nullptr);
+  EXPECT_TRUE(hardwareManager->isComponentInitialized("VoltageSense"));
+
+  // Check log for successful initialization
+  EXPECT_THAT(capturedLog.str(),
+              testing::HasSubstr("Created component: VoltageSense"));
+  EXPECT_THAT(capturedLog.str(),
+              testing::HasSubstr("Hardware initialization successful"));
 }
