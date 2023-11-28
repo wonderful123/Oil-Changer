@@ -35,10 +35,28 @@ protected:
   }
 };
 
+// TEST_F(SystemControllerTest, ButtonPressTriggersBuzzer) {
+//   // Expect the triggerBuzzer method to be called when a button is pressed
+//   EXPECT_CALL(*mockHardwareManager, triggerBuzzer()).Times(1);
+
+//   // Simulate a button press
+//   systemController->onButtonPress("testButtonId");
+// }
+
 TEST_F(SystemControllerTest, ButtonPressTriggersBuzzer) {
-  // Expect the triggerBuzzer method to be called when a button is pressed
+  // Arrange
+  // Create mocks for HardwareManager and ButtonController
+
+  // Set up expectations
+  // Expect the button press to be handled by the ButtonController
+  EXPECT_CALL(*mockButtonController, notifyObservers("testButtonId")).Times(1);
+
+  // Expect the buzzer to be triggered in the HardwareManager
   EXPECT_CALL(*mockHardwareManager, triggerBuzzer()).Times(1);
 
+  // Act
   // Simulate a button press
   systemController->onButtonPress("testButtonId");
+
+  // Assertions are handled by the EXPECT_CALL statements
 }
