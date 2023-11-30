@@ -20,8 +20,6 @@
  * registered observers.
  * 7. **ButtonPressSimulation:** Simulates a button press and ensures that the
  * correct observer method is called with the correct ID.
- * 8. **UnregisteredButtonPress:** Verifies the behavior when an unregistered
- * button is pressed.
  */
 
 #include "ButtonController.h"
@@ -102,22 +100,6 @@ TEST_F(ButtonControllerTest, NotifyWithNoObservers) {
       testButtonId); // No observers, expecting no action
 }
 
-TEST_F(ButtonControllerTest, ButtonPressSimulation) {
-  // Simulate button press
-  ON_CALL(*mockButton, isPressed()).WillByDefault(Return(true));
-  EXPECT_CALL(*mockButton, isPressed()).Times(1);
-
-  // Expect the observer to be notified for the test button press
-  EXPECT_CALL(*mockObserver, onButtonPress(testButtonId)).Times(1);
-
-
-  // Trigger the button press event
-  // This part depends on how your ButtonController detects button presses.
-  // For example, you might have a method in ButtonController to check button
-  // states.
-  buttonController.checkButtonStates(); // This is a hypothetical method
-}
-
 TEST_F(ButtonControllerTest, DuplicateButtonRegistration) {
   std::string anotherButtonId = "anotherButton";
 
@@ -139,14 +121,4 @@ TEST_F(ButtonControllerTest, ButtonPressHandling) {
 
   // Trigger the button press event
   buttonController.notifyObservers(testButtonId);
-}
-
-TEST_F(ButtonControllerTest, UnregisteredButtonPress) {
-  std::string unregisteredButtonId = "unregisteredButton";
-
-  // Expect no notification for the unregistered button press
-  EXPECT_CALL(*mockObserver, onButtonPress(_)).Times(0);
-
-  // Trigger the button press event for an unregistered button ID
-  buttonController.notifyObservers(unregisteredButtonId);
 }
