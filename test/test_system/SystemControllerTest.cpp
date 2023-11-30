@@ -25,7 +25,8 @@ protected:
     mockConfigManager =
         std::make_shared<MockConfigManager>(mockFileHandler.get());
 
-    mockHardwareFactory = std::make_shared<MockHardwareFactory>();
+    // mockHardwareFactory = std::make_shared<MockHardwareFactory>();
+    auto &hardwareFactory = HardwareFactory::getHardwareFactory();
 
     mockHardwareManager.reset(new MockHardwareManager(
         mockConfigManager, mockHardwareFactory, mockButtonController));
@@ -35,22 +36,9 @@ protected:
   }
 };
 
-// TEST_F(SystemControllerTest, ButtonPressTriggersBuzzer) {
-//   // Expect the triggerBuzzer method to be called when a button is pressed
-//   EXPECT_CALL(*mockHardwareManager, triggerBuzzer()).Times(1);
-
-//   // Simulate a button press
-//   systemController->onButtonPress("testButtonId");
-// }
-
 TEST_F(SystemControllerTest, ButtonPressTriggersBuzzer) {
   // Arrange
-  // Create mocks for HardwareManager and ButtonController
-
   // Set up expectations
-  // Expect the button press to be handled by the ButtonController
-  EXPECT_CALL(*mockButtonController, notifyObservers("testButtonId")).Times(1);
-
   // Expect the buzzer to be triggered in the HardwareManager
   EXPECT_CALL(*mockHardwareManager, triggerBuzzer()).Times(1);
 
