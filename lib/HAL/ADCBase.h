@@ -1,3 +1,4 @@
+// ADCBase.h
 #pragma once
 
 #include "IADC.h"
@@ -5,8 +6,7 @@
 
 class ADCBase : public IADC {
 public:
-  explicit ADCBase(const HardwarePinConfig &config)
-      : IADC(config) { // Default resolution
+  explicit ADCBase(const HardwarePinConfig &config) : IADC(config) {
     extractResolution(config);
   }
 
@@ -19,6 +19,7 @@ protected:
       _resolution = res;
       Logger::info("ADC resolution set to " + std::to_string(_resolution));
     } else {
+      _resolution = 4096; // Set default resolution
       Logger::warn("ADC resolution not specified. Using default: " +
                    std::to_string(_resolution));
     }
