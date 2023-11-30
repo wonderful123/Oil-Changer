@@ -1,6 +1,6 @@
-#pragma once
-
 #ifdef PLATFORM_NATIVE
+
+#pragma once
 
 #include "IButtonControllerObserver.h"
 #include "ButtonController.h"
@@ -15,10 +15,11 @@ public:
 
 class MockButtonController : public ButtonController {
 public:
-  MOCK_METHOD(void, addObserver, (std::shared_ptr<IButtonControllerObserver> observer), (override));
-  MOCK_METHOD(void, registerButton, (const std::string &id, std::shared_ptr<IButton> button), (override));
-  MOCK_METHOD(void, notifyObservers, (const std::string &id), (override));
-  MOCK_METHOD(void, checkButtonStates, (), (override));
+  MOCK_METHOD(void, addObserver, (std::shared_ptr<IButtonControllerObserver> observer));
+  MOCK_METHOD(void, registerButton, (const std::string &id, std::shared_ptr<IButton> button));
+  MOCK_METHOD(std::shared_ptr<IButton>, getButtonById, (const std::string &id), (const));
+  MOCK_METHOD(void, processButtonStates, ());
+  MOCK_METHOD(void, notifyObservers, (const std::string &id));
 };
 
 #endif // PLATFORM_NATIVE

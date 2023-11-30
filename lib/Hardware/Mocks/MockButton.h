@@ -8,11 +8,12 @@
 class MockButton : public ButtonBase {
 public:
   explicit MockButton(const HardwarePinConfig &config) : ButtonBase(config) {
-    setInitialized(true); // Set initialized flag to true
+    setInitialized(true); // Assuming ButtonBase has setInitialized
   }
-
-  MOCK_METHOD(void, updatePressedState, (), (override));
+  
   MOCK_METHOD(bool, isPressed, (), (const, override));
+  MOCK_METHOD(void, setOnPressCallback, (ButtonPressCallback callback), (override));
+  MOCK_METHOD(void, update, (), (override));
 };
 
 #endif // PLATFORM_NATIVE
