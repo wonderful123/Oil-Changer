@@ -20,7 +20,6 @@ public:
 private:
   std::vector<HardwarePinConfig> _hardwarePinConfigs;
 
-  // Override to parse JSON
   Error parseJson(const DynamicJsonDocument &doc) override;
 
   // Helper methods for parsing
