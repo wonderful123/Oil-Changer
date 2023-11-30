@@ -41,3 +41,32 @@
 // system's behavior. Expected Result: Upon changing a setting, the
 // corresponding system behavior changes accordingly without needing a restart
 // or reload.
+
+#include "InteractionSettingsConfig.h"
+#include "../test_utils.h"
+#include "Error.h"
+#include "IFileHandler.h"
+#include "Mocks/MockFileHandler.h"
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
+
+class InteractionSettingsConfigTest : public ::testing::Test {
+protected:
+  InteractionSettingsConfigTest() : config(&mockFileHandler) {}
+  
+  const std::string DUMMY_FILE_PATH = "dummy_config.json";
+  MockFileHandler mockFileHandler;
+  InteractionSettingsConfig config;
+};
+
+TEST_F(InteractionSettingsConfigTest, LoadDeserializationFailure) {
+  const std::string invalidMockFileContent = "This is not a JSON content";
+
+  expectOpenReadCloseForContent(mockFileHandler, invalidMockFileContent,
+                                DUMMY_FILE_PATH);
+
+  Error loadError = config.load(DUMMY_FILE_PATH);
+
+  EXPECT_EQ(loadError, Error::JsonInputInvalid)
+      << loadError.getFormattedMessage(loadError.code());
+}
