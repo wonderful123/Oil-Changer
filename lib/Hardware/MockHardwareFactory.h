@@ -34,40 +34,9 @@ public:
   MOCK_METHOD(std::unique_ptr<II2C>, createI2C, (const HardwarePinConfig &));
   MOCK_METHOD(std::unique_ptr<ISerial>, createSerial,
               (const HardwarePinConfig &));
-
-  std::unique_ptr<IFileHandler> createFileHandler() {
-    return std::unique_ptr<IFileHandler>(new MockFileHandler());
-  }
-
-  std::shared_ptr<HardwareComponent>
-  createComponent(const HardwarePinConfig &config) override {
-    if (config.type == "ADC") {
-      return createADC(config);
-    } else if (config.type == "Button") {
-      return createButton(config);
-    } else if (config.type == "DAC") {
-      return createDAC(config);
-    } else if (config.type == "DigitalIO") {
-      return createDigitalIO(config);
-    } else if (config.type == "FlowMeter") {
-      return createFlowMeter(config);
-    } else if (config.type == "PWM") {
-      return createPWM(config);
-    } else if (config.type == "Buzzer") {
-      return createBuzzer(config);
-    } else if (config.type == "SPI") {
-      return createSPI(config);
-    } else if (config.type == "I2C") {
-      return createI2C(config);
-    } else if (config.type == "Serial") {
-      return createSerial(config);
-    } else {
-      Logger::error(
-          "Unknown hardware component type in mock hardware factory: " +
-          config.type);
-      return nullptr;
-    }
-  }
+  MOCK_METHOD(std::shared_ptr<HardwareComponent>, createComponent,
+              (const HardwarePinConfig &), (override));
+  MOCK_METHOD(std::unique_ptr<IFileHandler>, createFileHandler, (), (override));
 };
 
 #endif
