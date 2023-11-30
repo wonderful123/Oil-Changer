@@ -27,3 +27,6 @@ struct HardwarePinConfig {
   // Template method for getting options
   template <typename T> T getOptionAs(const std::string &key) const;
 };
+
+// Non-member comparison operator
+bool operator==(const HardwarePinConfig &lhs, const HardwarePinConfig &rhs);
