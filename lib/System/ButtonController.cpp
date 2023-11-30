@@ -1,6 +1,6 @@
 #include "ButtonController.h"
-#include <Arduino.h>
 #include <algorithm>
+
 void ButtonController::addObserver(
     std::shared_ptr<IButtonControllerObserver> observer) {
   auto it = std::find_if(
