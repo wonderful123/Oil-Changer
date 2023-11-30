@@ -15,8 +15,6 @@ public:
   // Method to get hardware configuration object
   virtual std::shared_ptr<HardwareConfig> getHardwareConfig() const;
 
-  // Add methods to get other specific config types if necessary...
-
   // Method to load a configuration
   Error loadConfig(const std::string &configType);
 
