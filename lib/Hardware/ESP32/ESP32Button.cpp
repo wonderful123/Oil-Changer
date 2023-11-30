@@ -1,3 +1,5 @@
+#ifdef PLATFORM_ESP32
+
 #include "ESP32Button.h"
 #include "Logger.h"
 #include <Arduino.h>
@@ -19,3 +21,5 @@ void ESP32Button::update() {
     _isPressed = false;
   }
 }
+
+#endif // PLATFORM_ESP32
