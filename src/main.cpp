@@ -16,8 +16,10 @@
 
 // Global objects
 ESP32FileHandler fileHandler;
-std::shared_ptr<ConfigManager> configManager = std::make_shared<ConfigManager>(&fileHandler);
-std::shared_ptr<ButtonController> buttonController = std::make_shared<ButtonController>();
+std::shared_ptr<ConfigManager> configManager =
+    std::make_shared<ConfigManager>(&fileHandler);
+std::shared_ptr<ButtonController> buttonController =
+    std::make_shared<ButtonController>();
 std::shared_ptr<SystemController> systemController;
 
 // Forward Declarations
