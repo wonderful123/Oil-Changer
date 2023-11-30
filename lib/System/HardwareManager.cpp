@@ -13,6 +13,7 @@ HardwareManager::HardwareManager(
       _buttonController(buttonController) {}
 
 void HardwareManager::initializeHardware() {
+  Logger::debug("Starting hardware initialization");
   auto hardwareConfig = _configManager->getHardwareConfig();
   if (!hardwareConfig) {
     Logger::error("Hardware configuration is not available");
@@ -21,10 +22,9 @@ void HardwareManager::initializeHardware() {
 
   bool allComponentsInitialized = true;
   for (const auto &config : hardwareConfig->getHardwarePinConfigs()) {
-    auto component = initializeComponent(config);
-    if (!component) {
+    if (!initializeComponent(config)) {
       allComponentsInitialized = false;
-      break; // Stop initialization if any component fails
+      break; // Stop if any component fails
     }
   }
 
@@ -33,17 +33,16 @@ void HardwareManager::initializeHardware() {
   } else {
     Logger::error("Some hardware components failed to initialize");
   }
+  Logger::debug("Hardware initialization complete");
 }
 
 bool HardwareManager::initializeComponent(const HardwarePinConfig &config) {
   auto component = _hardwareFactory->createComponent(config);
   if (component) {
-    // Convert unique_ptr to shared_ptr
     std::shared_ptr<HardwareComponent> sharedComponent = std::move(component);
     _components[config.id] = sharedComponent;
-    Logger::info("Created component: " + config.id + " on pin: " + std::to_string(config.pinNumber));
-
-    // Register the component if needed
+    Logger::info("Created component: " + config.id + " on pin " +
+                 std::to_string(config.pinNumber));
     registerComponent(config, sharedComponent);
   } else {
     Logger::error("Failed to create component: " + config.id);
@@ -53,19 +52,9 @@ bool HardwareManager::initializeComponent(const HardwarePinConfig &config) {
   return true;
 }
 
-/**
- * Register a hardware component if needed.
- *
- * @param config The GPIO pin configuration for the component.
- * @param component The shared pointer to the hardware component to be
- * registered.
- *
- * @throws None.
- */
 void HardwareManager::registerComponent(
     const HardwarePinConfig &config,
     const std::shared_ptr<HardwareComponent> &component) {
-
   if (config.type == "Button") {
     auto button = std::static_pointer_cast<IButton>(component);
     if (button) {
@@ -74,7 +63,7 @@ void HardwareManager::registerComponent(
       Logger::error("Failed to cast to IButton: " + config.id);
     }
   }
-  // Add similar checks for other component types if needed
+  // Additional component type checks can be added here
 }
 
 bool HardwareManager::isComponentInitialized(
@@ -134,7 +123,6 @@ void HardwareManager::triggerBuzzer() {
     auto buzzer = std::static_pointer_cast<IBuzzer>(it->second);
     if (buzzer) {
       buzzer->beep(2731, 150); // Example frequency and duration
-      Logger::info("Buzzer beep triggered.");
     } else {
       Logger::error("Buzzer component cast failed.");
     }
