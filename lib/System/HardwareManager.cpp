@@ -51,12 +51,21 @@ bool HardwareManager::initializeComponent(const HardwarePinConfig &config) {
         _buttonController->registerButton(config.id, button);
         auto interactionConfig = _configManager->getInteractionSettingsConfig();
         if (interactionConfig) {
-          InteractionSettings settings =
-              interactionConfig->getSettings();
+          InteractionSettings settings = interactionConfig->getSettings();
           applyButtonSettings(button, settings);
         }
       } else {
         Logger::error("Failed to cast to IButton: " + config.id);
+      }
+    }
+
+    // After initialization, apply interaction settings to the buzzer
+    auto interactionConfig = _configManager->getInteractionSettingsConfig();
+    if (interactionConfig) {
+      auto buzzer =
+          std::static_pointer_cast<IBuzzer>(getComponentById("Buzzer"));
+      if (buzzer) {
+        buzzer->updateSettings(interactionConfig->getSettings());
       }
     }
 
@@ -113,10 +122,9 @@ void HardwareManager::update() {
   // Check for updated settings
   auto newSettingsConfig = _configManager->getInteractionSettingsConfig();
   if (newSettingsConfig) {
-    InteractionSettings newSettings =
-        newSettingsConfig->getSettings();
+    InteractionSettings newSettings = newSettingsConfig->getSettings();
     for (const auto &pair : _components) {
-      auto button = std::dynamic_pointer_cast<IButton>(pair.second);
+      auto button = std::static_pointer_cast<IButton>(pair.second);
       if (button) {
         applyButtonSettings(button, newSettings);
       }
@@ -182,11 +190,8 @@ void HardwareManager::updateBuzzerSettings() {
 void HardwareManager::applyButtonSettings(
     const std::shared_ptr<IButton> &button,
     const InteractionSettings &settings) {
-  // Extract and apply button settings
-  // Assuming each button's settings are stored in a map with the button's ID as
-  // the key
-  auto buttonSettings = settings.buttons.find(button->id());
-  if (buttonSettings != settings.buttons.end()) {
-    button->setAutoRepeatSettings(buttonSettings->second.autoRepeat);
+  auto buttonSettingsIter = settings.buttons.find(button->id());
+  if (buttonSettingsIter != settings.buttons.end()) {
+    button->setAutoRepeatSettings(buttonSettingsIter->second.autoRepeat);
   }
 }
