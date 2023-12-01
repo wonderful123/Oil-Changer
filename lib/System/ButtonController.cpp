@@ -32,16 +32,38 @@ void ButtonController::notifyObservers(const std::string &id) {
 }
 
 void ButtonController::processButtonStates() {
-  for (const auto &buttonPair : _buttons) {
-    const std::string &id = buttonPair.first;
-    std::shared_ptr<IButton> button = buttonPair.second;
+  auto now = std::chrono::steady_clock::now();
+  for (auto &pair : _buttonStates) {
+    const std::string &id = pair.first;
+    ButtonState &state = pair.second;
 
-    bool wasPressed = button->isPressed();
-    button->update(); // Update button state
-
-    // Notify if the button was not pressed before and is pressed now
-    if (!wasPressed && button->isPressed()) {
-      notifyObservers(id);
+    state.isPressed = state.button->isPressed();
+    if (state.isPressed) {
+      if (!state.isInAutoRepeatMode) {
+        auto elapsedSinceLastPress =
+            std::chrono::duration_cast<std::chrono::milliseconds>(
+                now - state.lastPressTime)
+                .count();
+        if (elapsedSinceLastPress >=
+            _settings.buttons.at(id).autoRepeat.initialDelayMs) {
+          state.isInAutoRepeatMode = true;
+          state.lastRepeatTime = now;
+          notifyObservers(id); // Initial auto-repeat event
+        }
+      } else {
+        auto elapsedSinceLastRepeat =
+            std::chrono::duration_cast<std::chrono::milliseconds>(
+                now - state.lastRepeatTime)
+                .count();
+        if (elapsedSinceLastRepeat >=
+            _settings.buttons.at(id).autoRepeat.standardRateMs) {
+          state.lastRepeatTime = now;
+          notifyObservers(id); // Subsequent auto-repeat events
+        }
+      }
+    } else {
+      state.isInAutoRepeatMode = false;
+      state.lastPressTime = now;
     }
   }
 }
