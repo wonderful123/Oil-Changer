@@ -11,29 +11,34 @@ public:
 
   void updateSettings(const InteractionSettings &settings) override {
     currentSettings = settings;
-    // Interpret settings specific to buzzer UX
     applySettings();
   }
 
-  void setVolume(float volume) override {
+  virtual void setVolume(float volume) override {
     _volume =
         std::max(0.0f, std::min(volume, 1.0f)); // Clamp volume between 0 and 1
-    applyVolume();
   }
 
   // These methods must be implemented by derived classes
   virtual void beep(int frequency, int duration) = 0;
+  virtual void doubleBeep(int frequency, int duration, int pauseDuration) = 0;
   virtual void stop() = 0;
   virtual bool isBeeping() const = 0;
-  virtual void setVolume(float volume) = 0;
+
+  virtual void beep() override {
+    beep(currentSettings.beepSettings.standardFrequency,
+         currentSettings.beepSettings.standardDurationMs);
+  }
+
+  virtual void doubleBeep() override {
+    doubleBeep(currentSettings.beepSettings.limitReachedPattern.frequency,
+               currentSettings.beepSettings.limitReachedPattern.durationMs,
+               100); // Assuming 100ms as the pause duration
+  }
 
 protected:
   float _volume;
+  InteractionSettings currentSettings;
 
-  virtual void applySettings() { applyVolume(); }
-
-  virtual void applyVolume() {
-    // Implementation specific to derived class
-    // For example, adjust PWM duty cycle for buzzer volume
-  }
+  virtual void applySettings() {  }
 };
