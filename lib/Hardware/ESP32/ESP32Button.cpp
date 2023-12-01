@@ -5,20 +5,28 @@
 #include <Arduino.h>
 
 ESP32Button::ESP32Button(const HardwarePinConfig &config) : ButtonBase(config) {
-  _debouncer.attach(_pinNumber, INPUT_PULLUP);
+  pinMode(config.pinNumber, INPUT_PULLUP);
+  _debouncer.attach(config.pinNumber);
   _debouncer.interval(50); // Debounce interval
   Logger::info("Button: " + id() + " initialized.");
 }
 
 void ESP32Button::update() {
   _debouncer.update();
-  if (_debouncer.fell()) {
-    _isPressed = true;
+  bool previouslyPressed = _isPressed;
+  _isPressed = _debouncer.read() == LOW; // Assuming active LOW
+
+  if (_isPressed && !previouslyPressed) {
+    _lastPressTime = std::chrono::steady_clock::now();
     if (_onPressCallback) {
-      _onPressCallback(_id);
+      _onPressCallback(id());
     }
-  } else if (_debouncer.rose()) {
-    _isPressed = false;
+  } else if (!_isPressed && previouslyPressed) {
+    _isInAutoRepeatMode = false;
+  }
+
+  if (checkAutoRepeat() && _onPressCallback) {
+    _onPressCallback(id());
   }
 }
 
