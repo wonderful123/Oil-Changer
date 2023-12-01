@@ -10,7 +10,9 @@ HardwareManager::HardwareManager(
     std::shared_ptr<HardwareFactory> hardwareFactory,
     std::shared_ptr<ButtonController> buttonController)
     : _configManager(configManager), _hardwareFactory(hardwareFactory),
-      _buttonController(buttonController) {}
+      _buttonController(buttonController) {
+  _configManager->attach(this); // Attach to the ConfigManager
+}
 
 void HardwareManager::initializeHardware() {
   Logger::debug("Starting hardware initialization");
@@ -41,14 +43,29 @@ bool HardwareManager::initializeComponent(const HardwarePinConfig &config) {
   if (component) {
     std::shared_ptr<HardwareComponent> sharedComponent = std::move(component);
     _components[config.id] = sharedComponent;
+
+    // If the component is a button, apply settings
+    if (config.type == "Button") {
+      auto button = std::static_pointer_cast<IButton>(sharedComponent);
+      if (button) {
+        _buttonController->registerButton(config.id, button);
+        auto interactionConfig = _configManager->getInteractionSettingsConfig();
+        if (interactionConfig) {
+          InteractionSettings settings =
+              interactionConfig->getSettings();
+          applyButtonSettings(button, settings);
+        }
+      } else {
+        Logger::error("Failed to cast to IButton: " + config.id);
+      }
+    }
+
     Logger::info("Created component: " + config.id + " on pin " +
                  std::to_string(config.pinNumber));
-    registerComponent(config, sharedComponent);
   } else {
     Logger::error("Failed to create component: " + config.id);
     return false;
   }
-
   return true;
 }
 
@@ -86,17 +103,27 @@ HardwareManager::getComponentById(const std::string &id) const {
   if (it != _components.end()) {
     return it->second;
   }
-  
+
   return nullptr; // Return nullptr if component not found
 }
 
 void HardwareManager::update() {
-  // This method is called when the observed subject changes.
-
-  // You can also log the update or perform other operations as needed.
   Logger::info("HardwareManager received an update notification.");
 
-  // Implement specific logic based on your application's requirements.
+  // Check for updated settings
+  auto newSettingsConfig = _configManager->getInteractionSettingsConfig();
+  if (newSettingsConfig) {
+    InteractionSettings newSettings =
+        newSettingsConfig->getSettings();
+    for (const auto &pair : _components) {
+      auto button = std::dynamic_pointer_cast<IButton>(pair.second);
+      if (button) {
+        applyButtonSettings(button, newSettings);
+      }
+    }
+  }
+
+  updateBuzzerSettings();
 }
 
 void HardwareManager::onButtonEvent(const std::string &buttonId, bool pressed) {
@@ -128,5 +155,38 @@ void HardwareManager::triggerBuzzer() {
     }
   } else {
     Logger::error("Buzzer component not found or type mismatch.");
+  }
+}
+
+void HardwareManager::updateBuzzerSettings() {
+  auto interactionConfig = _configManager->getInteractionSettingsConfig();
+  if (!interactionConfig) {
+    Logger::error("Interaction settings configuration is not available");
+    return;
+  }
+
+  auto settings = interactionConfig->getSettings();
+  auto buzzerIt = _components.find("Buzzer");
+  if (buzzerIt != _components.end()) {
+    auto buzzer = std::static_pointer_cast<IBuzzer>(buzzerIt->second);
+    if (buzzer) {
+      buzzer->updateSettings(settings);
+    } else {
+      Logger::error("Buzzer component cast failed.");
+    }
+  } else {
+    Logger::error("Buzzer component not found.");
+  }
+}
+
+void HardwareManager::applyButtonSettings(
+    const std::shared_ptr<IButton> &button,
+    const InteractionSettings &settings) {
+  // Extract and apply button settings
+  // Assuming each button's settings are stored in a map with the button's ID as
+  // the key
+  auto buttonSettings = settings.buttons.find(button->id());
+  if (buttonSettings != settings.buttons.end()) {
+    button->setAutoRepeatSettings(buttonSettings->second.autoRepeat);
   }
 }

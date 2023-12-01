@@ -37,9 +37,10 @@ management of hardware components.
 #include "ButtonController.h"
 #include "ConfigManager.h"
 #include "Core/IObserver.h"
-#include "HardwareComponent.h" // Include the base class for hardware components
+#include "HardwareComponent.h"
 #include "HardwareFactory.h"
 #include "HardwarePinConfig.h"
+#include "IBuzzer.h"
 #include <functional>
 #include <map>
 #include <memory>
@@ -70,12 +71,17 @@ private:
 
   void changeStateBasedOnButton(const std::string &buttonId);
 
+  void applyButtonSettings(const std::shared_ptr<IButton> &button,
+                           const InteractionSettings &settings);
+
 public:
   HardwareManager(std::shared_ptr<ConfigManager> configManager,
                   std::shared_ptr<HardwareFactory> hardwareFactory,
                   std::shared_ptr<ButtonController> buttonController);
 
-  virtual ~HardwareManager() = default;
+  virtual ~HardwareManager() {
+    _configManager->detach(this); // Detach when destroyed
+  }
 
   // Initializes all hardware components
   virtual void initializeHardware();
@@ -89,4 +95,5 @@ public:
   virtual void update() override;
 
   virtual void triggerBuzzer();
+  void updateBuzzerSettings();
 };

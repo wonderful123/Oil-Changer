@@ -23,14 +23,22 @@
              "The JSON input is incomplete or ends abruptly.")                 \
   ERROR_CODE(JsonDeserializationFailure,                                       \
              "Failed to deserialize the JSON document due to an error.")       \
-  ERROR_CODE(                                                                  \
-      ConfigTypeNotRecognized,                                                 \
+  ERROR_CODE(ConfigTypeNotRecognized,                                          \
       "The specified configuration type is not recognized or supported.")      \
   ERROR_CODE(DigitalIOModeOptionMissingOrInvalid,                              \
              "Missing or invalid mode in DigitalIO options")                   \
   ERROR_CODE(ADCInvalidAttenuationValue, "Invalid ADC attenuation value.")     \
   ERROR_CODE(FlowMeterInitErrorNoPCNTUnitSpecified,                            \
-             "FlowMeter: No PCNT unit specified for GPIO pin")
+             "FlowMeter: No PCNT unit specified for GPIO pin")                 \
+  ERROR_CODE(InteractionSettingsButtonInteractionKeyMissing,                   \
+             "Missing 'buttonInteraction' key in interactionSettings.json")    \
+  ERROR_CODE(InteractionSettingsButtonsSubkeyMissing,                          \
+             "Missing 'buttons' subkey in interactionsSettings.json")          \
+  ERROR_CODE(InteractionSettingsBeepSettingsSubkeyMissing,                     \
+             "Missing 'beep' subkey in interactionSettings.json")              \
+  ERROR_CODE(InteractionSettingsFeedbackSubkeyMissing,                         \
+             "Missing 'feedback' subkey in interactionSettings.json")
+
 #undef ERROR_CODE
 
 class Error {
