@@ -28,8 +28,27 @@ void ESP32Buzzer::beep(int frequency, int duration) {
   ledcWriteTone(pwmChannel, frequency);
   _isBeeping = true;
   _timer.once_ms(duration, timerCallback, this);
-  // Logger::info("Buzzer beeping at frequency: " + std::to_string(frequency) +
-  //              " Hz for " + std::to_string(duration) + " ms");
+}
+
+void ESP32Buzzer::doubleBeep(int frequency, int duration, int pauseDuration) {
+  _beepFrequency = frequency;
+  _beepDuration = duration;
+  _isSecondBeep = false; // Indicates the first beep is being played
+  beep(frequency, duration);
+  _timer.once_ms(duration + pauseDuration, timerCallback, this);
+}
+
+void ESP32Buzzer::timerCallback(ESP32Buzzer *buzzer) {
+  if (buzzer) {
+    if (!buzzer->_isSecondBeep) {
+      // If first beep completed, start the second beep
+      buzzer->_isSecondBeep = true;
+      buzzer->beep(buzzer->_beepFrequency, buzzer->_beepDuration);
+    } else {
+      // If second beep completed, stop beeping
+      buzzer->stop();
+    }
+  }
 }
 
 void ESP32Buzzer::stop() {
@@ -41,19 +60,5 @@ void ESP32Buzzer::stop() {
 }
 
 bool ESP32Buzzer::isBeeping() const { return _isBeeping; }
-
-void ESP32Buzzer::timerCallback(ESP32Buzzer *buzzer) {
-  if (buzzer) {
-    buzzer->stop();
-  }
-}
-
-void ESP32Buzzer::applySettings() {
-  BuzzerBase::applySettings();
-  // Handle custom beep patterns
-  if (currentSettings.pattern == "double-beep") {
-    // Implement the double-beep pattern logic
-  }
-}
 
 #endif // PLATFORM_ESP32
