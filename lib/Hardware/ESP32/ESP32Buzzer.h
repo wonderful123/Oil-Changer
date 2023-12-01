@@ -6,10 +6,9 @@
 #include <Arduino.h>
 #include <Ticker.h>
 
-
-class ESP32Buzzer : public IBuzzer {
+class ESP32Buzzer : public BuzzerBase {
 public:
-  ESP32Buzzer(const HardwarePinConfig &config);
+  ESP32Buzzer(const HardwarePinConfig &config) : BuzzerBase(config);
   virtual ~ESP32Buzzer();
   void beep(int frequency, int duration) override;
   void stop() override;
@@ -24,4 +23,3 @@ private:
 };
 
 #endif // PLATFORM_ESP32
-

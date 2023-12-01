@@ -7,7 +7,7 @@ const int pwmResolution = 8;
 const int pwmFrequency = 2713;
 
 ESP32Buzzer::ESP32Buzzer(const HardwarePinConfig &config)
-    : IBuzzer(config), _isBeeping(false) {
+    : BuzzerBase(config), _isBeeping(false) {
   ledcSetup(pwmChannel, pwmFrequency, pwmResolution);
   ledcAttachPin(config.pinNumber, pwmChannel);
   setInitialized(true);
@@ -45,6 +45,14 @@ bool ESP32Buzzer::isBeeping() const { return _isBeeping; }
 void ESP32Buzzer::timerCallback(ESP32Buzzer *buzzer) {
   if (buzzer) {
     buzzer->stop();
+  }
+}
+
+void ESP32Buzzer::applySettings() {
+  BuzzerBase::applySettings();
+  // Handle custom beep patterns
+  if (currentSettings.pattern == "double-beep") {
+    // Implement the double-beep pattern logic
   }
 }
 
