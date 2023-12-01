@@ -1,8 +1,3 @@
-// 1. Test Loading of Interaction Settings
-// Test Name: testLoadInteractionSettingsSuccess
-// Objective: Ensure that InteractionSettingsConfig correctly loads the JSON
-// file. Expected Result: The method returns no error, and the internal state of
-// InteractionSettingsConfig reflects the content of the loaded JSON file.
 // 2. Test Failure to Load Non-Existent Interaction Settings
 // Test Name: testLoadInteractionSettingsFailure
 // Objective: Ensure that an appropriate error is returned when the JSON file
@@ -53,7 +48,7 @@
 class InteractionSettingsConfigTest : public ::testing::Test {
 protected:
   InteractionSettingsConfigTest() : config(&mockFileHandler) {}
-  
+
   const std::string DUMMY_FILE_PATH = "dummy_config.json";
   MockFileHandler mockFileHandler;
   InteractionSettingsConfig config;
@@ -68,5 +63,19 @@ TEST_F(InteractionSettingsConfigTest, LoadDeserializationFailure) {
   Error loadError = config.load(DUMMY_FILE_PATH);
 
   EXPECT_EQ(loadError, Error::JsonInputInvalid)
+      << loadError.getFormattedMessage(loadError.code());
+}
+
+TEST_F(InteractionSettingsConfigTest, NonExistantFileLoadFailure) {
+  // Setup the mock to simulate a file open failure
+  EXPECT_CALL(mockFileHandler, open(DUMMY_FILE_PATH, "r"))
+      .WillOnce(testing::Return(false)); // Simulate file open failure
+
+  // Attempt to load the non-existent file
+  Error loadError = config.load(DUMMY_FILE_PATH);
+
+  // Check if the appropriate error code is returned
+  EXPECT_EQ(loadError, Error::FileOpenFailure)
+      << "Expected a file open failure error, but got: "
       << loadError.getFormattedMessage(loadError.code());
 }
