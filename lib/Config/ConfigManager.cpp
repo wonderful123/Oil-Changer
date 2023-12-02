@@ -32,7 +32,7 @@ Error ConfigManager::loadConfig(const std::string &configType) {
   if (configType == "HardwareConfig") {
     config = std::make_shared<HardwareConfig>(_fileHandler);
     filePath = "/config/hardwareConfig.json";
-  } else if (configType == "InteractionSettingsConfig") {
+  } else if (configType == "InteractionSettings") {
     config = std::make_shared<InteractionSettingsConfig>(_fileHandler);
     filePath = "/config/interactionSettingsConfig.json";
   } else {
