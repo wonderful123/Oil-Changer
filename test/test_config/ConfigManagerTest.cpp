@@ -167,3 +167,77 @@ TEST_F(ConfigManagerTest, GetHardwareConfigNonExisting) {
   EXPECT_EQ(hardwareConfig,
             nullptr); // Expecting nullptr for non-existing config
 }
+
+TEST_F(ConfigManagerTest, LoadInteractionSettingsSuccess) {
+  // Arrange
+  const std::string validInteractionSettingsJSON = R"json({
+    "buttonInteraction": {
+      "description": "Configuration for button behaviors and interactions",
+      "buttons": {
+        "adjustment": {
+          "description": "Settings for increment/decrement buttons",
+          "autoRepeat": {
+            "description": "Auto-repeat behavior on long press",
+            "initialDelayMs": 500,
+            "standardRateMs": 100,
+            "acceleration": {
+              "description": "Acceleration parameters for auto-repeat",
+              "startAfterMs": 2000,
+              "rateDecreaseIntervalMs": 500,
+              "minimumRateMs": 10
+            }
+          },
+          "rapidPress": {
+            "description": "Debounce setting for rapid button presses",
+            "debounceMs": 150
+          }
+        },
+        "start": {
+          "description": "Settings for start button (placeholder for future configurations)"
+        },
+        "stop": {
+          "description": "Settings for stop button (placeholder for future configurations)"
+        }
+      },
+      "beepSettings": {
+        "description": "Audio feedback settings for button interactions",
+        "standardFrequency": 2731,
+        "standardDurationMs": 150,
+        "limitReachedPattern": {
+          "description": "Special beep pattern when a limit is reached",
+          "frequency": 3500,
+          "durationMs": 250,
+          "pattern": "double-beep"
+        }
+      },
+      "feedback": {
+        "description": "General feedback settings",
+        "onButtonRelease": false,
+        "audioFeedbackOnLimit": true
+      }
+    }
+  })json";
+  EXPECT_CALL(mockFileHandler, open(_, _)).WillOnce(Return(true));
+  EXPECT_CALL(mockFileHandler, read())
+      .WillOnce(Return(validInteractionSettingsJSON));
+  EXPECT_CALL(mockFileHandler, close);
+
+  // Act
+  Error result = configManager.loadConfig("InteractionSettings");
+
+  // Assert
+  EXPECT_EQ(result.code(), Error::OK);
+}
+
+TEST_F(ConfigManagerTest, LoadInteractionSettingsFailure) {
+  // Arrange
+  EXPECT_CALL(mockFileHandler, open(_, _))
+      .WillOnce(Return(false)); // Simulate file open failure
+
+  // Act
+  Error result = configManager.loadConfig("InteractionSettings");
+
+  // Assert
+  EXPECT_EQ(result.code(), Error::FileOpenFailure)
+      << result.getFormattedMessage(result.code());
+}
