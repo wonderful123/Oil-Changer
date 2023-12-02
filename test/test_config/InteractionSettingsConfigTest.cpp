@@ -79,3 +79,77 @@ TEST_F(InteractionSettingsConfigTest, NonExistantFileLoadFailure) {
       << "Expected a file open failure error, but got: "
       << loadError.getFormattedMessage(loadError.code());
 }
+
+TEST_F(InteractionSettingsConfigTest, ParseValidButtonSettings) {
+  // Setup the mock to simulate reading valid button settings from a file
+  const std::string validButtonSettings = R"({
+        "buttonInteraction": {
+            "buttons": {
+                "adjustment": {
+                    "description": "Adjustment button settings",
+                    "autoRepeat": {
+                        "initialDelayMs": 500,
+                        "standardRateMs": 100,
+                        "acceleration": {
+                            "startAfterMs": 2000,
+                            "rateDecreaseIntervalMs": 500,
+                            "minimumRateMs": 10
+                        }
+                    }
+                },
+                "start": {
+                    "description": "Start button settings"
+                },
+                "stop": {
+                    "description": "Stop button settings"
+                }
+            },
+            "beepSettings": {
+                // Mock beep settings
+            },
+            "feedback": {
+                // Mock feedback settings
+            }
+        }
+    })";
+  expectOpenReadCloseForContent(mockFileHandler, validButtonSettings,
+                                DUMMY_FILE_PATH);
+
+  // Load the settings
+  Error loadError = config.load(DUMMY_FILE_PATH);
+  EXPECT_EQ(loadError, Error::OK)
+      << "Failed to load valid button settings: "
+      << loadError.getFormattedMessage(loadError.code());
+
+  // Validate that the button settings are correctly parsed
+  auto settings = config.getSettings();
+  auto adjustmentButtonSettings = settings.buttons.at("adjustment");
+
+  EXPECT_EQ(adjustmentButtonSettings.description, "Adjustment button settings");
+  EXPECT_EQ(adjustmentButtonSettings.autoRepeat.initialDelayMs, 500);
+  EXPECT_EQ(adjustmentButtonSettings.autoRepeat.standardRateMs, 100);
+  EXPECT_EQ(adjustmentButtonSettings.autoRepeat.acceleration.startAfterMs,
+            2000);
+  EXPECT_EQ(
+      adjustmentButtonSettings.autoRepeat.acceleration.rateDecreaseIntervalMs,
+      500);
+  EXPECT_EQ(adjustmentButtonSettings.autoRepeat.acceleration.minimumRateMs, 10);
+}
+
+TEST_F(InteractionSettingsConfigTest, MissingButtonSettingsFailure) {
+  // Setup the mock to simulate reading JSON content without button settings
+  const std::string missingButtonSettings = R"({
+        "buttonInteraction": {
+        }
+    })";
+  expectOpenReadCloseForContent(mockFileHandler, missingButtonSettings,
+                                DUMMY_FILE_PATH);
+
+  // Load the settings
+  Error loadError = config.load(DUMMY_FILE_PATH);
+
+  // Check if the appropriate error code is returned
+  EXPECT_EQ(loadError, Error::InteractionSettingsButtonsSubkeyMissing)
+      << "Expected an error for missing button settings, but got: "
+      << loadError.getFormattedMessage(loadError.code());
+}
