@@ -11,10 +11,17 @@ void ButtonController::addObserver(
 
 void ButtonController::registerButton(const std::string &id,
                                       std::shared_ptr<IButton> button) {
-  _buttons[id] = button;
-  _buttonStates[id] =
-      ButtonState{button, false, std::chrono::steady_clock::now(),
-                  std::chrono::steady_clock::now(), false};
+  if (_buttons.find(id) == _buttons.end()) {
+    _buttons[id] = button;
+    _buttonStates[id] =
+        ButtonState{button, false, std::chrono::steady_clock::now(),
+                    std::chrono::steady_clock::now(), false};
+
+    // Apply settings to the button if available
+    if (_settings.buttons.find(id) != _settings.buttons.end()) {
+      button->setAutoRepeatSettings(_settings.buttons.at(id).autoRepeat);
+    }
+  }
 }
 
 void ButtonController::notifyObservers(const std::string &id) {
@@ -64,4 +71,16 @@ std::shared_ptr<IButton>
 ButtonController::getButtonById(const std::string &id) const {
   auto it = _buttons.find(id);
   return it != _buttons.end() ? it->second : nullptr;
+}
+
+void ButtonController::setInteractionSettings(
+    const InteractionSettings &settings) {
+  _settings = settings;
+  // Update settings for each registered button
+  for (auto &[id, button] : _buttons) {
+    auto buttonSettingsIter = _settings.buttons.find(id);
+    if (buttonSettingsIter != _settings.buttons.end()) {
+      button->setAutoRepeatSettings(buttonSettingsIter->second.autoRepeat);
+    }
+  }
 }

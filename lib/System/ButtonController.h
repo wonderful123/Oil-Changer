@@ -2,12 +2,13 @@
 
 #include "IButton.h"
 #include "IButtonControllerObserver.h"
-#include "InteractionSettings.h"
 #include <algorithm>
 #include <chrono>
 #include <memory>
 #include <unordered_map>
 #include <vector>
+
+class InteractionSettings; // Forward declaration for circular dependency
 
 class ButtonController {
 public:
@@ -21,10 +22,11 @@ public:
 
   virtual void addObserver(std::shared_ptr<IButtonControllerObserver> observer);
   virtual void registerButton(const std::string &id,
-                              std::shared_ptr<IButton> button);
+                             std::shared_ptr<IButton> button);
   virtual void processButtonStates();
   virtual void notifyObservers(const std::string &id);
   virtual std::shared_ptr<IButton> getButtonById(const std::string &id) const;
+  virtual void setInteractionSettings(const InteractionSettings &settings);
 
 private:
   std::vector<std::shared_ptr<IButtonControllerObserver>> _observers;
