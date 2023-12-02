@@ -1,8 +1,4 @@
 #include "HardwareManager.h"
-#include "FSM/Events.h"
-#include "FSM/StateMachine.h"
-#include "HardwareManager.h"
-#include "IBuzzer.h"
 #include "Logger.h"
 
 HardwareManager::HardwareManager(
@@ -11,7 +7,7 @@ HardwareManager::HardwareManager(
     std::shared_ptr<ButtonController> buttonController)
     : _configManager(configManager), _hardwareFactory(hardwareFactory),
       _buttonController(buttonController) {
-  _configManager->attach(this); // Attach to the ConfigManager
+  _configManager->attach(this);
 }
 
 void HardwareManager::initializeHardware() {
@@ -44,28 +40,13 @@ bool HardwareManager::initializeComponent(const HardwarePinConfig &config) {
     std::shared_ptr<HardwareComponent> sharedComponent = std::move(component);
     _components[config.id] = sharedComponent;
 
-    // If the component is a button, apply settings
+    // Delegate button registration to ButtonController
     if (config.type == "Button") {
       auto button = std::static_pointer_cast<IButton>(sharedComponent);
       if (button) {
         _buttonController->registerButton(config.id, button);
-        auto interactionConfig = _configManager->getInteractionSettingsConfig();
-        if (interactionConfig) {
-          InteractionSettings settings = interactionConfig->getSettings();
-          applyButtonSettings(button, settings);
-        }
       } else {
         Logger::error("Failed to cast to IButton: " + config.id);
-      }
-    }
-
-    // After initialization, apply interaction settings to the buzzer
-    auto interactionConfig = _configManager->getInteractionSettingsConfig();
-    if (interactionConfig) {
-      auto buzzer =
-          std::static_pointer_cast<IBuzzer>(getComponentById("Buzzer"));
-      if (buzzer) {
-        buzzer->updateSettings(interactionConfig->getSettings());
       }
     }
 
@@ -119,16 +100,10 @@ HardwareManager::getComponentById(const std::string &id) const {
 void HardwareManager::update() {
   Logger::info("HardwareManager received an update notification.");
 
-  // Check for updated settings
   auto newSettingsConfig = _configManager->getInteractionSettingsConfig();
   if (newSettingsConfig) {
     InteractionSettings newSettings = newSettingsConfig->getSettings();
-    for (const auto &pair : _components) {
-      auto button = std::static_pointer_cast<IButton>(pair.second);
-      if (button) {
-        applyButtonSettings(button, newSettings);
-      }
-    }
+    _buttonController->setInteractionSettings(newSettings);
   }
 
   updateBuzzerSettings();
@@ -184,14 +159,5 @@ void HardwareManager::updateBuzzerSettings() {
     }
   } else {
     Logger::error("Buzzer component not found.");
-  }
-}
-
-void HardwareManager::applyButtonSettings(
-    const std::shared_ptr<IButton> &button,
-    const InteractionSettings &settings) {
-  auto buttonSettingsIter = settings.buttons.find(button->id());
-  if (buttonSettingsIter != settings.buttons.end()) {
-    button->setAutoRepeatSettings(buttonSettingsIter->second.autoRepeat);
   }
 }
