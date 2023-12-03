@@ -2,8 +2,7 @@
 
 #include "HardwareComponent.h"
 #include "HardwarePinConfig.h"
-
-class InteractionSettings; // Forward declaration for circular dependency
+#include "InteractionSettings.h"
 
 class IBuzzer : public HardwareComponent {
 public:
