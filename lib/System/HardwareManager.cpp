@@ -112,7 +112,7 @@ void HardwareManager::update(EventType eventType) {
     // Handle flow rate change
     break;
   default:
-    Logger::warning("Unknown event type received.");
+    Logger::warn("Unknown event type received.");
     break;
   }
 
