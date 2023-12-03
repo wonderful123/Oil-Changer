@@ -97,8 +97,24 @@ HardwareManager::getComponentById(const std::string &id) const {
   return nullptr; // Return nullptr if component not found
 }
 
-void HardwareManager::update() {
+void HardwareManager::update(EventType eventType) {
   Logger::info("HardwareManager received an update notification.");
+
+  // Handle different event types
+  switch (eventType) {
+  case OIL_LEVEL_CHANGED:
+    // Handle oil level change
+    break;
+  case VOLTAGE_CHANGED:
+    // Handle voltage change
+    break;
+  case FLOW_RATE_CHANGED:
+    // Handle flow rate change
+    break;
+  default:
+    Logger::warning("Unknown event type received.");
+    break;
+  }
 
   auto newSettingsConfig = _configManager->getInteractionSettingsConfig();
   if (newSettingsConfig) {

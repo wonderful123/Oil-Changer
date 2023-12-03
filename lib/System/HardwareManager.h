@@ -13,7 +13,6 @@ concerns.
 
 #include "ButtonController.h"
 #include "ConfigManager.h"
-#include "IObserver.h"
 #include "FSM/Events.h"
 #include "FSM/StateMachine.h"
 #include "FSM/States.h"
@@ -21,6 +20,8 @@ concerns.
 #include "HardwareFactory.h"
 #include "HardwarePinConfig.h"
 #include "IBuzzer.h"
+#include "IObserver.h"
+#include "Observer/EventTypes.h"
 #include <functional>
 #include <map>
 #include <memory>
@@ -68,7 +69,7 @@ public:
   getComponentById(const std::string &id) const;
 
   // Observer pattern implementation
-  virtual void update() override;
+  virtual void update(EventType eventType);
 
   virtual void triggerBuzzer();
   void updateBuzzerSettings();

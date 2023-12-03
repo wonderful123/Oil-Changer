@@ -24,13 +24,17 @@ ConfigManager::getInteractionSettingsConfig() const {
 Error ConfigManager::loadConfig(const std::string &configType) {
   std::shared_ptr<BaseConfig> config;
   std::string filePath;
+  EventType eventType;
 
+  // Map config type to the corresponding file path and event type
   if (configType == "HardwareConfig") {
     config = std::make_shared<HardwareConfig>(_fileHandler);
     filePath = "/config/hardwareConfig.json";
+    eventType = EventType::HARDWARE_CONFIG_CHANGED;
   } else if (configType == "InteractionSettings") {
     config = std::make_shared<InteractionSettingsConfig>(_fileHandler);
     filePath = "/config/interactionSettingsConfig.json";
+    eventType = EventType::INTERACTION_SETTINGS_CHANGED;
   } else {
     return Error(Error::ConfigTypeNotRecognized);
   }
@@ -38,7 +42,7 @@ Error ConfigManager::loadConfig(const std::string &configType) {
   Error error = config->load(filePath);
   if (error == Error::OK) {
     configs[configType] = config;
-    notifyObservers(); // Notify observers after updating config
+    notify(eventType);
   }
 
   return error;

@@ -23,9 +23,9 @@ public:
   // Method to load a configuration
   Error loadConfig(const std::string &configType);
 
-  void notifyObservers() {
+  void notify(EventType eventType) {
     for (auto &observer : observers) {
-      observer->update();
+      observer->update(eventType);
     }
   }
 
@@ -34,12 +34,6 @@ public:
   void detach(IObserver *observer) override {
     observers.erase(std::remove(observers.begin(), observers.end(), observer),
                     observers.end());
-  }
-
-  void notify() override {
-    for (auto &observer : observers) {
-      observer->update();
-    }
   }
 
 private:
