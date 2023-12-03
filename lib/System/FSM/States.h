@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Events.h"
+#include "OilChangeTracker.h"
 #include <tinyfsm.hpp>
 
 // Forward declarations
@@ -17,8 +18,14 @@ struct BaseState : tinyfsm::Fsm<BaseState> {
 // Idle State
 struct IdleState : BaseState {
   void react(ButtonPressEvent const &e) override {
+    auto &oilChangeTracker = OilChangeTracker::getInstance();
+
     if (e.buttonId == "ButtonStart") {
       transit<MotorRunningState>();
+    } else if (e.buttonId == "ButtonPlus") {
+      oilChangeTracker.incrementFillCapacity(0.1);
+    } else if (e.buttonId == "ButtonMinus") {
+      oilChangeTracker.decrementFillCapacity(0.1);
     }
   }
 };
