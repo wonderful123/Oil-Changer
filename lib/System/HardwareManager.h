@@ -48,9 +48,6 @@ private:
 
   void changeStateBasedOnButton(const std::string &buttonId);
 
-  void applyButtonSettings(const std::shared_ptr<IButton> &button,
-                           const InteractionSettings &settings);
-
 public:
   HardwareManager(std::shared_ptr<ConfigManager> configManager,
                   std::shared_ptr<HardwareFactory> hardwareFactory,
