@@ -34,7 +34,10 @@ void ButtonController::notifyObservers(const std::string &id) {
 
 void ButtonController::processButtonStates() {
   auto now = std::chrono::steady_clock::now();
-  for (auto &[id, state] : _buttonStates) {
+  for (auto it = _buttonStates.begin(); it != _buttonStates.end(); ++it) {
+    auto id = it->first;
+    auto &state = it->second;
+
     state.button->update();
 
     // Update the press state and check auto-repeat
@@ -77,7 +80,9 @@ void ButtonController::setInteractionSettings(
     const InteractionSettings &settings) {
   _settings = settings;
   // Update settings for each registered button
-  for (auto &[id, button] : _buttons) {
+  for (auto it = _buttons.begin(); it != _buttons.end(); ++it) {
+    auto id = it->first;
+    auto &state = it->second;
     auto buttonSettingsIter = _settings.buttons.find(id);
     if (buttonSettingsIter != _settings.buttons.end()) {
       button->setAutoRepeatSettings(buttonSettingsIter->second.autoRepeat);
