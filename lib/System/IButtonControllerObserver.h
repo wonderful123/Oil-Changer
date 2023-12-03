@@ -1,5 +1,6 @@
 #pragma once
-#include "Core/IObserver.h"
+
+#include "IObserver.h"
 
 class IButtonControllerObserver : public IObserver {
 public:

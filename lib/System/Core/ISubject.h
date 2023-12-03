@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Core/IObserver.h"
-#include <vector>
+#include "IObserver.h"
 
 /**
  * @file ISubject.h

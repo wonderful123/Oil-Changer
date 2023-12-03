@@ -13,7 +13,7 @@ concerns.
 
 #include "ButtonController.h"
 #include "ConfigManager.h"
-#include "Core/IObserver.h"
+#include "IObserver.h"
 #include "FSM/Events.h"
 #include "FSM/StateMachine.h"
 #include "FSM/States.h"
