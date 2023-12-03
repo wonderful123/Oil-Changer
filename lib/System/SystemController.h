@@ -15,7 +15,7 @@ public:
   virtual void initialize();
   virtual void onButtonPress(const std::string &id) override;
 
-  virtual void update() override;
+  virtual void update(EventType eventType);
 
 private:
   std::shared_ptr<HardwareManager> _hardwareManager;

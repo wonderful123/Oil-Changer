@@ -2,11 +2,14 @@
 #include "FSM/States.h"
 #include "Logger.h"
 
+FSM_INITIAL_STATE(BaseState, IdleState);
+
 SystemController::SystemController(
     std::shared_ptr<HardwareManager> hardwareManager,
     std::shared_ptr<ButtonController> buttonController)
     : _hardwareManager(std::move(hardwareManager)),
-      _buttonController(std::move(buttonController)) {}
+      _buttonController(std::move(buttonController))
+{}
 
 void SystemController::initialize() {
   _hardwareManager->initializeHardware();
@@ -26,4 +29,6 @@ void SystemController::registerAsButtonObserver() {
   }
 }
 
-void SystemController::update() { _buttonController->processButtonStates(); }
+void SystemController::update(EventType eventType) {
+  _buttonController->processButtonStates();
+}
