@@ -1,8 +1,4 @@
 #include "ConfigManager.h"
-#include "Error.h"
-#include "HardwareConfig.h"
-#include "InteractionSettingsConfig.h"
-#include <memory>
 #include <string>
 
 // Responsible for loading configuration data from a source (like a JSON file)

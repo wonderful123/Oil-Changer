@@ -1,11 +1,10 @@
 #pragma once
 
-#include "Core/ISubject.h"
 #include "Error.h"          // For error handling
 #include "HardwareConfig.h" // Specific hardware configuration class
-#include "IConfig.h"        // Interface for configuration classes
 #include "IFileHandler.h"   // Interface for file handling
 #include "InteractionSettingsConfig.h"
+#include "ISubject.h"  // Interface for the Subject part of the Observer pattern
 #include <algorithm>
 #include <memory>
 #include <unordered_map>
@@ -32,12 +31,12 @@ public:
 
   void attach(IObserver *observer) override { observers.push_back(observer); }
 
-  void detach(IObserver *observer) {
+  void detach(IObserver *observer) override {
     observers.erase(std::remove(observers.begin(), observers.end(), observer),
                     observers.end());
   }
 
-  void notify() {
+  void notify() override {
     for (auto &observer : observers) {
       observer->update();
     }
