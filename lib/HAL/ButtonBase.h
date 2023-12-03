@@ -1,3 +1,5 @@
+#pragma once
+
 #include "IButton.h"
 #include <chrono>
 
