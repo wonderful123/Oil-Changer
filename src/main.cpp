@@ -29,8 +29,6 @@ void initializeSystemController();
 void initializeBuzzerPlayer();
 void serialLogCallback(Logger::Level level, const std::string &message);
 
-FSM_INITIAL_STATE(BaseState, IdleState);
-
 void setup() {
   initializeLogger();
   initializeHardware();
@@ -38,7 +36,7 @@ void setup() {
   initializeBuzzerPlayer();
 }
 
-void loop() { systemController->update(); }
+void loop() { systemController->update(EventType::NOEVENT); }
 
 void initializeLogger() {
   Serial.begin(115200);
