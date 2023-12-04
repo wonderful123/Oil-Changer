@@ -6,7 +6,8 @@
 
 class ISerial : public HardwareComponent {
 public:
-  explicit ISerial(const HardwarePinConfig &config) : HardwareComponent(config) {}
+  explicit ISerial(const HardwarePinConfig &config)
+      : HardwareComponent(config) {}
 
   virtual ~ISerial() = default;
 
@@ -16,4 +17,7 @@ public:
   virtual int read() = 0;
   virtual int available() = 0;
   virtual void flush() = 0;
+
+protected:
+  int _baud = 115200;
 };
