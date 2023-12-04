@@ -14,6 +14,10 @@
   ERROR_CODE(FileWriteFailure, "Error encountered while writing the file.")    \
   ERROR_CODE(HardwareConfigComponentsKeyMissing,                               \
              "Missing 'components' key in hardware configuration.")            \
+  ERROR_CODE(HardwareConfigInitError,                                          \
+             "Failed to initialize the hardware configuration.")               \
+  ERROR_CODE(HardwareConfigBuzzerInitError,                                    \
+             "Failed to initialize the buzzer.")                               \
   ERROR_CODE(JsonInputInvalid,                                                 \
              "The provided JSON input is invalid or malformed.")               \
   ERROR_CODE(JsonMemoryError,                                                  \
@@ -23,7 +27,8 @@
              "The JSON input is incomplete or ends abruptly.")                 \
   ERROR_CODE(JsonDeserializationFailure,                                       \
              "Failed to deserialize the JSON document due to an error.")       \
-  ERROR_CODE(ConfigTypeNotRecognized,                                          \
+  ERROR_CODE(                                                                  \
+      ConfigTypeNotRecognized,                                                 \
       "The specified configuration type is not recognized or supported.")      \
   ERROR_CODE(DigitalIOModeOptionMissingOrInvalid,                              \
              "Missing or invalid mode in DigitalIO options")                   \
@@ -37,7 +42,9 @@
   ERROR_CODE(InteractionSettingsBeepSettingsSubkeyMissing,                     \
              "Missing 'beep' subkey in interactionSettings.json")              \
   ERROR_CODE(InteractionSettingsFeedbackSubkeyMissing,                         \
-             "Missing 'feedback' subkey in interactionSettings.json")
+             "Missing 'feedback' subkey in interactionSettings.json")          \
+  ERROR_CODE(SerialHardwareConfigError,                                        \
+             "Failed to initialize the serial hardware configuration.")        \
 
 #undef ERROR_CODE
 
