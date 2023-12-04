@@ -86,27 +86,35 @@
         "mode": "Input"
       }
     ],
-    "multiPin": {
-      "SPI": {
-        "SPI": {
+    "multiPin": [{
+        "id": "SPI",
+        "type": "SPI",
+        "pins": {
           "MOSI": 23,
           "MISO": 19,
           "SCLK": 18,
           "CS": 5
         }
       },
-      "I2C": {
-        "I2C": {
+      {
+        "id": "I2C",
+        "type": "I2C",
+        "pins": {
           "SCL": 22,
           "SDA": 21
         }
       },
-      "Serial": {
-        "Serial": {
+      {
+        "id": "Serial",
+        "type": "Serial",
+        "pins": {
           "TXD": 1,
           "RXD": 3
+        },
+        "options": {
+          "baud": 115200
         }
       }
-    }
+    ]
   }
 }
