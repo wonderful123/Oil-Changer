@@ -82,7 +82,7 @@ void ButtonController::setInteractionSettings(
   // Update settings for each registered button
   for (auto it = _buttons.begin(); it != _buttons.end(); ++it) {
     auto id = it->first;
-    auto &state = it->second;
+    auto &button = it->second;
     auto buttonSettingsIter = _settings.buttons.find(id);
     if (buttonSettingsIter != _settings.buttons.end()) {
       button->setAutoRepeatSettings(buttonSettingsIter->second.autoRepeat);
