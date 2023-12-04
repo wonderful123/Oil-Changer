@@ -27,11 +27,10 @@ void HardwareManager::initializeHardware() {
   }
 
   if (allComponentsInitialized) {
-    Logger::info("Hardware initialization successful");
+    Logger::info("[Hardware Manager] All hardware components initialized");
   } else {
-    Logger::error("Some hardware components failed to initialize");
+    Logger::error("[Hardware Manager] Some hardware components failed to initialize");
   }
-  Logger::debug("Hardware initialization complete");
 }
 
 bool HardwareManager::initializeComponent(const HardwarePinConfig &config) {
@@ -50,12 +49,12 @@ bool HardwareManager::initializeComponent(const HardwarePinConfig &config) {
       }
     }
 
-    Logger::info("Created component: " + config.id + " on pin " +
-                 std::to_string(config.pinNumber));
+    Logger::info("[Hardware Manager] Created component: " + config.id);
   } else {
-    Logger::error("Failed to create component: " + config.id);
+    Logger::error("[Hardware Manager] Failed to create component: " + config.id);
     return false;
   }
+  
   return true;
 }
 
