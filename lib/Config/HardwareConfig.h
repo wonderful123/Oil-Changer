@@ -28,7 +28,6 @@ private:
                                    const std::string &id,
                                    const std::string &type);
   HardwarePinConfig parseMultiPin(const JsonObjectConst &obj,
-                                  const std::string &id,
-                                  const std::string &type);
+                const std::string &id, const std::string &type);
   void parseOptions(const JsonObjectConst &obj, HardwarePinConfig &config);
 };
