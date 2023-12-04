@@ -15,25 +15,28 @@
 #include <tinyfsm.hpp>
 
 // Global objects
-ESP32FileHandler fileHandler;
-std::shared_ptr<ConfigManager> configManager =
-    std::make_shared<ConfigManager>(&fileHandler);
-std::shared_ptr<ButtonController> buttonController =
-    std::make_shared<ButtonController>();
+std::unique_ptr<ESP32FileHandler> fileHandler(new ESP32FileHandler());
+std::shared_ptr<ConfigManager> configManager = std::make_shared<ConfigManager>(fileHandler.get());
+std::shared_ptr<ButtonController> buttonController = std::make_shared<ButtonController>();
 std::shared_ptr<SystemController> systemController;
 
 // Forward Declarations
 void initializeLogger();
-void initializeHardware();
+Error initializeHardware();
 void initializeSystemController();
-void initializeBuzzerPlayer();
+Error initializeBuzzerPlayer();
 void serialLogCallback(Logger::Level level, const std::string &message);
 
 void setup() {
   initializeLogger();
-  initializeHardware();
+  if (initializeHardware()) {
+    Logger::error("Hardware initialization failed.");
+    return; // Consider appropriate error handling or system halt
+  }
   initializeSystemController();
-  initializeBuzzerPlayer();
+  if (initializeBuzzerPlayer()) {
+    Logger::warn("Buzzer player initialization failed.");
+  }
 }
 
 void loop() { systemController->update(EventType::NOEVENT); }
@@ -47,18 +50,19 @@ void initializeLogger() {
   Logger::info("Logger initialized and ready.");
 }
 
-void initializeHardware() {
+Error initializeHardware() {
   Logger::info("Loading hardware configuration...");
   Error configLoadError = configManager->loadConfig("HardwareConfig");
   if (configLoadError) {
     Logger::error("Failed to load hardware configuration: " +
                   Error::getFormattedMessage(configLoadError.code()));
-    return;
+    return configLoadError;
   }
+  return Error::OK; // No error
 }
 
 void initializeSystemController() {
-  auto &hardwareFactory = HardwareFactory::getHardwareFactory();
+  auto hardwareFactory = HardwareFactory::getHardwareFactory();
   std::shared_ptr<HardwareManager> hardwareManager =
       std::make_shared<HardwareManager>(
           configManager, std::move(hardwareFactory), buttonController);
@@ -66,35 +70,41 @@ void initializeSystemController() {
       std::make_shared<SystemController>(hardwareManager, buttonController);
   systemController->initialize();
   IdleState::start(); // Start state machine in IdleState
+  Logger::info("System controller initialized.");
 }
 
-void initializeBuzzerPlayer() {
-  std::shared_ptr<HardwareConfig> hardwareConfig =
-      configManager->getHardwareConfig();
-  if (hardwareConfig) {
-    const auto &gpioConfigs = hardwareConfig->getHardwarePinConfigs();
-    for (const auto &gpioConfig : gpioConfigs) {
-      if (gpioConfig.id == "Buzzer") {
-        Logger::info("Initializing buzzer...");
-        auto buzzer = std::unique_ptr<ESP32Buzzer>(new ESP32Buzzer(gpioConfig));
-        auto player = std::unique_ptr<BuzzerPlayer>(new BuzzerPlayer(*buzzer));
-
-        Logger::info("Playing super mario tune...");
-        // player->playTune(SUPER_MARIO_THEME);
-        Logger::info("Playing starwars tune...");
-        // player->playTune(STARWARS_THEME);
-        Logger::info("Playing super mario with articulation tune ...");
-        // player->playTune(SUPER_MARIO_ARTICULATION_THEME);
-        Logger::info("Playing last ninja intro tune...");
-        // player->playTune(LAST_NINJA_INTRO_THEME);
-        Logger::info("Playing wonderboy theme tune...");
-        // player->playTune(WONDERBOY_THEME);
-        break; // Exit loop after initializing the buzzer
-      }
-    }
-  } else {
+Error initializeBuzzerPlayer() {
+  auto hardwareConfig = configManager->getHardwareConfig();
+  if (!hardwareConfig) {
     Logger::error("Hardware configuration not available.");
+    return Error::HardwareConfigInitError;
   }
+
+  for (const auto &gpioConfig : hardwareConfig->getHardwarePinConfigs()) {
+    if (gpioConfig.id == "Buzzer") {
+      Logger::info("Initializing buzzer...");
+      auto buzzer = std::unique_ptr<ESP32Buzzer>(new ESP32Buzzer(gpioConfig));
+      auto player = std::unique_ptr<BuzzerPlayer>(new BuzzerPlayer(*buzzer));
+
+      Logger::info("Buzzer initialized.");
+
+      Logger::info("Playing super mario tune...");
+      // player->playTune(SUPER_MARIO_THEME);
+      Logger::info("Playing starwars tune...");
+      // player->playTune(STARWARS_THEME);
+      Logger::info("Playing super mario with articulation tune ...");
+      // player->playTune(SUPER_MARIO_ARTICULATION_THEME);
+      Logger::info("Playing last ninja intro tune...");
+      // player->playTune(LAST_NINJA_INTRO_THEME);
+      Logger::info("Playing wonderboy theme tune...");
+      // player->playTune(WONDERBOY_THEME);
+
+      return Error::OK; // Buzzer initialized successfully
+    }
+  }
+
+  Logger::warn("Buzzer not found in hardware configuration.");
+  return Error::HardwareConfigBuzzerInitError; // Error code for missing buzzer
 }
 
 void serialLogCallback(Logger::Level level, const std::string &message) {
