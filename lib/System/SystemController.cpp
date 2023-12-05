@@ -1,8 +1,7 @@
 #include "SystemController.h"
+#include "ESP32/ESP32InterfaceDisplay.h"
 #include "FSM/States.h"
 #include "Logger.h"
-
-#include "ESP32/ESP32SerialDisplay.h"
 
 FSM_INITIAL_STATE(BaseState, IdleState);
 
@@ -18,7 +17,7 @@ void SystemController::initialize() {
 
   Logger::info("[SystemController] Starting state machine...");
   // Start state machine in IdleState
-  IdleState::start(); 
+  IdleState::start();
 
   auto component = _hardwareManager->getComponentById("Serial");
   if (!component) {
@@ -33,8 +32,9 @@ void SystemController::initialize() {
     return;
   }
   Logger::info("[SystemController] Created Serial component");
-  SerialDisplay display(*serial);
+  auto component2 = _hardwareManager->getComponentById("Display1");
   Logger::info("[SystemController] Created SerialDisplay component");
+  auto display = static_cast<IDisplay *>(component2.get());
   display.displayData("Hello, World!");
   Logger::info("[SystemController] Displayed data on SerialDisplay");
 }
