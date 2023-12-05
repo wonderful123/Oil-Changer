@@ -11,8 +11,6 @@ ESP32Buzzer::ESP32Buzzer(const HardwarePinConfig &config)
   ledcSetup(pwmChannel, pwmFrequency, pwmResolution);
   ledcAttachPin(config.pinNumber, pwmChannel);
   setInitialized(true);
-  Logger::info("Buzzer initialized on pin: " +
-               std::to_string(config.pinNumber));
 }
 
 ESP32Buzzer::~ESP32Buzzer() {
