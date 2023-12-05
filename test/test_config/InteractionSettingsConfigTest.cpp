@@ -39,6 +39,7 @@
 
 #include "InteractionSettingsConfig.h"
 #include "../test_utils.h"
+#include "DIContainer.h"
 #include "Error.h"
 #include "IFileHandler.h"
 #include "Mocks/MockFileHandler.h"
@@ -47,11 +48,27 @@
 
 class InteractionSettingsConfigTest : public ::testing::Test {
 protected:
-  InteractionSettingsConfigTest() : config(&mockFileHandler) {}
-
+  std::shared_ptr<MockFileHandler> mockFileHandler;
+  std::shared_ptr<InteractionSettingsConfig> config;
   const std::string DUMMY_FILE_PATH = "dummy_config.json";
-  MockFileHandler mockFileHandler;
-  InteractionSettingsConfig config;
+
+  InteractionSettingsConfigTest() {
+    // Initialize DI Container with mock file handler
+    DIContainer::clear();
+    mockFileHandler = std::make_shared<MockFileHandler>();
+    DIContainer::registerInstance(mockFileHandler);
+
+    // Resolve InteractionSettingsConfig using DIContainer
+    config = DIContainer::resolve<InteractionSettingsConfig>();
+  }
+
+  void SetUp() override {
+    // Setup code if needed
+  }
+
+  void TearDown() override {
+    DIContainer::clear(); // Clear DIContainer after each test
+  }
 };
 
 TEST_F(InteractionSettingsConfigTest, LoadDeserializationFailure) {

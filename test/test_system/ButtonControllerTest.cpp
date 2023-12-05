@@ -23,12 +23,13 @@
  */
 
 #include "ButtonController.h"
+#include "DIContainer.h"
+#include "HardwarePinConfig.h"
 #include "IButtonControllerObserver.h"
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
 #include "MockButtonController.h"
 #include "Mocks/MockButton.h"
-#include "HardwarePinConfig.h"
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 using ::testing::_;
 using ::testing::DoAll;
@@ -41,15 +42,29 @@ class ButtonControllerTest : public ::testing::Test {
 protected:
   HardwarePinConfig testConfig{1, "Button1", "Button"};
   std::shared_ptr<MockButton> mockButton;
-  ButtonController buttonController;
   std::shared_ptr<MockButtonControllerObserver> mockObserver;
+  std::shared_ptr<ButtonController> buttonController;
   std::string testButtonId = "testButton";
 
   void SetUp() override {
+    // Initialize DI Container with mock dependencies
+    DIContainer::clear(); // Clear existing instances in DIContainer
+    DIContainer::registerInstance(
+        std::make_shared<MockFileHandler>()); // MockFileHandler for any file
+                                              // handling
+
+    // Resolve ButtonController using DIContainer
+    buttonController = DIContainer::resolve<ButtonController>();
+
     mockObserver = std::make_shared<MockButtonControllerObserver>();
-    mockButton = std::make_shared<MockButton>(testConfig);
-    buttonController.addObserver(mockObserver);
-    buttonController.registerButton(testButtonId, mockButton);
+    mockButton = std::make_shared<MockButton>();
+
+    buttonController->addObserver(mockObserver);
+    buttonController->registerButton(testButtonId, mockButton);
+  }
+
+  void TearDown() override {
+    DIContainer::clear(); // Clear DIContainer after each test
   }
 };
 

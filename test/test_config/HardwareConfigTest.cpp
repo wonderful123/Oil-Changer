@@ -1,5 +1,6 @@
-#include "Mocks/MockFileHandler.h"
 #include "../test_utils.h"
+#include "DIContainer.h"
+#include "Mocks/MockFileHandler.h"
 #include <HardwareConfig.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -29,12 +30,27 @@ using ::testing::Return;
 
 class HardwareConfigTest : public ::testing::Test {
 protected:
-  HardwareConfigTest()
-      : hardwareConfig(&mockFileHandler) {}
-
+  std::shared_ptr<MockFileHandler> mockFileHandler;
+  std::shared_ptr<HardwareConfig> hardwareConfig;
   const std::string DUMMY_FILE_PATH = "dummy_config.json";
-  MockFileHandler mockFileHandler;
-  HardwareConfig hardwareConfig;
+
+  HardwareConfigTest() {
+    // Initialize DI Container with mock file handler
+    DIContainer::clear();
+    mockFileHandler = std::make_shared<MockFileHandler>();
+    DIContainer::registerInstance(mockFileHandler);
+
+    // Resolve HardwareConfig using DIContainer
+    hardwareConfig = DIContainer::resolve<HardwareConfig>();
+  }
+
+  void SetUp() override {
+    // Setup code if needed
+  }
+
+  void TearDown() override {
+    DIContainer::clear(); // Clear DIContainer after each test
+  }
 };
 
 TEST_F(HardwareConfigTest, ConstructorInitialization) {

@@ -1,12 +1,11 @@
 #include "HardwareManager.h"
 #include "Logger.h"
+#include "DIContainer.h"
 
-HardwareManager::HardwareManager(
-    std::shared_ptr<ConfigManager> configManager,
-    std::shared_ptr<HardwareFactory> hardwareFactory,
-    std::shared_ptr<ButtonController> buttonController)
-    : _configManager(configManager), _hardwareFactory(hardwareFactory),
-      _buttonController(buttonController) {
+HardwareManager::HardwareManager() {
+  _configManager = DIContainer::resolve<ConfigManager>();
+  _hardwareFactory = DIContainer::resolve<HardwareFactory>();
+  _buttonController = DIContainer::resolve<ButtonController>();
   _configManager->attach(this);
 }
 

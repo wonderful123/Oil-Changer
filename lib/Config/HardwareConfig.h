@@ -1,6 +1,7 @@
 #pragma once
 
 #include "BaseConfig.h"
+#include "DIContainer.h"
 #include "DisplayConfig.h"
 #include "Error.h"
 #include "HardwarePinConfig.h"
@@ -12,8 +13,7 @@
 
 class HardwareConfig : public BaseConfig {
 public:
-  explicit HardwareConfig(IFileHandler *fileHandler)
-      : BaseConfig(fileHandler){};
+  HardwareConfig::HardwareConfig() : BaseConfig() {}
 
   // Method to get the hardware configurations
   const std::vector<HardwarePinConfig> &getHardwarePinConfigs() const;

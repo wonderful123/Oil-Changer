@@ -49,9 +49,7 @@ private:
   void changeStateBasedOnButton(const std::string &buttonId);
 
 public:
-  HardwareManager(std::shared_ptr<ConfigManager> configManager,
-                  std::shared_ptr<HardwareFactory> hardwareFactory,
-                  std::shared_ptr<ButtonController> buttonController);
+  HardwareManager();
 
   virtual ~HardwareManager() {
     _configManager->detach(this); // Detach when destroyed

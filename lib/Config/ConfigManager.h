@@ -1,18 +1,18 @@
 #pragma once
 
+#include "DIContainer.h"
 #include "Error.h"          // For error handling
 #include "HardwareConfig.h" // Specific hardware configuration class
 #include "IFileHandler.h"   // Interface for file handling
+#include "ISubject.h" // Interface for the Subject part of the Observer pattern
 #include "InteractionSettingsConfig.h"
-#include "ISubject.h"  // Interface for the Subject part of the Observer pattern
 #include <algorithm>
 #include <memory>
 #include <unordered_map>
 
 class ConfigManager : public ISubject {
 public:
-  explicit ConfigManager(IFileHandler *fileHandler)
-      : _fileHandler(fileHandler) {}
+  ConfigManager();
 
   // Method to get hardware configuration object
   virtual std::shared_ptr<HardwareConfig> getHardwareConfig() const;
@@ -37,7 +37,7 @@ public:
   }
 
 private:
-  IFileHandler *_fileHandler;
+  std::shared_ptr<IFileHandler> _fileHandler;
   std::unordered_map<std::string, std::shared_ptr<IConfig>> configs;
   std::vector<IObserver *> observers;
 };

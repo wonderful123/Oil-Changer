@@ -4,6 +4,10 @@
 // Responsible for loading configuration data from a source (like a JSON file)
 // and passing it to the appropriate managers
 
+ConfigManager::ConfigManager() {
+  _fileHandler = DIContainer::resolve<IFileHandler>();
+}
+
 std::shared_ptr<HardwareConfig> ConfigManager::getHardwareConfig() const {
   auto it = configs.find("HardwareConfig");
   if (it != configs.end()) {

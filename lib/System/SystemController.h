@@ -9,8 +9,7 @@
 class SystemController : public IButtonControllerObserver,
                          public std::enable_shared_from_this<SystemController> {
 public:
-  SystemController(std::shared_ptr<HardwareManager> hardwareManager,
-                   std::shared_ptr<ButtonController> buttonController);
+  SystemController();
 
   virtual void initialize();
   virtual void onButtonPress(const std::string &id) override;

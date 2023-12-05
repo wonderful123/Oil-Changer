@@ -1,5 +1,6 @@
 #include "HardwareManager.h"
 #include "ConfigManager.h"
+#include "DIContainer.h"
 #include "HardwareFactory.h"
 #include "HardwarePinConfig.h"
 #include "IFileHandler.h"
@@ -93,16 +94,20 @@ protected:
 
   void SetUp() override {
     mockFileHandler = std::make_shared<MockFileHandler>();
-    mockConfigManager =
-        std::make_shared<MockConfigManager>(mockFileHandler.get());
-    mockHardwareConfig =
-        std::make_shared<MockHardwareConfig>(mockFileHandler.get());
+    mockConfigManager = std::make_shared<MockConfigManager>();
+    mockHardwareConfig = std::make_shared<MockHardwareConfig>();
     mockHardwareFactory = std::make_shared<MockHardwareFactory>();
     mockButtonController = std::make_shared<MockButtonController>();
-    hardwareManager.reset(new HardwareManager(
-        mockConfigManager, mockHardwareFactory, mockButtonController));
-    // hardwareManager = std::make_shared<HardwareManager>(
-    //     mockConfigManager, mockHardwareFactory, mockButtonController);
+
+    // Register mock dependencies in the DI Container
+    DIContainer::clear(); // Clear existing instances in DIContainer
+    DIContainer::registerInstance(mockFileHandler);
+    DIContainer::registerInstance(mockConfigManager);
+    DIContainer::registerInstance(mockHardwareFactory);
+    DIContainer::registerInstance(mockButtonController);
+
+    // Resolve HardwareManager using DIContainer
+    hardwareManager = DIContainer::resolve<HardwareManager>();
 
     Logger::setLogCallback(
         [this](Logger::Level level, const std::string &message) {
@@ -114,6 +119,7 @@ protected:
 
   void TearDown() override {
     Logger::setLogCallback(nullptr); // Reset the logger callback
+    DIContainer::clear();            // Clear DIContainer after each test
   }
 };
 

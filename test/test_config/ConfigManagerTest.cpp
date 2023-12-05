@@ -1,4 +1,5 @@
 #include "ConfigManager.h"
+#include "DIContainer.h"
 #include "Mocks/MockFileHandler.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -43,10 +44,8 @@ ConfigManager in an inconsistent state.
 
 class ConfigManagerTest : public ::testing::Test {
 protected:
-  MockFileHandler mockFileHandler;
-  ConfigManager configManager;
-
-  ConfigManagerTest() : configManager(&mockFileHandler) {}
+  std::shared_ptr<MockFileHandler> mockFileHandler;
+  std::shared_ptr<ConfigManager> configManager;
 
   const std::string validHardwareConfigJSON = R"json({
       "components": {
@@ -74,7 +73,18 @@ protected:
       }
     })json";
 
-  void SetUp() override {
+  SetUp() {
+    // Initialize DI Container with mock file handler
+    DIContainer::clear();
+    mockFileHandler = std::make_shared<MockFileHandler>();
+    DIContainer::registerInstance(mockFileHandler);
+
+    // Resolve ConfigManager using DIContainer
+    configManager = DIContainer::resolve<ConfigManager>();
+  }
+
+  void TearDown() override {
+    DIContainer::clear(); // Clear DIContainer after each test
   }
 };
 

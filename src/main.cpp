@@ -1,6 +1,7 @@
 #include "ButtonController.h"
 #include "BuzzerPlayer/BuzzerPlayer.h"
 #include "ConfigManager.h"
+#include "DIContainer.h"
 #include "ESP32/ESP32Buzzer.h"
 #include "ESP32/ESP32FileHandler.h"
 #include "Error.h"
@@ -15,9 +16,6 @@
 #include <tinyfsm.hpp>
 
 // Global objects
-std::unique_ptr<ESP32FileHandler> fileHandler(new ESP32FileHandler());
-std::shared_ptr<ConfigManager> configManager = std::make_shared<ConfigManager>(fileHandler.get());
-std::shared_ptr<ButtonController> buttonController = std::make_shared<ButtonController>();
 std::shared_ptr<SystemController> systemController;
 
 // Forward Declarations
@@ -29,7 +27,14 @@ void serialLogCallback(Logger::Level level, const std::string &message);
 
 void setup() {
   initializeLogger();
-  
+
+  // Register dependencies in the DI Container
+  DIContainer::resolve<ESP32FileHandler>();
+  DIContainer::resolve<ConfigManager>();
+  DIContainer::resolve<ButtonController>();
+  DIContainer::resolve<HardwareFactory>();
+  DIContainer::resolve<HardwareManager>();
+
   if (initializeHardware()) {
     Logger::error("[Main] Hardware initialization failed.");
     return; // Consider appropriate error handling or system halt
@@ -66,13 +71,7 @@ Error initializeHardware() {
 }
 
 void initializeSystemController() {
-  auto hardwareFactory = HardwareFactory::getHardwareFactory();
-  std::shared_ptr<HardwareManager> hardwareManager =
-      std::make_shared<HardwareManager>(
-          configManager, std::move(hardwareFactory), buttonController);
-  systemController =
-      std::make_shared<SystemController>(hardwareManager, buttonController);
-
+  systemController = DIContainer::resolve<SystemController>();
   systemController->initialize();
   Logger::info("[Main] System controller initialized2.");
   delay(1000);

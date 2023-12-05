@@ -1,5 +1,6 @@
 #pragma once
 
+#include "DIContainer.h"
 #include "FileGuard.h"
 #include "IConfig.h"
 #include "IFileHandler.h"
@@ -12,7 +13,7 @@
 
 class BaseConfig : public IConfig {
 public:
-  explicit BaseConfig(IFileHandler *fileHandler) : _fileHandler(fileHandler) {}
+  BaseConfig();
 
   virtual ~BaseConfig() = default;
 
@@ -26,5 +27,5 @@ protected:
   Error writeJsonToFile(const DynamicJsonDocument &doc,
                         const std::string &filename) const;
 
-      IFileHandler *_fileHandler;
+  std::shared_ptr<IFileHandler> _fileHandler;
 };

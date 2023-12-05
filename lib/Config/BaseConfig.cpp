@@ -1,6 +1,11 @@
 #include "BaseConfig.h"
 #include "JsonDeserializer.h"
 
+BaseConfig::BaseConfig() {
+  _fileHandler = DIContainer::resolve<IFileHandler>(); // Resolve file handler
+                                                       // using DIContainer
+}
+
 Error BaseConfig::load(const std::string &filename) {
   FileGuard fileGuard(_fileHandler, filename);
   if (!fileGuard.isOpen()) {

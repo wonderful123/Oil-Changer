@@ -1,4 +1,5 @@
 // #include "../mocks/MockFileHandler.h"
+#include "DIContainer.h"
 #include "test_utils.h"
 #include <BaseConfig.h>
 #include <gmock/gmock.h>
@@ -14,18 +15,24 @@
 */
 /*******************************************************************/
 
-class DummyBaseConfig : public BaseConfig {
-public:
-  using BaseConfig::BaseConfig; // Inherit constructors
+class BaseConfigTest : public ::testing::Test {
+protected:
+  std::shared_ptr<MockFileHandler> mockFileHandler;
+  std::shared_ptr<DummyBaseConfig> dummyBaseConfig;
+  const std::string TEST_FILE_PATH = "test_config.json";
 
-  Error save(const std::string &filename) const override {
-    // Placeholder implementation
-    return Error::OK;
+  BaseConfigTest() {
+    // Initialize the DI Container with a mock file handler
+    DIContainer::clear();
+    mockFileHandler = std::make_shared<MockFileHandler>();
+    DIContainer::registerInstance(mockFileHandler);
+
+    // Resolve DummyBaseConfig using the DI Container
+    dummyBaseConfig = DIContainer::resolve<DummyBaseConfig>();
   }
 
-  Error parseJson(const DynamicJsonDocument &doc) override {
-    // Placeholder implementation
-    return Error::OK;
+  void TearDown() override {
+    DIContainer::clear(); // Clear DIContainer after each test
   }
 };
 

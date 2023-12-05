@@ -5,11 +5,10 @@
 
 FSM_INITIAL_STATE(BaseState, IdleState);
 
-SystemController::SystemController(
-    std::shared_ptr<HardwareManager> hardwareManager,
-    std::shared_ptr<ButtonController> buttonController)
-    : _hardwareManager(std::move(hardwareManager)),
-      _buttonController(std::move(buttonController)) {}
+SystemController::SystemController() {
+  _hardwareFactory = DIContainer::resolve<HardwareFactory>();
+  _buttonController = DIContainer::resolve<ButtonController>();
+}
 
 void SystemController::initialize() {
   _hardwareManager->initializeHardware();

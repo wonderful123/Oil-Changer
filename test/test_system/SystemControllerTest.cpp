@@ -1,5 +1,6 @@
 #include "SystemController.h"
 #include "ButtonController.h"
+#include "DIContainer.h"
 #include "HardwareManager.h"
 #include "MockButtonController.h"
 #include "MockConfigManager.h"
@@ -20,19 +21,24 @@ protected:
   void SetUp() override {
     mockFileHandler = std::make_shared<MockFileHandler>();
     mockButtonController = std::make_shared<MockButtonController>();
+    mockConfigManager = std::make_shared<MockConfigManager>();
+    mockHardwareFactory = std::make_shared<MockHardwareFactory>();
+    mockHardwareManager = std::make_shared<MockHardwareManager>();
 
-    // Correct the instantiation of MockConfigManager
-    mockConfigManager =
-        std::make_shared<MockConfigManager>(mockFileHandler.get());
+    // Register mock dependencies in the DI Container
+    DIContainer::clear(); // Clear existing instances in DIContainer
+    DIContainer::registerInstance(mockFileHandler);
+    DIContainer::registerInstance(mockConfigManager);
+    DIContainer::registerInstance(mockHardwareFactory);
+    DIContainer::registerInstance(mockButtonController);
+    DIContainer::registerInstance(mockHardwareManager);
 
-    // mockHardwareFactory = std::make_shared<MockHardwareFactory>();
-    auto &hardwareFactory = HardwareFactory::getHardwareFactory();
+    // Resolve SystemController using DIContainer
+    systemController = DIContainer::resolve<SystemController>();
+  }
 
-    mockHardwareManager.reset(new MockHardwareManager(
-        mockConfigManager, mockHardwareFactory, mockButtonController));
-
-    systemController.reset(
-        new SystemController(mockHardwareManager, mockButtonController));
+  void TearDown() override {
+    DIContainer::clear(); // Clear DIContainer after each test
   }
 };
 
