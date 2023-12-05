@@ -9,8 +9,8 @@
 
 class MockButtonControllerObserver : public IButtonControllerObserver {
 public:
-  MOCK_METHOD(void, onButtonPress, (const std::string &id), (override));
-  MOCK_METHOD(void, update, (), (override));
+  MOCK_METHOD(void, onButtonPress, (const std::string &id));
+  MOCK_METHOD(void, update, (EventType eventTyp));
 };
 
 class MockButtonController : public ButtonController {

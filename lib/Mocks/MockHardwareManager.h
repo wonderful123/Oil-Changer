@@ -17,7 +17,7 @@ public:
                         std::move(buttonController)) {}
 
   MOCK_METHOD(void, initializeHardware, (), (override));
-  MOCK_METHOD(void, update, (), (override));
+  MOCK_METHOD(void, update, (EventType eventTyp));
   MOCK_METHOD(void, onButtonEvent, (const std::string &buttonId, bool pressed),
               (override));
   MOCK_METHOD(void, triggerBuzzer, (), (override));
