@@ -3,7 +3,6 @@
 #ifdef PLATFORM_ESP32
 
 #include "ADCBase.h"
-#include <Arduino.h>
 #include <driver/adc.h>
 
 class ESP32ADC : public ADCBase {
