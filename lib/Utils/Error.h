@@ -45,6 +45,8 @@
              "Missing 'feedback' subkey in interactionSettings.json")          \
   ERROR_CODE(SerialHardwareConfigError,                                        \
              "Failed to initialize the serial hardware configuration.")        \
+  ERROR_CODE(SerialInvalidUartPortNumber,                                      \
+             "ESP32 Serial: Invalid UART port number for ESP32.")              \
 
 #undef ERROR_CODE
 
