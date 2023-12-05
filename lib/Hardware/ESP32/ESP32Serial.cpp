@@ -8,6 +8,21 @@ ESP32Serial::ESP32Serial(const HardwarePinConfig &config)
       _rxPin(-1),               // Default values in case they are not provided
       _txPin(-1) { // Default baud rate
 
+  // Determine UART port from the configuration
+  int uartPort = 0; // Default to UART0
+  auto portIt = config.options.find("uartPort");
+  if (portIt != config.options.end()) {
+    // Convert port number from string to integer
+    char *end;
+    long portNum = strtol(portIt->second.c_str(), &end, 10);
+    if (*end != '\0' || portNum < 0 || portNum > 2) { // Invalid or out of range
+      Error(Error::SerialInvalidUartPortNumber);
+      return;
+    }
+    uartPortNumber = static_cast<int>(portNum);
+    _serial = HardwareSerial(uartPortNumber);
+  }
+
   // Checking if pins are provided in the configuration
   auto rxIt = config.pins.find("RXD");
   if (rxIt != config.pins.end()) {
