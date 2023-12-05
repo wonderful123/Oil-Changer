@@ -9,6 +9,10 @@ HardwareConfig::getHardwarePinConfigs() const {
   return _hardwarePinConfigs;
 }
 
+const std::vector<DisplayConfig> &HardwareConfig::getDisplayConfigs() const {
+  return _displayConfigs;
+}
+
 Error HardwareConfig::parseJson(const DynamicJsonDocument &doc) {
   Logger::info("[HardwareConfig] Parsing hardware configuration JSON...");
 
@@ -29,6 +33,14 @@ Error HardwareConfig::parseJson(const DynamicJsonDocument &doc) {
   if (doc["components"].containsKey("multiPin")) {
     Error error =
         parsePinGroup(doc["components"]["multiPin"].as<JsonArrayConst>(), true);
+    if (error) {
+      return error;
+    }
+  }
+
+  if (doc["components"].containsKey("Displays")) {
+    Error error =
+        parseDisplays(doc["components"]["Displays"].as<JsonArrayConst>());
     if (error) {
       return error;
     }
@@ -82,6 +94,20 @@ HardwarePinConfig HardwareConfig::parseMultiPin(const JsonObjectConst &obj,
                pinsLogString + ")");
 
   return HardwarePinConfig(pins, id, type);
+}
+
+Error HardwareConfig::parseDisplays(const JsonArrayConst &displayArray) {
+  for (JsonObjectConst obj : displayArray) {
+    std::string id = obj["id"].as<std::string>();
+    std::string interfaceId = obj["interfaceId"].as<std::string>();
+
+    Logger::info("[HardwareConfig] Parsed Display: " + id +
+                 " with Interface: " + interfaceId);
+
+    _displayConfigs.push_back(DisplayConfig(id, interfaceId));
+  }
+
+  return Error(Error::OK);
 }
 
 void HardwareConfig::parseOptions(const JsonObjectConst &obj,
