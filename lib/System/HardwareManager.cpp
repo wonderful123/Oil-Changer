@@ -11,10 +11,10 @@ HardwareManager::HardwareManager(
 }
 
 void HardwareManager::initializeHardware() {
-  Logger::debug("Starting hardware initialization");
+  Logger::info("[HardwareManager] Starting hardware initialization");
   auto hardwareConfig = _configManager->getHardwareConfig();
   if (!hardwareConfig) {
-    Logger::error("Hardware configuration is not available");
+    Logger::error("[HardwareManager] Hardware configuration is not available");
     return;
   }
 
@@ -27,9 +27,10 @@ void HardwareManager::initializeHardware() {
   }
 
   if (allComponentsInitialized) {
-    Logger::info("[Hardware Manager] All hardware components initialized");
+    Logger::info("[HardwareManager] All hardware components initialized");
   } else {
-    Logger::error("[Hardware Manager] Some hardware components failed to initialize");
+    Logger::error(
+        "[HardwareManager] Some hardware components failed to initialize");
   }
 }
 
@@ -45,16 +46,17 @@ bool HardwareManager::initializeComponent(const HardwarePinConfig &config) {
       if (button) {
         _buttonController->registerButton(config.id, button);
       } else {
-        Logger::error("Failed to cast to IButton: " + config.id);
+        Logger::error("[HardwareManager] Failed to cast to IButton: " +
+                      config.id);
       }
     }
 
-    Logger::info("[Hardware Manager] Created component: " + config.id);
+    Logger::info("[HardwareManager] Created component: " + config.id);
   } else {
-    Logger::error("[Hardware Manager] Failed to create component: " + config.id);
+    Logger::error("[HardwareManager] Failed to create component: " + config.id);
     return false;
   }
-  
+
   return true;
 }
 
@@ -66,7 +68,8 @@ void HardwareManager::registerComponent(
     if (button) {
       _buttonController->registerButton(config.id, button);
     } else {
-      Logger::error("Failed to cast to IButton: " + config.id);
+      Logger::error("[HardwareManager] Failed to cast to IButton: " +
+                    config.id);
     }
   }
   // Additional component type checks can be added here
@@ -97,7 +100,7 @@ HardwareManager::getComponentById(const std::string &id) const {
 }
 
 void HardwareManager::update(EventType eventType) {
-  Logger::info("HardwareManager received an update notification.");
+  Logger::info("[HardwareManager] Received an update notification.");
 
   // Handle different event types
   switch (eventType) {
@@ -111,7 +114,7 @@ void HardwareManager::update(EventType eventType) {
     // Handle flow rate change
     break;
   default:
-    Logger::warn("Unknown event type received.");
+    Logger::warn("[HardwareManager] Unknown event type received.");
     break;
   }
 
@@ -149,17 +152,19 @@ void HardwareManager::triggerBuzzer() {
     if (buzzer) {
       buzzer->beep(2731, 150); // Example frequency and duration
     } else {
-      Logger::error("Buzzer component cast failed.");
+      Logger::error("[HardwareManager] Buzzer component cast failed.");
     }
   } else {
-    Logger::error("Buzzer component not found or type mismatch.");
+    Logger::error(
+        "[HardwareManager] Buzzer component not found or type mismatch.");
   }
 }
 
 void HardwareManager::updateBuzzerSettings() {
   auto interactionConfig = _configManager->getInteractionSettingsConfig();
   if (!interactionConfig) {
-    Logger::error("Interaction settings configuration is not available");
+    Logger::error("[HardwareManager] Interaction settings configuration is not "
+                  "available");
     return;
   }
 
@@ -170,9 +175,9 @@ void HardwareManager::updateBuzzerSettings() {
     if (buzzer) {
       buzzer->updateSettings(settings);
     } else {
-      Logger::error("Buzzer component cast failed.");
+      Logger::error("[HardwareManager] Buzzer component cast failed.");
     }
   } else {
-    Logger::error("Buzzer component not found.");
+    Logger::error("[HardwareManager] Buzzer component not found.");
   }
 }

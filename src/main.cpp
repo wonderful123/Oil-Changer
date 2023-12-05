@@ -29,13 +29,17 @@ void serialLogCallback(Logger::Level level, const std::string &message);
 
 void setup() {
   initializeLogger();
+  
   if (initializeHardware()) {
-    Logger::error("Hardware initialization failed.");
+    Logger::error("[Main] Hardware initialization failed.");
     return; // Consider appropriate error handling or system halt
   }
+
   initializeSystemController();
+  Logger::info("[Main] System controller initialized.");
+  delay(1000);
   if (initializeBuzzerPlayer()) {
-    Logger::warn("Buzzer player initialization failed.");
+    Logger::warn("[Main] Buzzer player initialization failed.");
   }
 }
 
@@ -47,14 +51,14 @@ void initializeLogger() {
     ; // Wait for Serial port to connect
 
   Logger::setLogCallback(serialLogCallback);
-  Logger::info("Logger initialized and ready.");
+  Logger::info("[Main] Logger initialized and ready.");
 }
 
 Error initializeHardware() {
-  Logger::info("Loading hardware configuration...");
+  Logger::info("[Main] Loading hardware configuration...");
   Error configLoadError = configManager->loadConfig("HardwareConfig");
   if (configLoadError) {
-    Logger::error("Failed to load hardware configuration: " +
+    Logger::error("[Main] Failed to load hardware configuration: " +
                   Error::getFormattedMessage(configLoadError.code()));
     return configLoadError;
   }
@@ -68,42 +72,43 @@ void initializeSystemController() {
           configManager, std::move(hardwareFactory), buttonController);
   systemController =
       std::make_shared<SystemController>(hardwareManager, buttonController);
+
   systemController->initialize();
-  IdleState::start(); // Start state machine in IdleState
-  Logger::info("System controller initialized.");
+  Logger::info("[Main] System controller initialized2.");
+  delay(1000);
 }
 
 Error initializeBuzzerPlayer() {
   auto hardwareConfig = configManager->getHardwareConfig();
   if (!hardwareConfig) {
-    Logger::error("Hardware configuration not available.");
+    Logger::error("[Main] Hardware configuration not available.");
     return Error::HardwareConfigInitError;
   }
 
   for (const auto &gpioConfig : hardwareConfig->getHardwarePinConfigs()) {
     if (gpioConfig.id == "Buzzer") {
-      Logger::info("Initializing buzzer...");
+      Logger::info("[Main] Initializing buzzer...");
       auto buzzer = std::unique_ptr<ESP32Buzzer>(new ESP32Buzzer(gpioConfig));
       auto player = std::unique_ptr<BuzzerPlayer>(new BuzzerPlayer(*buzzer));
 
-      Logger::info("Buzzer initialized.");
+      Logger::info("[Main] Buzzer initialized.");
 
-      Logger::info("Playing super mario tune...");
+      Logger::info("[Main] Playing super mario tune...");
       // player->playTune(SUPER_MARIO_THEME);
-      Logger::info("Playing starwars tune...");
+      Logger::info("[Main] Playing starwars tune...");
       // player->playTune(STARWARS_THEME);
-      Logger::info("Playing super mario with articulation tune ...");
+      Logger::info("[Main] Playing super mario with articulation tune ...");
       // player->playTune(SUPER_MARIO_ARTICULATION_THEME);
-      Logger::info("Playing last ninja intro tune...");
+      Logger::info("[Main] Playing last ninja intro tune...");
       // player->playTune(LAST_NINJA_INTRO_THEME);
-      Logger::info("Playing wonderboy theme tune...");
+      Logger::info("[Main] Playing wonderboy theme tune...");
       // player->playTune(WONDERBOY_THEME);
 
       return Error::OK; // Buzzer initialized successfully
     }
   }
 
-  Logger::warn("Buzzer not found in hardware configuration.");
+  Logger::warn("[Main] Buzzer not found in hardware configuration.");
   return Error::HardwareConfigBuzzerInitError; // Error code for missing buzzer
 }
 
