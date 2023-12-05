@@ -1,4 +1,5 @@
-#include "Observer/ISubject.h"
+#include "EventTypes.h"
+#include "Observer/IObserver.h"
 
 class IDisplay : public IObserver {
 public:
