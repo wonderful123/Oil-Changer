@@ -17,7 +17,6 @@ protected:
     int res = config.getOptionAs<int>("resolution");
     if (res > 0) {
       _resolution = res;
-      Logger::info("ADC resolution set to " + std::to_string(_resolution));
     } else {
       _resolution = 4096; // Set default resolution
       Logger::warn("ADC resolution not specified. Using default: " +
