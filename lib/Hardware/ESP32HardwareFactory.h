@@ -10,8 +10,9 @@
 #include "ESP32/ESP32FileHandler.h"
 #include "ESP32/ESP32FlowMeter.h"
 #include "ESP32/ESP32I2C.h"
-#include "ESP32/ESP32SPI.h"
+#include "ESP32/ESP32InterfaceDisplay.h"
 #include "ESP32/ESP32PWM.h"
+#include "ESP32/ESP32SPI.h"
 #include "ESP32/ESP32Serial.h"
 #include "HardwareFactory.h"
 #include <memory>
@@ -60,6 +61,14 @@ public:
   }
   virtual std::unique_ptr<IFileHandler> createFileHandler() override {
     return std::unique_ptr<IFileHandler>(new ESP32FileHandler());
+  }
+  virtual std::unique_ptr<IDisplay> createDisplay(const std::string &displayId, ICommunicationInterface &commInterface) override {
+    return std::make_unique<ESP32InterfaceDisplay>(commInterface, displayId);
+  }
+
+  virtual std::unique_ptr<ICommunicationInterface> createCommunicationInterface() override {
+    // Example implementation assuming a serial communication interface
+    return std::make_unique<ESP32SerialCommunication>();
   }
 };
 
