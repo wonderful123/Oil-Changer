@@ -1,120 +1,104 @@
 {
   "components": {
     "singlePin": [{
-        "id": "Buzzer",
-        "type": "Buzzer",
-        "pinNumber": 12
-      },
-      {
-        "id": "FlowMeterFill",
-        "type": "FlowMeter",
-        "pinNumber": 14,
-        "options": {
-          "pcntUnit": "PCNT_UNIT_0",
-          "pulseMultiplier": 100,
-          "filterValue": 10,
-          "filterEnabled": true
-        }
-      },
-      {
-        "id": "FlowMeterExtract",
-        "type": "FlowMeter",
-        "pinNumber": 15,
-        "options": {
-          "pcntUnit": "PCNT_UNIT_1",
-          "pulseMultiplier": 100,
-          "filterValue": 10,
-          "filterEnabled": true
-        }
-      },
-      {
-        "id": "ButtonPlus",
-        "type": "Button",
-        "pinNumber": 34
-      }, {
-        "id": "ButtonManualFill",
-        "type": "Button",
-        "pinNumber": 35
-      }, {
-        "id": "ButtonStart",
-        "type": "Button",
-        "pinNumber": 32
-      }, {
-        "id": "OilTemp",
-        "type": "ADC",
-        "pinNumber": 33,
-        "options": {
-          "resolution": 4096,
-          "attenuation": 3
-        }
-      }, {
-        "id": "MotorSpeed",
-        "type": "DAC",
-        "pinNumber": 25
-      }, {
-        "id": "MotorControlFill",
-        "type": "DigitalIO",
-        "pinNumber": 26,
-        "mode": "Output"
-      }, {
-        "id": "MotorControlExtract",
-        "type": "DigitalIO",
-        "pinNumber": 27,
-        "mode": "Output"
-      },
-      {
-        "id": "ButtonMinus",
-        "type": "Button",
-        "pinNumber": 17
-      }, {
-        "id": "ButtonStop",
-        "type": "Button",
-        "pinNumber": 16
-      }, {
-        "pinNumber": 4,
-        "id": "ButtonManualExtract",
-        "type": "Button"
-      }, {
-        "id": "LPSExtract",
-        "type": "DigitalIO",
-        "pinNumber": 0,
-        "mode": "Input"
-      }, {
-        "id": "LPSFill",
-        "type": "DigitalIO",
-        "pinNumber": 2,
-        "mode": "Input"
+      "id": "Buzzer",
+      "type": "Buzzer",
+      "pinNumber": 12
+    }, {
+      "id": "FlowMeterFill",
+      "type": "FlowMeter",
+      "pinNumber": 14,
+      "options": {
+        "pcntUnit": "PCNT_UNIT_0",
+        "pulseMultiplier": 100,
+        "filterValue": 10,
+        "filterEnabled": true
       }
-    ],
+    }, {
+      "id": "FlowMeterExtract",
+      "type": "FlowMeter",
+      "pinNumber": 15,
+      "options": {
+        "pcntUnit": "PCNT_UNIT_1",
+        "pulseMultiplier": 100,
+        "filterValue": 10,
+        "filterEnabled": true
+      }
+    }, {
+      "id": "ButtonPlus",
+      "type": "Button",
+      "pinNumber": 34
+    }, {
+      "id": "ButtonManualFill",
+      "type": "Button",
+      "pinNumber": 35
+    }, {
+      "id": "ButtonStart",
+      "type": "Button",
+      "pinNumber": 32
+    }, {
+      "id": "OilTemp",
+      "type": "ADC",
+      "pinNumber": 33,
+      "options": {
+        "resolution": 4096,
+        "attenuation": 3
+      }
+    }, {
+      "id": "MotorSpeed",
+      "type": "DAC",
+      "pinNumber": 25
+    }, {
+      "id": "MotorControlFill",
+      "type": "DigitalIO",
+      "pinNumber": 26,
+      "mode": "Output"
+    }, {
+      "id": "MotorControlExtract",
+      "type": "DigitalIO",
+      "pinNumber": 27,
+      "mode": "Output"
+    }, {
+      "id": "ButtonMinus",
+      "type": "Button",
+      "pinNumber": 17
+    }, {
+      "id": "ButtonStop",
+      "type": "Button",
+      "pinNumber": 16
+    }, {
+      "pinNumber": 4,
+      "id": "ButtonManualExtract",
+      "type": "Button"
+    }, {
+      "id": "LPSExtract",
+      "type": "DigitalIO",
+      "pinNumber": 0,
+      "mode": "Input"
+    }, {
+      "id": "LPSFill",
+      "type": "DigitalIO",
+      "pinNumber": 2,
+      "mode": "Input"
+    }],
     "multiPin": [{
-        "id": "SPI",
-        "type": "SPI",
-        "pins": {
-          "MOSI": 23,
-          "MISO": 19,
-          "SCLK": 18,
-          "CS": 5
-        }
+      "id": "Serial2",
+      "type": "Serial",
+      "pins": {
+        "TXD": 18,
+        "RXD": 19
       },
-      {
-        "id": "I2C",
-        "type": "I2C",
-        "pins": {
-          "SCL": 22,
-          "SDA": 21
-        }
-      },
-      {
-        "id": "Serial",
-        "type": "Serial",
-        "pins": {
-          "TXD": 1,
-          "RXD": 3
-        },
-        "options": {
-          "baud": 115200
-        }
+      "options": {
+        "uartPort": 1,
+        "baud": 115200
       }
-    ]
+    }],
+    "Displays": [{
+      "id": "Display1",
+      "interfaceId": "Serial2"
+    }, {
+      "id": "Display2",
+      "interfaceId": "Serial2"
+    }]
   }
 }
