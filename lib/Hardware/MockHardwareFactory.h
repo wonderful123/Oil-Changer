@@ -35,8 +35,13 @@ public:
   MOCK_METHOD(std::unique_ptr<ISerial>, createSerial,
               (const HardwarePinConfig &));
   MOCK_METHOD(std::shared_ptr<HardwareComponent>, createComponent,
-              (const HardwarePinConfig &), (override));
-  MOCK_METHOD(std::unique_ptr<IFileHandler>, createFileHandler, (), (override));
+              (const HardwarePinConfig &));
+  MOCK_METHOD(std::unique_ptr<IFileHandler>, createFileHandler, ());
+  MOCK_METHOD(std::unique_ptr<ICommunicationInterface>,
+              createCommunicationInterface, ());
+  MOCK_METHOD(std::unique_ptr<IDisplay>, createDisplay,
+              (const std::string &displayId,
+               ICommunicationInterface &commInterface));
 };
 
 #endif
