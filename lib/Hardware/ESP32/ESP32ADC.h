@@ -8,7 +8,7 @@
 
 class ESP32ADC : public ADCBase {
 private:
-  adc_atten_t _attenuation;
+  adc_attenuation_t _attenuation;
 
 public:
   /**
