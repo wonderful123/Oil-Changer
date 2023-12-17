@@ -1,12 +1,16 @@
 #include "ConfigManager.h"
+#include "BaseConfig.h"
+#include "HardwareConfig.h"
+#include "IFileHandler.h"
+#include "InteractionSettingsConfig.h"
 #include <string>
 
 // Responsible for loading configuration data from a source (like a JSON file)
 // and passing it to the appropriate managers
 
-ConfigManager::ConfigManager() {
-  _fileHandler = DIContainer::resolve<IFileHandler>();
-}
+ConfigManager::ConfigManager(std::shared_ptr<IMediator> mediator,
+                             std::shared_ptr<IFileHandler> fileHandler)
+    : IColleague(mediator), _mediator(mediator), _fileHandler(fileHandler) {}
 
 std::shared_ptr<HardwareConfig> ConfigManager::getHardwareConfig() const {
   auto it = configs.find("HardwareConfig");
@@ -46,8 +50,13 @@ Error ConfigManager::loadConfig(const std::string &configType) {
   Error error = config->load(filePath);
   if (error == Error::OK) {
     configs[configType] = config;
-    notify(eventType);
+    _mediator->notify(this, eventType);
   }
 
   return error;
+}
+
+void ConfigManager::receiveEvent(EventType eventType,
+                                 const EventData *eventData) {
+  // Implementation goes here
 }

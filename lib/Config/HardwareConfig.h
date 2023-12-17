@@ -1,19 +1,19 @@
 #pragma once
 
 #include "BaseConfig.h"
-#include "DIContainer.h"
 #include "DisplayConfig.h"
-#include "Error.h"
 #include "HardwarePinConfig.h"
-#include "IFileHandler.h"
 #include <ArduinoJson.h>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
+class Error;
+class IFileHandler;
+
 class HardwareConfig : public BaseConfig {
 public:
-  HardwareConfig::HardwareConfig() : BaseConfig() {}
+  explicit HardwareConfig(std::shared_ptr<IFileHandler> fileHandler);
 
   // Method to get the hardware configurations
   const std::vector<HardwarePinConfig> &getHardwarePinConfigs() const;

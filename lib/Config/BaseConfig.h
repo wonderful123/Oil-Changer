@@ -1,11 +1,12 @@
 #pragma once
 
-#include "DIContainer.h"
-#include "FileGuard.h"
+#include "Error.h"
 #include "IConfig.h"
-#include "IFileHandler.h"
 #include <ArduinoJson.h>
+#include <memory>
 #include <string>
+
+class IFileHandler;
 
 // @class BaseConfig
 // @brief An abstract base class that provides common functionality for
@@ -13,7 +14,7 @@
 
 class BaseConfig : public IConfig {
 public:
-  BaseConfig();
+  explicit BaseConfig(std::shared_ptr<IFileHandler> fileHandler);
 
   virtual ~BaseConfig() = default;
 

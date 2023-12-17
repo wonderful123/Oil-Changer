@@ -1,8 +1,10 @@
 #include "HardwareConfig.h"
-#include "HardwarePinConfig.h"
 #include "Logger.h"
 #include <ArduinoJson.h>
 #include <string>
+
+HardwareConfig::HardwareConfig(std::shared_ptr<IFileHandler> fileHandler)
+    : BaseConfig(std::move(fileHandler)) {}
 
 const std::vector<HardwarePinConfig> &
 HardwareConfig::getHardwarePinConfigs() const {

@@ -1,5 +1,9 @@
 #include "InteractionSettingsConfig.h"
 
+InteractionSettingsConfig::InteractionSettingsConfig(
+    std::shared_ptr<IFileHandler> fileHandler)
+    : BaseConfig(std::move(fileHandler)) {}
+
 Error InteractionSettingsConfig::save(const std::string &filename) const {
   // TODO: Implement this function
   return Error(Error::OK);

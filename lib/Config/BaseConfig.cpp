@@ -1,13 +1,12 @@
 #include "BaseConfig.h"
-#include "JsonDeserializer.h"
+#include "FileGuard.h"
+#include "JSONDeserializer.h"
 
-BaseConfig::BaseConfig() {
-  _fileHandler = DIContainer::resolve<IFileHandler>(); // Resolve file handler
-                                                       // using DIContainer
-}
+BaseConfig::BaseConfig(std::shared_ptr<IFileHandler> fileHandler)
+    : _fileHandler(std::move(fileHandler)) {}
 
 Error BaseConfig::load(const std::string &filename) {
-  FileGuard fileGuard(_fileHandler, filename);
+  FileGuard fileGuard(_fileHandler.get(), filename);
   if (!fileGuard.isOpen()) {
     return Error(Error::FileOpenFailure);
   }
@@ -27,7 +26,7 @@ Error BaseConfig::load(const std::string &filename) {
 }
 
 Error BaseConfig::writeJsonToFile(const DynamicJsonDocument &doc,
-                                const std::string &filename) const {
+                                  const std::string &filename) const {
   std::string output;
   serializeJson(doc, output);
 

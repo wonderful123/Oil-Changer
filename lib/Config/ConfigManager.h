@@ -1,18 +1,21 @@
 #pragma once
 
-#include "DIContainer.h"
-#include "Error.h"          // For error handling
-#include "HardwareConfig.h" // Specific hardware configuration class
-#include "IFileHandler.h"   // Interface for file handling
-#include "ISubject.h" // Interface for the Subject part of the Observer pattern
-#include "InteractionSettingsConfig.h"
-#include <algorithm>
+#include "../Mediator/IColleague.h"
 #include <memory>
+#include <string>
 #include <unordered_map>
 
-class ConfigManager : public ISubject {
+// Forward declarations
+class IConfig;
+class Error;
+class HardwareConfig;
+class InteractionSettingsConfig;
+class IFileHandler;
+
+class ConfigManager : public IColleague {
 public:
-  ConfigManager();
+  ConfigManager(std::shared_ptr<IMediator> mediator,
+                std::shared_ptr<IFileHandler> fileHandler);
 
   // Method to get hardware configuration object
   virtual std::shared_ptr<HardwareConfig> getHardwareConfig() const;
@@ -23,21 +26,10 @@ public:
   // Method to load a configuration
   Error loadConfig(const std::string &configType);
 
-  void notify(EventType eventType) {
-    for (auto &observer : observers) {
-      observer->update(eventType);
-    }
-  }
-
-  void attach(IObserver *observer) override { observers.push_back(observer); }
-
-  void detach(IObserver *observer) override {
-    observers.erase(std::remove(observers.begin(), observers.end(), observer),
-                    observers.end());
-  }
+  void receiveEvent(EventType eventType, const EventData *eventData) override;
 
 private:
   std::shared_ptr<IFileHandler> _fileHandler;
   std::unordered_map<std::string, std::shared_ptr<IConfig>> configs;
-  std::vector<IObserver *> observers;
+  std::shared_ptr<IMediator> _mediator;
 };

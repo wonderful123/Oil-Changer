@@ -1,12 +1,13 @@
 #pragma once
 
 #include "BaseConfig.h"
-#include "Error.h"
 #include "InteractionSettings.h"
+
+class Error;
 
 class InteractionSettingsConfig : public BaseConfig {
 public:
-  using BaseConfig::BaseConfig;
+  explicit InteractionSettingsConfig(std::shared_ptr<IFileHandler> fileHandler);
 
   Error save(const std::string &filename) const override;
 
