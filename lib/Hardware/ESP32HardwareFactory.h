@@ -19,56 +19,56 @@
 
 class ESP32HardwareFactory : public HardwareFactory {
 public:
-  virtual std::unique_ptr<IADC>
+  virtual std::shared_ptr<IADC>
   createADC(const HardwarePinConfig &config) override {
-    return std::unique_ptr<IADC>(new ESP32ADC(config));
+    return std::shared_ptr<IADC>(new ESP32ADC(config));
   }
-  virtual std::unique_ptr<IButton>
+  virtual std::shared_ptr<IButton>
   createButton(const HardwarePinConfig &config) override {
-    return std::unique_ptr<IButton>(new ESP32Button(config));
+    return std::shared_ptr<IButton>(new ESP32Button(config));
   }
-  virtual std::unique_ptr<IDAC>
+  virtual std::shared_ptr<IDAC>
   createDAC(const HardwarePinConfig &config) override {
-    return std::unique_ptr<IDAC>(new ESP32DAC(config));
+    return std::shared_ptr<IDAC>(new ESP32DAC(config));
   }
-  virtual std::unique_ptr<IDigitalIO>
+  virtual std::shared_ptr<IDigitalIO>
   createDigitalIO(const HardwarePinConfig &config) override {
-    return std::unique_ptr<IDigitalIO>(new ESP32DigitalIO(config));
+    return std::shared_ptr<IDigitalIO>(new ESP32DigitalIO(config));
   }
-  virtual std::unique_ptr<IFlowMeter>
+  virtual std::shared_ptr<IFlowMeter>
   createFlowMeter(const HardwarePinConfig &config) override {
-    return std::unique_ptr<IFlowMeter>(new ESP32FlowMeter(config));
+    return std::shared_ptr<IFlowMeter>(new ESP32FlowMeter(config));
   }
-  virtual std::unique_ptr<IPWM>
+  virtual std::shared_ptr<IPWM>
   createPWM(const HardwarePinConfig &config) override {
-    return std::unique_ptr<IPWM>(new ESP32PWM(config));
+    return std::shared_ptr<IPWM>(new ESP32PWM(config));
   }
-  virtual std::unique_ptr<IBuzzer>
+  virtual std::shared_ptr<IBuzzer>
   createBuzzer(const HardwarePinConfig &config) override {
-    return std::unique_ptr<IBuzzer>(new ESP32Buzzer(config));
+    return std::shared_ptr<IBuzzer>(new ESP32Buzzer(config));
   }
-  virtual std::unique_ptr<ISPI>
+  virtual std::shared_ptr<ISPI>
   createSPI(const HardwarePinConfig &config) override {
-    return std::unique_ptr<ISPI>(new ESP32SPI(config));
+    return std::shared_ptr<ISPI>(new ESP32SPI(config));
   }
-  virtual std::unique_ptr<II2C>
+  virtual std::shared_ptr<II2C>
   createI2C(const HardwarePinConfig &config) override {
-    return std::unique_ptr<II2C>(new ESP32I2C(config));
+    return std::shared_ptr<II2C>(new ESP32I2C(config));
   }
-  virtual std::unique_ptr<ISerial>
+  virtual std::shared_ptr<ISerial>
   createSerial(const HardwarePinConfig &config) override {
-    return std::unique_ptr<ISerial>(new ESP32Serial(config));
+    return std::shared_ptr<ISerial>(new ESP32Serial(config));
   }
-  virtual std::unique_ptr<IFileHandler> createFileHandler() override {
-    return std::unique_ptr<IFileHandler>(new ESP32FileHandler());
+  virtual std::shared_ptr<IFileHandler> createFileHandler() override {
+    return std::shared_ptr<IFileHandler>(new ESP32FileHandler());
   }
-  virtual std::unique_ptr<IDisplay> createDisplay(const std::string &displayId, ICommunicationInterface &commInterface) override {
-    return std::make_unique<ESP32InterfaceDisplay>(commInterface, displayId);
+  virtual std::shared_ptr<IDisplay> createDisplay(const std::string &displayId, ICommunicationInterface &commInterface) override {
+    return std::make_shared<ESP32InterfaceDisplay>(commInterface, displayId);
   }
 
-  virtual std::unique_ptr<ICommunicationInterface> createCommunicationInterface() override {
+  virtual std::shared_ptr<ICommunicationInterface> createCommunicationInterface() override {
     // Example implementation assuming a serial communication interface
-    return std::make_unique<ESP32SerialCommunication>();
+    return std::make_shared<ESP32SerialCommunication>();
   }
 };
 
