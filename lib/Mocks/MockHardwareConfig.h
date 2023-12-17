@@ -2,17 +2,16 @@
 
 #ifdef PLATFORM_NATIVE
 
-#include "HardwarePinConfig.h"
-#include "IFileHandler.h"
 #include <gmock/gmock.h>
+#include "HardwareConfig.h"
+#include "DisplayConfig.h"
 #include <vector>
 
 class MockHardwareConfig : public HardwareConfig {
 public:
-  explicit MockHardwareConfig(IFileHandler *fileHandler)
-      : HardwareConfig(fileHandler) {}
-
   MOCK_METHOD(const std::vector<HardwarePinConfig> &, getHardwarePinConfigs, (),
+              (const));
+  MOCK_METHOD(const std::vector<DisplayConfig> &, getDisplayConfigs, (),
               (const));
 };
 

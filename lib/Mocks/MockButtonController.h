@@ -1,25 +1,22 @@
-#ifdef PLATFORM_NATIVE
-
 #pragma once
 
-#include "IButtonControllerObserver.h"
 #include "ButtonController.h"
-#include "IButton.h"
-#include <gmock/gmock.h>
-
-class MockButtonControllerObserver : public IButtonControllerObserver {
-public:
-  MOCK_METHOD(void, onButtonPress, (const std::string &id));
-  MOCK_METHOD(void, update, (EventType eventTyp));
-};
+#include <gmock/gmock.h> // Include Google Mock
 
 class MockButtonController : public ButtonController {
 public:
-  MOCK_METHOD(void, addObserver, (std::shared_ptr<IButtonControllerObserver> observer));
-  MOCK_METHOD(void, registerButton, (const std::string &id, std::shared_ptr<IButton> button));
-  MOCK_METHOD(std::shared_ptr<IButton>, getButtonById, (const std::string &id), (const));
-  MOCK_METHOD(void, processButtonStates, ());
-  MOCK_METHOD(void, notifyObservers, (const std::string &id));
-};
+  explicit MockButtonController(std::shared_ptr<IMediator> mediator)
+      : ButtonController(mediator) {}
 
-#endif // PLATFORM_NATIVE
+  // Override virtual methods with MOCK_METHOD
+  MOCK_METHOD(void, registerButton,
+              (const std::string &id, std::shared_ptr<IButton> button),
+              (override));
+  MOCK_METHOD(void, processButtonStates, (), (override));
+  MOCK_METHOD(std::shared_ptr<IButton>, getButtonById, (const std::string &id),
+              (const, override));
+  MOCK_METHOD(void, setInteractionSettings,
+              (const InteractionSettings &settings), (override));
+  MOCK_METHOD(void, receiveEvent,
+              (EventType eventType, const EventData *eventData), (override));
+};
