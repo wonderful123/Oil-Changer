@@ -1,7 +1,6 @@
 #include "ConfigManager.h"
-#include "DIContainer.h"
+#include "Mediator/ConcreteMediator.h"
 #include "Mocks/MockFileHandler.h"
-#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 using ::testing::_;
@@ -45,6 +44,7 @@ ConfigManager in an inconsistent state.
 class ConfigManagerTest : public ::testing::Test {
 protected:
   std::shared_ptr<MockFileHandler> mockFileHandler;
+  std::shared_ptr<ConcreteMediator> concreteMediator;
   std::shared_ptr<ConfigManager> configManager;
 
   const std::string validHardwareConfigJSON = R"json({
@@ -73,39 +73,32 @@ protected:
       }
     })json";
 
-  SetUp() {
-    // Initialize DI Container with mock file handler
-    DIContainer::clear();
+  void SetUp() override {
     mockFileHandler = std::make_shared<MockFileHandler>();
-    DIContainer::registerInstance(mockFileHandler);
-
-    // Resolve ConfigManager using DIContainer
-    configManager = DIContainer::resolve<ConfigManager>();
-  }
-
-  void TearDown() override {
-    DIContainer::clear(); // Clear DIContainer after each test
+    concreteMediator = std::make_shared<ConcreteMediator>();
+    configManager =
+        std::make_shared<ConfigManager>(concreteMediator, mockFileHandler);
   }
 };
 
 TEST_F(ConfigManagerTest, LoadHardwareConfigSuccess) {
-  EXPECT_CALL(mockFileHandler, open(_, _)).WillOnce(Return(true));
-  EXPECT_CALL(mockFileHandler, read())
+  EXPECT_CALL(*mockFileHandler, open(_, _)).WillOnce(Return(true));
+  EXPECT_CALL(*mockFileHandler, read())
       .WillOnce(Return(validHardwareConfigJSON));
-  EXPECT_CALL(mockFileHandler, close);
+  EXPECT_CALL(*mockFileHandler, close);
 
-  Error result = configManager.loadConfig("HardwareConfig");
+  Error result = configManager->loadConfig("HardwareConfig");
 
   EXPECT_EQ(result.code(), Error::OK);
 }
 
 TEST_F(ConfigManagerTest, LoadHardwareConfigFailure) {
   // Arrange
-  EXPECT_CALL(mockFileHandler, open(_, _))
+  EXPECT_CALL(*mockFileHandler, open(_, _))
       .WillOnce(Return(false)); // Simulate file open failure
 
   // Act
-  Error result = configManager.loadConfig("HardwareConfig");
+  Error result = configManager->loadConfig("HardwareConfig");
 
   // Assert
   EXPECT_EQ(result.code(), Error::FileOpenFailure)
@@ -115,7 +108,7 @@ TEST_F(ConfigManagerTest, LoadHardwareConfigFailure) {
 
 TEST_F(ConfigManagerTest, ConfigTypeNotRecognized) {
   // Act
-  Error result = configManager.loadConfig("UnknownConfigType");
+  Error result = configManager->loadConfig("UnknownConfigType");
 
   // Assert
   EXPECT_EQ(result.code(), Error::ConfigTypeNotRecognized)
@@ -124,13 +117,13 @@ TEST_F(ConfigManagerTest, ConfigTypeNotRecognized) {
 
 TEST_F(ConfigManagerTest, FileHandlerErrorHandling) {
   // Arrange
-  EXPECT_CALL(mockFileHandler, open(_, _)).WillOnce(Return(true));
-  EXPECT_CALL(mockFileHandler, read())
+  EXPECT_CALL(*mockFileHandler, open(_, _)).WillOnce(Return(true));
+  EXPECT_CALL(*mockFileHandler, read())
       .WillOnce(Return("")); // Simulate empty or invalid file content
-  EXPECT_CALL(mockFileHandler, close);
+  EXPECT_CALL(*mockFileHandler, close);
 
   // Act
-  Error result = configManager.loadConfig("HardwareConfig");
+  Error result = configManager->loadConfig("HardwareConfig");
 
   // Assert
   EXPECT_NE(result.code(), Error::OK)
@@ -141,12 +134,12 @@ TEST_F(ConfigManagerTest, FileHandlerErrorHandling) {
 TEST_F(ConfigManagerTest, JsonDeserializationError) {
   // Arrange
   std::string invalidJson = "invalid_json"; // Not a valid JSON format
-  EXPECT_CALL(mockFileHandler, open(_, _)).WillOnce(Return(true));
-  EXPECT_CALL(mockFileHandler, read()).WillOnce(Return(invalidJson));
-  EXPECT_CALL(mockFileHandler, close);
+  EXPECT_CALL(*mockFileHandler, open(_, _)).WillOnce(Return(true));
+  EXPECT_CALL(*mockFileHandler, read()).WillOnce(Return(invalidJson));
+  EXPECT_CALL(*mockFileHandler, close);
 
   // Act
-  Error result = configManager.loadConfig("HardwareConfig");
+  Error result = configManager->loadConfig("HardwareConfig");
 
   // Assert
   EXPECT_NE(result.code(), Error::OK)
@@ -156,14 +149,14 @@ TEST_F(ConfigManagerTest, JsonDeserializationError) {
 
 TEST_F(ConfigManagerTest, GetHardwareConfigExisting) {
   // Arrange
-  EXPECT_CALL(mockFileHandler, open(_, _)).WillOnce(Return(true));
-  EXPECT_CALL(mockFileHandler, read())
+  EXPECT_CALL(*mockFileHandler, open(_, _)).WillOnce(Return(true));
+  EXPECT_CALL(*mockFileHandler, read())
       .WillOnce(Return(validHardwareConfigJSON));
-  EXPECT_CALL(mockFileHandler, close);
-  
-  configManager.loadConfig("HardwareConfig");
+  EXPECT_CALL(*mockFileHandler, close);
 
-  auto hardwareConfig = configManager.getHardwareConfig();
+  configManager->loadConfig("HardwareConfig");
+
+  auto hardwareConfig = configManager->getHardwareConfig();
 
   EXPECT_NE(hardwareConfig,
             nullptr); // The returned config should not be nullptr
@@ -171,7 +164,7 @@ TEST_F(ConfigManagerTest, GetHardwareConfigExisting) {
 
 TEST_F(ConfigManagerTest, GetHardwareConfigNonExisting) {
   // Act
-  auto hardwareConfig = configManager.getHardwareConfig();
+  auto hardwareConfig = configManager->getHardwareConfig();
 
   // Assert
   EXPECT_EQ(hardwareConfig,
@@ -227,13 +220,13 @@ TEST_F(ConfigManagerTest, LoadInteractionSettingsSuccess) {
       }
     }
   })json";
-  EXPECT_CALL(mockFileHandler, open(_, _)).WillOnce(Return(true));
-  EXPECT_CALL(mockFileHandler, read())
+  EXPECT_CALL(*mockFileHandler, open(_, _)).WillOnce(Return(true));
+  EXPECT_CALL(*mockFileHandler, read())
       .WillOnce(Return(validInteractionSettingsJSON));
-  EXPECT_CALL(mockFileHandler, close);
+  EXPECT_CALL(*mockFileHandler, close);
 
   // Act
-  Error result = configManager.loadConfig("InteractionSettings");
+  Error result = configManager->loadConfig("InteractionSettings");
 
   // Assert
   EXPECT_EQ(result.code(), Error::OK);
@@ -241,11 +234,11 @@ TEST_F(ConfigManagerTest, LoadInteractionSettingsSuccess) {
 
 TEST_F(ConfigManagerTest, LoadInteractionSettingsFailure) {
   // Arrange
-  EXPECT_CALL(mockFileHandler, open(_, _))
+  EXPECT_CALL(*mockFileHandler, open(_, _))
       .WillOnce(Return(false)); // Simulate file open failure
 
   // Act
-  Error result = configManager.loadConfig("InteractionSettings");
+  Error result = configManager->loadConfig("InteractionSettings");
 
   // Assert
   EXPECT_EQ(result.code(), Error::FileOpenFailure)

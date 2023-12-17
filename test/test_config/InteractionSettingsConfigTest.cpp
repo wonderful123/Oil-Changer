@@ -39,7 +39,6 @@
 
 #include "InteractionSettingsConfig.h"
 #include "../test_utils.h"
-#include "DIContainer.h"
 #include "Error.h"
 #include "IFileHandler.h"
 #include "Mocks/MockFileHandler.h"
@@ -53,31 +52,18 @@ protected:
   const std::string DUMMY_FILE_PATH = "dummy_config.json";
 
   InteractionSettingsConfigTest() {
-    // Initialize DI Container with mock file handler
-    DIContainer::clear();
     mockFileHandler = std::make_shared<MockFileHandler>();
-    DIContainer::registerInstance(mockFileHandler);
-
-    // Resolve InteractionSettingsConfig using DIContainer
-    config = DIContainer::resolve<InteractionSettingsConfig>();
-  }
-
-  void SetUp() override {
-    // Setup code if needed
-  }
-
-  void TearDown() override {
-    DIContainer::clear(); // Clear DIContainer after each test
+    config = std::make_shared<InteractionSettingsConfig>(mockFileHandler);
   }
 };
 
 TEST_F(InteractionSettingsConfigTest, LoadDeserializationFailure) {
   const std::string invalidMockFileContent = "This is not a JSON content";
 
-  expectOpenReadCloseForContent(mockFileHandler, invalidMockFileContent,
+  expectOpenReadCloseForContent(*mockFileHandler, invalidMockFileContent,
                                 DUMMY_FILE_PATH);
 
-  Error loadError = config.load(DUMMY_FILE_PATH);
+  Error loadError = config->load(DUMMY_FILE_PATH);
 
   EXPECT_EQ(loadError, Error::JsonInputInvalid)
       << loadError.getFormattedMessage(loadError.code());
@@ -85,11 +71,11 @@ TEST_F(InteractionSettingsConfigTest, LoadDeserializationFailure) {
 
 TEST_F(InteractionSettingsConfigTest, NonExistantFileLoadFailure) {
   // Setup the mock to simulate a file open failure
-  EXPECT_CALL(mockFileHandler, open(DUMMY_FILE_PATH, "r"))
+  EXPECT_CALL(*mockFileHandler, open(DUMMY_FILE_PATH, "r"))
       .WillOnce(testing::Return(false)); // Simulate file open failure
 
   // Attempt to load the non-existent file
-  Error loadError = config.load(DUMMY_FILE_PATH);
+  Error loadError = config->load(DUMMY_FILE_PATH);
 
   // Check if the appropriate error code is returned
   EXPECT_EQ(loadError, Error::FileOpenFailure)
@@ -129,17 +115,17 @@ TEST_F(InteractionSettingsConfigTest, ParseValidButtonSettings) {
             }
         }
     })";
-  expectOpenReadCloseForContent(mockFileHandler, validButtonSettings,
+  expectOpenReadCloseForContent(*mockFileHandler, validButtonSettings,
                                 DUMMY_FILE_PATH);
 
   // Load the settings
-  Error loadError = config.load(DUMMY_FILE_PATH);
+  Error loadError = config->load(DUMMY_FILE_PATH);
   EXPECT_EQ(loadError, Error::OK)
       << "Failed to load valid button settings: "
       << loadError.getFormattedMessage(loadError.code());
 
   // Validate that the button settings are correctly parsed
-  auto settings = config.getSettings();
+  auto settings = config->getSettings();
   auto adjustmentButtonSettings = settings.buttons.at("adjustment");
 
   EXPECT_EQ(adjustmentButtonSettings.description, "Adjustment button settings");
@@ -159,11 +145,11 @@ TEST_F(InteractionSettingsConfigTest, MissingButtonSettingsFailure) {
         "buttonInteraction": {
         }
     })";
-  expectOpenReadCloseForContent(mockFileHandler, missingButtonSettings,
+  expectOpenReadCloseForContent(*mockFileHandler, missingButtonSettings,
                                 DUMMY_FILE_PATH);
 
   // Load the settings
-  Error loadError = config.load(DUMMY_FILE_PATH);
+  Error loadError = config->load(DUMMY_FILE_PATH);
 
   // Check if the appropriate error code is returned
   EXPECT_EQ(loadError, Error::InteractionSettingsButtonsSubkeyMissing)

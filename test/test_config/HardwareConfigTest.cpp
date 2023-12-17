@@ -1,5 +1,4 @@
 #include "../test_utils.h"
-#include "DIContainer.h"
 #include "Mocks/MockFileHandler.h"
 #include <HardwareConfig.h>
 #include <gmock/gmock.h>
@@ -35,37 +34,24 @@ protected:
   const std::string DUMMY_FILE_PATH = "dummy_config.json";
 
   HardwareConfigTest() {
-    // Initialize DI Container with mock file handler
-    DIContainer::clear();
     mockFileHandler = std::make_shared<MockFileHandler>();
-    DIContainer::registerInstance(mockFileHandler);
-
-    // Resolve HardwareConfig using DIContainer
-    hardwareConfig = DIContainer::resolve<HardwareConfig>();
-  }
-
-  void SetUp() override {
-    // Setup code if needed
-  }
-
-  void TearDown() override {
-    DIContainer::clear(); // Clear DIContainer after each test
+    hardwareConfig = std::make_shared<HardwareConfig>(mockFileHandler);
   }
 };
 
 TEST_F(HardwareConfigTest, ConstructorInitialization) {
   // Assuming HardwareConfig has some method to verify its state
   // For example, checking if it's initialized with an empty configuration
-  EXPECT_TRUE(hardwareConfig.getHardwarePinConfigs().empty());
+  EXPECT_TRUE(hardwareConfig->getHardwarePinConfigs().empty());
 }
 
 TEST_F(HardwareConfigTest, LoadDeserializationFailure) {
   const std::string invalidMockFileContent = "This is not a JSON content";
 
-  expectOpenReadCloseForContent(mockFileHandler, invalidMockFileContent,
+  expectOpenReadCloseForContent(*mockFileHandler, invalidMockFileContent,
                                 DUMMY_FILE_PATH);
 
-  Error loadError = hardwareConfig.load(DUMMY_FILE_PATH);
+  Error loadError = hardwareConfig->load(DUMMY_FILE_PATH);
 
   EXPECT_EQ(loadError, Error::JsonInputInvalid)
       << loadError.getFormattedMessage(loadError.code());
@@ -79,12 +65,12 @@ TEST_F(HardwareConfigTest, EmptyConfiguration) {
     }
   })json";
 
-  expectOpenReadCloseForContent(mockFileHandler, emptyConfigJson,
+  expectOpenReadCloseForContent(*mockFileHandler, emptyConfigJson,
                                 DUMMY_FILE_PATH);
-  Error loadError = hardwareConfig.load(DUMMY_FILE_PATH);
+  Error loadError = hardwareConfig->load(DUMMY_FILE_PATH);
 
   EXPECT_EQ(loadError, Error::OK);
-  EXPECT_TRUE(hardwareConfig.getHardwarePinConfigs().empty());
+  EXPECT_TRUE(hardwareConfig->getHardwarePinConfigs().empty());
 }
 
 TEST_F(HardwareConfigTest, InvalidConfigurationStructure) {
@@ -94,9 +80,9 @@ TEST_F(HardwareConfigTest, InvalidConfigurationStructure) {
     }
   })json";
 
-  expectOpenReadCloseForContent(mockFileHandler, invalidStructureJson,
+  expectOpenReadCloseForContent(*mockFileHandler, invalidStructureJson,
                                 DUMMY_FILE_PATH);
-  Error loadError = hardwareConfig.load(DUMMY_FILE_PATH);
+  Error loadError = hardwareConfig->load(DUMMY_FILE_PATH);
 
   EXPECT_EQ(loadError, Error::HardwareConfigComponentsKeyMissing);
 }
@@ -116,14 +102,14 @@ TEST_F(HardwareConfigTest, ParseSinglePinConfiguration) {
     }
   })json";
 
-  expectOpenReadCloseForContent(mockFileHandler, validSinglePinJsonContent,
+  expectOpenReadCloseForContent(*mockFileHandler, validSinglePinJsonContent,
                                 DUMMY_FILE_PATH);
                                 
-  Error loadError = hardwareConfig.load(DUMMY_FILE_PATH);
+  Error loadError = hardwareConfig->load(DUMMY_FILE_PATH);
 
   EXPECT_EQ(loadError, Error::OK);
 
-  const auto &configs = hardwareConfig.getHardwarePinConfigs();
+  const auto &configs = hardwareConfig->getHardwarePinConfigs();
 
   ASSERT_EQ(configs.size(), 1);
   EXPECT_EQ(configs[0].id, "TestPin");
@@ -148,12 +134,12 @@ TEST_F(HardwareConfigTest, OptionParsing) {
     }
   })json";
 
-  expectOpenReadCloseForContent(mockFileHandler, singlePinWithOptionsJson,
+  expectOpenReadCloseForContent(*mockFileHandler, singlePinWithOptionsJson,
                                 DUMMY_FILE_PATH);
-  Error loadError = hardwareConfig.load(DUMMY_FILE_PATH);
+  Error loadError = hardwareConfig->load(DUMMY_FILE_PATH);
 
   EXPECT_EQ(loadError, Error::OK);
-  const auto &configs = hardwareConfig.getHardwarePinConfigs();
+  const auto &configs = hardwareConfig->getHardwarePinConfigs();
   ASSERT_EQ(configs.size(), 1);
   EXPECT_EQ(configs[0].options.at("option1"), "value1");
   EXPECT_EQ(configs[0].options.at("option2"), "value2");
@@ -186,13 +172,13 @@ TEST_F(HardwareConfigTest, CorrectPinConfigsRetrieval) {
     }
   })json";
 
-  expectOpenReadCloseForContent(mockFileHandler, configJsonContent,
+  expectOpenReadCloseForContent(*mockFileHandler, configJsonContent,
                                 DUMMY_FILE_PATH);
-  Error loadError = hardwareConfig.load(DUMMY_FILE_PATH);
+  Error loadError = hardwareConfig->load(DUMMY_FILE_PATH);
 
   EXPECT_EQ(loadError, Error::OK);
 
-  const auto &configs = hardwareConfig.getHardwarePinConfigs();
+  const auto &configs = hardwareConfig->getHardwarePinConfigs();
   ASSERT_EQ(configs.size(), 2);
 
   // Assertions for the single pin configuration

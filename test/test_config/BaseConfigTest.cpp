@@ -1,5 +1,6 @@
-// #include "../mocks/MockFileHandler.h"
-#include "DIContainer.h"
+#include "Error.h"
+#include "IFileHandler.h"
+#include "Mocks/MockFileHandler.h"
 #include "test_utils.h"
 #include <BaseConfig.h>
 #include <gmock/gmock.h>
@@ -15,6 +16,22 @@
 */
 /*******************************************************************/
 
+class DummyBaseConfig : public BaseConfig {
+public:
+  explicit DummyBaseConfig(std::shared_ptr<IFileHandler> fileHandler)
+      : BaseConfig(std::move(fileHandler)) {}
+
+  Error save(const std::string &filename) const override {
+    // Placeholder implementation
+    return Error::OK;
+  }
+
+  Error parseJson(const DynamicJsonDocument &doc) override {
+    // Placeholder implementation
+    return Error::OK;
+  }
+};
+
 class BaseConfigTest : public ::testing::Test {
 protected:
   std::shared_ptr<MockFileHandler> mockFileHandler;
@@ -22,46 +39,28 @@ protected:
   const std::string TEST_FILE_PATH = "test_config.json";
 
   BaseConfigTest() {
-    // Initialize the DI Container with a mock file handler
-    DIContainer::clear();
     mockFileHandler = std::make_shared<MockFileHandler>();
-    DIContainer::registerInstance(mockFileHandler);
-
-    // Resolve DummyBaseConfig using the DI Container
-    dummyBaseConfig = DIContainer::resolve<DummyBaseConfig>();
+    dummyBaseConfig = std::make_shared<DummyBaseConfig>(mockFileHandler);
   }
-
-  void TearDown() override {
-    DIContainer::clear(); // Clear DIContainer after each test
-  }
-};
-
-class BaseConfigTest : public ::testing::Test {
-protected:
-  BaseConfigTest() : dummyBaseConfig(&mockFileHandler) {}
-
-  const std::string TEST_FILE_PATH = "test_config.json";
-
-  MockFileHandler mockFileHandler;
-  DummyBaseConfig dummyBaseConfig;
 };
 
 TEST_F(BaseConfigTest, LoadFailure) {
-  EXPECT_CALL(mockFileHandler, open(TEST_FILE_PATH, "r"))
+  EXPECT_CALL(*mockFileHandler, open(TEST_FILE_PATH, "r"))
       .WillOnce(::testing::Return(false)); // Simulate file open failure
 
-  Error result = dummyBaseConfig.load(TEST_FILE_PATH);
+  Error result = dummyBaseConfig->load(TEST_FILE_PATH);
   EXPECT_EQ(result,
             Error::FileOpenFailure); // Expect specific error for file not open
 }
 
 TEST_F(BaseConfigTest, JSONParseFailure) {
-  const std::string invalidMockFileContent = R"({ "someKey": "someValue", xxx })";
+  const std::string invalidMockFileContent =
+      R"({ "someKey": "someValue", xxx })";
 
-  expectOpenReadCloseForContent(mockFileHandler, invalidMockFileContent,
+  expectOpenReadCloseForContent(*mockFileHandler, invalidMockFileContent,
                                 TEST_FILE_PATH);
 
-  Error result = dummyBaseConfig.load(TEST_FILE_PATH);
+  Error result = dummyBaseConfig->load(TEST_FILE_PATH);
   EXPECT_EQ(result, Error::JsonInputInvalid)
       << result.getFormattedMessage(result.code()); // Expect JSON parse error
 }
