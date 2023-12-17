@@ -11,6 +11,10 @@ protected:
   void SetUp() override {
     hardwareFactory = std::make_shared<MockHardwareFactory>();
   }
+
+  void TearDown() {
+    HardwareFactory::resetInstance();
+  }
 };
 
 using ::testing::_;
