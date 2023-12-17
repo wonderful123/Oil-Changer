@@ -1,25 +1,30 @@
 #pragma once
 
-#include "ButtonController.h"
-#include "FSM/Events.h"
 #include "FSM/StateMachine.h"
-#include "HardwareManager.h"
-#include "IButtonControllerObserver.h"
+#include "Mediator/IColleague.h"
 
-class SystemController : public IButtonControllerObserver,
-                         public std::enable_shared_from_this<SystemController> {
-public:
-  SystemController();
+class HardwareManager;
+class ButtonController;
 
-  virtual void initialize();
-  virtual void onButtonPress(const std::string &id) override;
+class SystemController : public IColleague {
+ public:
+  SystemController(std::shared_ptr<IMediator> mediator,
+                   std::shared_ptr<ButtonController> buttonController,
+                   std::shared_ptr<HardwareManager> hardwareManager);
+
+  virtual void receiveEvent(EventType eventType,
+                            const EventData *eventData) override;
+  void handleEvent(const EventType &eventType);
 
   virtual void update(EventType eventType);
 
-private:
+  void performPeriodicUpdate();
+
+ private:
   std::shared_ptr<HardwareManager> _hardwareManager;
   std::shared_ptr<ButtonController> _buttonController;
   StateMachine _stateMachine;
+  std::shared_ptr<IMediator> _mediator;
 
-  void registerAsButtonObserver();
+  void onButtonPress(const std::string &id);
 };

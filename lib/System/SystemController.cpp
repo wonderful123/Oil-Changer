@@ -1,56 +1,52 @@
 #include "SystemController.h"
-#include "ESP32/ESP32InterfaceDisplay.h"
+
+#include "ButtonController.h"
+#include "FSM/StateMachine.h"
 #include "FSM/States.h"
+#include "HardwareFactory.h"
+#include "HardwareManager.h"
 #include "Logger.h"
 
-FSM_INITIAL_STATE(BaseState, IdleState);
+FSM_INITIAL_STATE(StateMachine, Ready);
 
-SystemController::SystemController() {
-  _hardwareFactory = DIContainer::resolve<HardwareFactory>();
-  _buttonController = DIContainer::resolve<ButtonController>();
+SystemController::SystemController(
+    std::shared_ptr<IMediator> mediator,
+    std::shared_ptr<ButtonController> buttonController,
+    std::shared_ptr<HardwareManager> hardwareManager)
+    : IColleague(mediator),
+      _mediator(mediator),
+      _buttonController(buttonController),
+      _hardwareManager(hardwareManager) {
+  _mediator->registerColleague(this);
+  _stateMachine.start();  // Initialize the state machine
 }
 
-void SystemController::initialize() {
-  _hardwareManager->initializeHardware();
-  registerAsButtonObserver();
+void SystemController::handleEvent(const EventType &eventType) {
+  // Handle events communicated by the mediator
+  // Process the event as needed
+}
 
-  Logger::info("[SystemController] Starting state machine...");
-  // Start state machine in IdleState
-  IdleState::start();
-
-  auto component = _hardwareManager->getComponentById("Serial");
-  if (!component) {
-    Logger::warn("[SystemController] Failed to find component with id Serial");
-    return;
+void SystemController::receiveEvent(EventType eventType,
+                                    const EventData *eventData) {
+  // Handle events communicated by the mediator
+  if (eventType == EventType::BUTTON_PRESSED) {
+    onButtonPress(eventData->id);
   }
-
-  // Attempt to cast to a shared pointer of type ISerial
-  auto serial = static_cast<ISerial *>(component.get());
-  if (!serial) {
-    Logger::warn("[SystemController] Failed to cast to ISerial");
-    return;
-  }
-  Logger::info("[SystemController] Created Serial component");
-  auto component2 = _hardwareManager->getComponentById("Display1");
-  Logger::info("[SystemController] Created SerialDisplay component");
-  auto display = static_cast<IDisplay *>(component2.get());
-  display.displayData("Hello, World!");
-  Logger::info("[SystemController] Displayed data on SerialDisplay");
+  // Other event types can be handled here as needed
 }
 
 void SystemController::onButtonPress(const std::string &id) {
+  // Handle button press event
   _hardwareManager->triggerBuzzer();
   ButtonPressEvent event(id);
-  // Use the state machine to handle the event
-  _stateMachine.handleEvent(event);
-}
-
-void SystemController::registerAsButtonObserver() {
-  if (_buttonController) {
-    _buttonController->addObserver(shared_from_this());
-  }
+  _stateMachine.dispatch(event);
 }
 
 void SystemController::update(EventType eventType) {
+  // Notify the mediator about the event
+  _mediator->notify(this, eventType);
+}
+
+void SystemController::performPeriodicUpdate() {
   _buttonController->processButtonStates();
 }
