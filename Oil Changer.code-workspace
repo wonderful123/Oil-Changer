@@ -73,7 +73,11 @@
 			"cinttypes": "cpp",
 			"typeinfo": "cpp",
 			"variant": "cpp",
-			"typeindex": "cpp"
+			"typeindex": "cpp",
+			"bitset": "cpp",
+			"codecvt": "cpp",
+			"regex": "cpp",
+			"future": "cpp"
 		}
 	}
 }
