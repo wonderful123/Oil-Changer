@@ -1,13 +1,29 @@
 #pragma once
 
-#include "FSM/Events.h"
-#include "FSM/States.h"
+#include <tinyfsm.hpp>
 
-class StateMachine {
-public:
-  void handleEvent(const ButtonPressEvent &event) {
-    // Dispatch the event to the current state
-    BaseState::dispatch(event);
-  }
-  // ... other methods
+#include "Events.h"
+
+class StateMachine : public tinyfsm::Fsm<StateMachine> {
+ public:
+  // Default reaction for unhandled events
+  void react(tinyfsm::Event const&) {}
+
+  // Reaction functions for base event types
+  virtual void react(ButtonPressEvent const&) {}
+  virtual void react(InitializationEvent const&) {}
+  virtual void react(OilCapacityEvent const&) {}
+  virtual void react(OilExtractionEvent const&) {}
+  virtual void react(OilFillingEvent const&) {}
+  virtual void react(ConfigurationModeEvent const&) {}
+  virtual void react(ErrorDetectedEvent const&) {}
+  virtual void react(UserCancelledEvent const&) {}
+  virtual void react(TimeoutEvent const&) {}
+  virtual void react(MaintenanceNeededEvent const&) {}
+
+  // Entry and exit functions for states (optional)
+  virtual void entry(void) {}
+  virtual void exit(void) {}
 };
+
+using stateMachine = tinyfsm::FsmList<StateMachine>;
