@@ -1,8 +1,9 @@
 #pragma once
 
-#include "Error.h"
 #include <IFileHandler.h>
 #include <string>
+
+class Error;
 
 // @class IConfig
 // @brief An interface that defines a contract for configuration classes.

@@ -3,7 +3,8 @@
 #ifdef PLATFORM_ESP32
 
 #include "II2C.h"
-#include "HardwarePinConfig.h"
+
+class HardwarePinConfig;
 
 class ESP32I2C : public II2C {
 public:

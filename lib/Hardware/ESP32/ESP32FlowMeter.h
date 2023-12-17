@@ -3,7 +3,7 @@
 #ifdef PLATFORM_ESP32
 
 #include "FlowMeterBase.h"
-#include "driver/pcnt.h"
+#include <driver/pcnt.h>
 #include <functional>
 
 class ESP32FlowMeter : public FlowMeterBase {

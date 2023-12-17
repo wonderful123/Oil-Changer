@@ -2,9 +2,10 @@
 
 #ifdef PLATFORM_ESP32
 
-#include "HardwarePinConfig.h"
 #include "ISerial.h"
 #include <HardwareSerial.h>
+
+class HardwarePinConfig;
 
 class ESP32Serial : public ISerial {
 public:

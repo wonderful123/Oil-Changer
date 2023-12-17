@@ -9,7 +9,6 @@
 
 #pragma once
 
-#include "Error.h"
 #include "HardwarePinConfig.h"
 
 /**

@@ -1,11 +1,12 @@
 #pragma once
 
 #include "HardwareComponent.h"
-#include "HardwarePinConfig.h"
 #include <cstddef> // For size_t
 #include <cstdint> // For uint8_t
 
-class ISPI : public HardwareComponent {
+class HardwarePinConfig;
+
+    class ISPI : public HardwareComponent {
 public:
   explicit ISPI(const HardwarePinConfig &config) : HardwareComponent(config) {}
 

@@ -3,8 +3,9 @@
 #ifdef PLATFORM_ESP32
 
 #include "DisplayBase.h"
-#include "ICommunicationInterface.h"
 #include <string>
+
+class ICommunicationInterface;
 
 class ESP32InterfaceDisplay : public DisplayBase {
 public:

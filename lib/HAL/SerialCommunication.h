@@ -1,7 +1,8 @@
 #pragma once
 
 #include "ICommunicationInterface.h"
-#include "ISerial.h"
+
+class ISerial;
 
 class SerialCommunication : public ICommunicationInterface {
 private:

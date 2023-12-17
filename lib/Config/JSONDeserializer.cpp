@@ -1,4 +1,5 @@
-#include "JsonDeserializer.h"
+#include "JSONDeserializer.h"
+#include "Error.h"
 
 DynamicJsonDocument JsonDeserializer::deserialize(const std::string &content,
                                                   Error &error) {

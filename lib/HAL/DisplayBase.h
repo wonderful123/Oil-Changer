@@ -1,8 +1,9 @@
 #pragma once
 
-#include "ICommunicationInterface.h"
 #include "IDisplay.h"
 #include <string>
+
+class ICommunicationInterface;
 
 class DisplayBase : public IDisplay {
 private:
@@ -11,7 +12,7 @@ private:
 
 public:
   explicit DisplayBase(ICommunicationInterface &commInterface,
-                          const std::string &displayId)
+                       const std::string &displayId)
       : _commInterface(commInterface), _displayId(displayId) {}
 
   virtual ~DisplayBase() {}

@@ -1,24 +1,26 @@
 #pragma once
 
-#ifdef PLATFORM_NATIVE
-
 #include "ConfigManager.h"
-#include "Error.h"
-#include "HardwareConfig.h"
 #include <gmock/gmock.h>
 #include <memory>
 
+// Forward declarations
+class IMediator;
+class IFileHandler;
+
 class MockConfigManager : public ConfigManager {
 public:
-  explicit MockConfigManager(IFileHandler *fileHandler)
-      : ConfigManager(fileHandler) {}
+  // Use the constructor of ConfigManager
+  MockConfigManager(std::shared_ptr<IMediator> mediator,
+                    std::shared_ptr<IFileHandler> fileHandler)
+      : ConfigManager(mediator, fileHandler) {}
 
-  // Mock the getHardwareConfig method
-  MOCK_METHOD((std::shared_ptr<HardwareConfig>), getHardwareConfig, (),
+  // Mock the methods from ConfigManager
+  MOCK_METHOD(std::shared_ptr<HardwareConfig>, getHardwareConfig, (),
               (const, override));
-
-  // Mock the loadConfig method
-  MOCK_METHOD(Error, loadConfig, (const std::string &));
+  MOCK_METHOD(std::shared_ptr<InteractionSettingsConfig>,
+              getInteractionSettingsConfig, (), (const));
+  MOCK_METHOD(Error, loadConfig, (const std::string &configType));
+  MOCK_METHOD(void, receiveEvent,
+              (EventType eventType, const EventData *eventData), (override));
 };
-
-#endif // PLATFORM_NATIVE

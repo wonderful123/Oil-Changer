@@ -1,7 +1,6 @@
 #pragma once
 
 #include "HardwareComponent.h"
-#include "HardwarePinConfig.h"
 
 class IPWM : public HardwareComponent {
 public:

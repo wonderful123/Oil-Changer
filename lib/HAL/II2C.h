@@ -1,11 +1,12 @@
 #pragma once
 
 #include "HardwareComponent.h"
-#include "HardwarePinConfig.h"
 #include <cstddef>
 #include <cstdint>
 
-class II2C : public HardwareComponent {
+class HardwarePinConfig;
+
+    class II2C : public HardwareComponent {
 public:
   explicit II2C(const HardwarePinConfig &config) : HardwareComponent(config) {}
 

@@ -1,9 +1,22 @@
 #include "HardwareFactory.h"
+#include "HardwarePinConfig.h"
+#include "IADC.h"
+#include "IButton.h"
+#include "IBuzzer.h"
+#include "IDAC.h"
+#include "IDigitalIO.h"
+#include "IDisplay.h"
+#include "IFlowMeter.h"
+#include "II2C.h"
+#include "IPWM.h"
+#include "ISPI.h"
+#include "ISerial.h"
+#include "Logger.h"
 
 #ifdef PLATFORM_ESP32
 #include "ESP32HardwareFactory.h"
 #else
-#include <MockHardwareFactory.h>
+#include "MockHardwareFactory.h"
 #endif
 
 std::shared_ptr<HardwareComponent>
@@ -46,6 +59,7 @@ HardwareFactory::createComponent(const HardwarePinConfig &config) {
 
 std::shared_ptr<HardwareFactory> &HardwareFactory::getHardwareFactory() {
   static std::shared_ptr<HardwareFactory> hardwareFactory;
+
 #ifdef PLATFORM_ESP32
   if (!hardwareFactory)
     hardwareFactory.reset(new ESP32HardwareFactory());

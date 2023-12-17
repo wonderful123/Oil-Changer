@@ -1,7 +1,6 @@
 #ifdef PLATFORM_ESP32
 
 #include "ESP32FlowMeter.h"
-#include "driver/pcnt.h"
 #include "Logger.h"
 #include <iostream>
 ESP32FlowMeter::ESP32FlowMeter(const HardwarePinConfig &config)

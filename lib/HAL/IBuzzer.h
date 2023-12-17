@@ -1,8 +1,7 @@
 #pragma once
 
 #include "HardwareComponent.h"
-#include "HardwarePinConfig.h"
-#include "InteractionSettings.h"
+#include "../Config/InteractionSettings.h"
 
 class IBuzzer : public HardwareComponent {
 public:

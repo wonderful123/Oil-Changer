@@ -4,9 +4,10 @@
 #define ARDUINOJSON_ENABLE_COMMENTS 1
 #endif
 
-#include "Error.h"
 #include <ArduinoJson.h>
 #include <string>
+
+class Error;
 
 class JsonDeserializer {
 public:

@@ -1,10 +1,11 @@
 #pragma once
 
 #include "HardwareComponent.h"
-#include "HardwarePinConfig.h"
 #include <string>
 
-class ISerial : public HardwareComponent {
+class HardwarePinConfig;
+
+    class ISerial : public HardwareComponent {
 public:
   explicit ISerial(const HardwarePinConfig &config)
       : HardwareComponent(config) {}

@@ -2,8 +2,9 @@
 
 #ifdef PLATFORM_ESP32
 
-#include "HardwarePinConfig.h"
 #include "ISPI.h"
+
+class HardwarePinConfig;
 
 class ESP32SPI : public ISPI {
 public:
