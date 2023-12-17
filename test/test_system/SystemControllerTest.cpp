@@ -1,56 +1,56 @@
-#include "SystemController.h"
-#include "ButtonController.h"
-#include "DIContainer.h"
-#include "HardwareManager.h"
+#include <gtest/gtest.h>
+
+#include <memory>
+
 #include "MockButtonController.h"
 #include "MockConfigManager.h"
 #include "MockHardwareFactory.h"
 #include "MockHardwareManager.h"
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
+#include "MockMediator.h"
+#include "Mocks/MockFileHandler.h"
+#include "SystemController.h"
+
+using ::testing::_;
+using ::testing::Invoke;
+
+#include "FSM/StateMachine.h"
+#include "FSM/States.h"
 
 class SystemControllerTest : public ::testing::Test {
-protected:
+ protected:
+  std::shared_ptr<MockMediator> mockMediator;
   std::shared_ptr<MockFileHandler> mockFileHandler;
-  std::shared_ptr<MockButtonController> mockButtonController;
   std::shared_ptr<MockConfigManager> mockConfigManager;
   std::shared_ptr<MockHardwareFactory> mockHardwareFactory;
+  std::shared_ptr<MockButtonController> mockButtonController;
   std::shared_ptr<MockHardwareManager> mockHardwareManager;
   std::unique_ptr<SystemController> systemController;
 
-  void SetUp() override {
+  void SetUp() {
+    mockMediator = std::make_shared<MockMediator>();
     mockFileHandler = std::make_shared<MockFileHandler>();
-    mockButtonController = std::make_shared<MockButtonController>();
-    mockConfigManager = std::make_shared<MockConfigManager>();
+    mockConfigManager =
+        std::make_shared<MockConfigManager>(mockMediator, mockFileHandler);
     mockHardwareFactory = std::make_shared<MockHardwareFactory>();
-    mockHardwareManager = std::make_shared<MockHardwareManager>();
+    mockButtonController = std::make_shared<MockButtonController>(mockMediator);
 
-    // Register mock dependencies in the DI Container
-    DIContainer::clear(); // Clear existing instances in DIContainer
-    DIContainer::registerInstance(mockFileHandler);
-    DIContainer::registerInstance(mockConfigManager);
-    DIContainer::registerInstance(mockHardwareFactory);
-    DIContainer::registerInstance(mockButtonController);
-    DIContainer::registerInstance(mockHardwareManager);
+    // Use std::static_pointer_cast to cast mocks to their base class types
+    mockHardwareManager = std::make_shared<MockHardwareManager>(
+        mockMediator, mockConfigManager, mockHardwareFactory,
+        mockButtonController);
 
-    // Resolve SystemController using DIContainer
-    systemController = DIContainer::resolve<SystemController>();
-  }
+    systemController = std::unique_ptr<SystemController>(new SystemController(
+        mockMediator, mockButtonController, mockHardwareManager));
 
-  void TearDown() override {
-    DIContainer::clear(); // Clear DIContainer after each test
+    ASSERT_TRUE(systemController != nullptr)
+        << "SystemController failed to initialize";
   }
 };
 
-// TEST_F(SystemControllerTest, ButtonPressTriggersBuzzer) {
-//   // Arrange
-//   // Set up expectations
-//   // Expect the buzzer to be triggered in the HardwareManager
-//   EXPECT_CALL(*mockHardwareManager, triggerBuzzer()).Times(1);
-
-//   // Act
-//   // Simulate a button press
-//   systemController->onButtonPress("testButtonId");
-
-//   // Assertions are handled by the EXPECT_CALL statements
-// }
+TEST_F(SystemControllerTest, ButtonPressTriggersBuzzer) {
+  EventType eventType = EventType::BUTTON_PRESSED;
+  EventData eventData;
+  eventData.id = "testButton";
+  EXPECT_CALL(*mockHardwareManager, triggerBuzzer()).Times(1);
+  systemController->receiveEvent(eventType, &eventData);
+}
