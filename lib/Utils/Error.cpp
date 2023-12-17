@@ -1,5 +1,4 @@
 #include "Error.h"
-#include "Logger.h" // Include Logger
 
 // Initialize static members
 Error::Code Error::_lastErrorCode = Error::OK;

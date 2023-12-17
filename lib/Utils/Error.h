@@ -47,6 +47,8 @@
              "Failed to initialize the serial hardware configuration.")        \
   ERROR_CODE(SerialInvalidUartPortNumber,                                      \
              "ESP32 Serial: Invalid UART port number for ESP32.")              \
+  ERROR_CODE(InvalidMediatorPassedToIColleague,                                \
+             "Invalid mediator passed to IColleague.")                         \
 
 #undef ERROR_CODE
 
@@ -68,7 +70,7 @@ public:
 
   Error() : _code(OK) {}
 
-  Error(Code c) : _code(c) {
+ Error(Code c) : _code(c) {
     if (_code != OK) {
       notifyLogger();
     }

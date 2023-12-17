@@ -1,20 +1,26 @@
 #pragma once
 
-#include "EventTypes.h"
+#include "Error.h"
+#include "EventData.h"
+#include "EventType.h"
 #include "IMediator.h"
+#include <memory>
 
 class IColleague {
 protected:
-  IMediator *mediator;
+  std::shared_ptr<IMediator> mediator;
 
 public:
-  explicit IColleague(IMediator *mediator) : mediator(mediator) {}
+  explicit IColleague(std::shared_ptr<IMediator> mediator)
+      : mediator(mediator) {}
 
   virtual ~IColleague() = default;
 
-  // Call this to send events to the Mediator
-  void sendEvent(EventType eventType) { mediator->notify(this, eventType); }
+  void sendEvent(EventType eventType, const EventData &eventData) {
+    mediator->notify(this, eventType, &eventData);
+  }
 
   // Implement this to handle events received from the Mediator
-  virtual void receiveEvent(EventType eventType) = 0;
+  virtual void receiveEvent(EventType eventType,
+                            const EventData *eventData) = 0;
 };

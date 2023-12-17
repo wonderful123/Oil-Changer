@@ -1,12 +1,18 @@
+#pragma once
+
 #include "IColleague.h"
-#include "IMediator.h"
+#include <algorithm>
+#include <mutex>
 #include <vector>
 
 class ConcreteMediator : public IMediator {
   std::vector<IColleague *> colleagues;
+  std::mutex mutex;
 
 public:
   void registerColleague(IColleague *colleague) {
+    std::lock_guard<std::mutex> lock(
+        mutex); // Use lock if thread safety is needed.
     if (std::find(colleagues.begin(), colleagues.end(), colleague) ==
         colleagues.end()) {
       colleagues.push_back(colleague);
@@ -14,31 +20,25 @@ public:
   }
 
   void deregisterColleague(IColleague *colleague) {
+    std::lock_guard<std::mutex> lock(
+        mutex); // Use lock if thread safety is needed.
     colleagues.erase(
         std::remove(colleagues.begin(), colleagues.end(), colleague),
         colleagues.end());
   }
 
   void notify(const IColleague *sender, EventType eventType,
-              const std::string &buttonId = "") override {
+              const EventData *data = nullptr) override {
     for (auto &colleague : colleagues) {
       if (colleague != sender) {
-        // Additional logic for handling ButtonController events
-        if (eventType == EventType::BUTTON_PRESSED) {
-          handleButtonPressEvent(sender, buttonId);
-        } else {
-          // General event handling
-          colleague->receiveEvent(eventType);
-        }
+        colleague->receiveEvent(eventType, data);
       }
     }
   }
 
-private:
-  void handleButtonPressEvent(const IColleague *sender,
-                              const std::string &buttonId) {
-    // Implement logic specific to button press events
-    // This could involve notifying specific colleagues or performing additional
-    // actions
+  bool isColleagueRegistered(IColleague *colleague) {
+    std::lock_guard<std::mutex> lock(mutex); // Use lock for thread safety
+    return std::find(colleagues.begin(), colleagues.end(), colleague) !=
+           colleagues.end();
   }
 };

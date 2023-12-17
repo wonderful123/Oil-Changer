@@ -1,24 +1,27 @@
 #pragma once
 
 #include <functional>
+#include <memory>
 #include <string>
-#include <vector>
-#include "ISubject.h"
 
-class OilChangeTracker : public ISubject {
-public:
-  static OilChangeTracker &getInstance() {
-    static OilChangeTracker instance;
-    return instance;
-  }
+#include "ConfigManager.h"
+#include "Mediator/IColleague.h"
+
+class OilChangeTracker : public IColleague {
+ public:
+  OilChangeTracker(std::shared_ptr<IMediator> mediator,
+                   std::shared_ptr<ConfigManager> configManager);
+
+  static OilChangeTracker &getInstance(
+      std::shared_ptr<IMediator> mediator = nullptr,
+      std::shared_ptr<ConfigManager> configManager = nullptr);
 
   OilChangeTracker(OilChangeTracker const &) = delete;
   void operator=(OilChangeTracker const &) = delete;
 
-  // Constructor
-  OilChangeTracker(double fillCapacity)
-      : _fillCapacity(fillCapacity), _amountFilled(0), _amountExtracted(0),
-        _flowRateFill(0), _flowRateExtract(0), _voltage(0) {}
+  void setMediator(std::shared_ptr<IMediator> mediator);
+  virtual void receiveEvent(EventType eventType,
+                            const EventData *eventData) override;
 
   // Setters
   void setAmountFilled(double amount);
@@ -42,22 +45,18 @@ public:
   bool isFull() const;
   bool isEmpty() const;
 
-  // Observer pattern integration
-  void attach(IObserver *observer);
-  void detach(IObserver *observer);
-  void notify(EventType eventType);
-
-private:
-  OilChangeTracker() = default;
-
+ private:
   double _fillCapacity = 0;
   double _amountFilled = 0;
   double _amountExtracted = 0;
-  double _flowRateFill = 0; // Current flow rate for filling
-  double _flowRateExtract = 0; // Current flow rate for extraction
-  double _voltage = 0;         // Voltage sense
+  double _flowRateFill = 0;     // Current flow rate for filling
+  double _flowRateExtract = 0;  // Current flow rate for extraction
+  double _voltage = 0;          // Voltage sense
 
-  std::vector<IObserver *> _observers; // List of observer callbacks
+  std::shared_ptr<IMediator> _mediator;
+  std::shared_ptr<ConfigManager> _configManager;
+
+  void notifyMediator(EventType eventType);
 
   void logStatus() const;
 };

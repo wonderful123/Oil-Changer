@@ -1,12 +1,29 @@
 #include "HardwareManager.h"
-#include "Logger.h"
-#include "DIContainer.h"
 
-HardwareManager::HardwareManager() {
-  _configManager = DIContainer::resolve<ConfigManager>();
-  _hardwareFactory = DIContainer::resolve<HardwareFactory>();
-  _buttonController = DIContainer::resolve<ButtonController>();
-  _configManager->attach(this);
+#include "ButtonController.h"
+#include "ConfigManager.h"
+#include "HardwareComponent.h"
+#include "HardwareConfig.h"
+#include "HardwareFactory.h"
+#include "HardwarePinConfig.h"
+#include "IButton.h"
+#include "IBuzzer.h"
+#include "InteractionSettings.h"
+#include "InteractionSettingsConfig.h"
+#include "Logger.h"
+#include "Mediator/ConcreteMediator.h"
+
+HardwareManager::HardwareManager(
+    std::shared_ptr<IMediator> mediator,
+    std::shared_ptr<ConfigManager> configManager,
+    std::shared_ptr<HardwareFactory> hardwareFactory,
+    std::shared_ptr<ButtonController> buttonController)
+    : IColleague(mediator),  // Call to IColleague constructor
+      _mediator(mediator),
+      _configManager(configManager),
+      _hardwareFactory(hardwareFactory),
+      _buttonController(buttonController) {
+  _mediator->registerColleague(this);
 }
 
 void HardwareManager::initializeHardware() {
@@ -21,7 +38,7 @@ void HardwareManager::initializeHardware() {
   for (const auto &config : hardwareConfig->getHardwarePinConfigs()) {
     if (!initializeComponent(config)) {
       allComponentsInitialized = false;
-      break; // Stop if any component fails
+      break;  // Stop if any component fails
     }
   }
 
@@ -59,21 +76,6 @@ bool HardwareManager::initializeComponent(const HardwarePinConfig &config) {
   return true;
 }
 
-void HardwareManager::registerComponent(
-    const HardwarePinConfig &config,
-    const std::shared_ptr<HardwareComponent> &component) {
-  if (config.type == "Button") {
-    auto button = std::static_pointer_cast<IButton>(component);
-    if (button) {
-      _buttonController->registerButton(config.id, button);
-    } else {
-      Logger::error("[HardwareManager] Failed to cast to IButton: " +
-                    config.id);
-    }
-  }
-  // Additional component type checks can be added here
-}
-
 bool HardwareManager::isComponentInitialized(
     const std::string &componentId) const {
   // Iterate through all components in the _components map
@@ -88,33 +90,34 @@ bool HardwareManager::isComponentInitialized(
   return false;
 }
 
-std::shared_ptr<HardwareComponent>
-HardwareManager::getComponentById(const std::string &id) const {
+std::shared_ptr<HardwareComponent> HardwareManager::getComponentById(
+    const std::string &id) const {
   auto it = _components.find(id);
   if (it != _components.end()) {
     return it->second;
   }
 
-  return nullptr; // Return nullptr if component not found
+  return nullptr;  // Return nullptr if component not found
 }
 
-void HardwareManager::update(EventType eventType) {
+void HardwareManager::receiveEvent(EventType eventType,
+                                   const EventData *eventData) {
   Logger::info("[HardwareManager] Received an update notification.");
 
   // Handle different event types
   switch (eventType) {
-  case OIL_LEVEL_CHANGED:
-    // Handle oil level change
-    break;
-  case VOLTAGE_CHANGED:
-    // Handle voltage change
-    break;
-  case FLOW_RATE_CHANGED:
-    // Handle flow rate change
-    break;
-  default:
-    Logger::warn("[HardwareManager] Unknown event type received.");
-    break;
+    case OIL_LEVEL_CHANGED:
+      // Handle oil level change
+      break;
+    case VOLTAGE_CHANGED:
+      // Handle voltage change
+      break;
+    case FLOW_RATE_CHANGED:
+      // Handle flow rate change
+      break;
+    default:
+      Logger::warn("[HardwareManager] Unknown event type received.");
+      break;
   }
 
   auto newSettingsConfig = _configManager->getInteractionSettingsConfig();
@@ -126,22 +129,10 @@ void HardwareManager::update(EventType eventType) {
   updateBuzzerSettings();
 }
 
-void HardwareManager::onButtonEvent(const std::string &buttonId, bool pressed) {
-  if (pressed) {
-    handleButtonEvent(buttonId);
+void HardwareManager::notifyMediator(EventType eventType) {
+  if (_mediator) {
+    _mediator->notify(this, eventType, {/* Additional event data if needed */});
   }
-}
-
-void HardwareManager::handleButtonEvent(const std::string &buttonId) {
-  changeStateBasedOnButton(buttonId);
-}
-
-void HardwareManager::changeStateBasedOnButton(const std::string &buttonId) {
-  // State change logic based on button ID
-  StateMachine stateMachine;
-  ButtonPressEvent pressEvent(
-      buttonId); // Assuming ButtonPressEvent now takes a string ID
-  stateMachine.handleEvent(pressEvent);
 }
 
 void HardwareManager::triggerBuzzer() {
@@ -149,7 +140,7 @@ void HardwareManager::triggerBuzzer() {
   if (it != _components.end() && it->second->type() == "Buzzer") {
     auto buzzer = std::static_pointer_cast<IBuzzer>(it->second);
     if (buzzer) {
-      buzzer->beep(2731, 150); // Example frequency and duration
+      buzzer->beep(2731, 150);  // Example frequency and duration
     } else {
       Logger::error("[HardwareManager] Buzzer component cast failed.");
     }
@@ -162,8 +153,9 @@ void HardwareManager::triggerBuzzer() {
 void HardwareManager::updateBuzzerSettings() {
   auto interactionConfig = _configManager->getInteractionSettingsConfig();
   if (!interactionConfig) {
-    Logger::error("[HardwareManager] Interaction settings configuration is not "
-                  "available");
+    Logger::error(
+        "[HardwareManager] Interaction settings configuration is not "
+        "available");
     return;
   }
 

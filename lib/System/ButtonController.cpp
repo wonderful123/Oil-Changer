@@ -1,12 +1,14 @@
 #include "ButtonController.h"
+
 #include <algorithm>
 
-void ButtonController::addObserver(
-    std::shared_ptr<IButtonControllerObserver> observer) {
-  if (std::find(_observers.begin(), _observers.end(), observer) ==
-      _observers.end()) {
-    _observers.push_back(observer);
-  }
+#include "IButton.h"
+#include "InteractionSettings.h"
+#include "Mediator/ConcreteMediator.h"
+
+ButtonController::ButtonController(std::shared_ptr<IMediator> mediator)
+    : IColleague(mediator), _mediator(mediator) {
+  _mediator->registerColleague(this);
 }
 
 void ButtonController::registerButton(const std::string &id,
@@ -24,54 +26,24 @@ void ButtonController::registerButton(const std::string &id,
   }
 }
 
-void ButtonController::notifyObservers(const std::string &id) {
-  for (auto &observer : _observers) {
-    if (observer) {
-      observer->onButtonPress(id);
-    }
+void ButtonController::notifyMediator(const std::string &id) {
+  if (_mediator) {
+    EventData eventData;
+    eventData.id = id;
+    _mediator->notify(this, EventType::BUTTON_PRESSED, &eventData);
   }
 }
 
 void ButtonController::processButtonStates() {
   auto now = std::chrono::steady_clock::now();
-  for (auto it = _buttonStates.begin(); it != _buttonStates.end(); ++it) {
-    auto id = it->first;
-    auto &state = it->second;
-
+  for (auto &[id, state] : _buttonStates) {
     state.button->update();
-
-    // Update the press state and check auto-repeat
-    if (state.button->isPressed()) {
-      if (!state.isInAutoRepeatMode &&
-          (now - state.lastPressTime >
-           std::chrono::milliseconds(
-               _settings.buttons.at(id).autoRepeat.initialDelayMs))) {
-        state.isInAutoRepeatMode = true;
-        state.lastRepeatTime = now;
-        notifyObservers(id); // Notify initial auto-repeat event
-      } else if (state.isInAutoRepeatMode &&
-                 (now - state.lastRepeatTime >
-                  std::chrono::milliseconds(
-                      _settings.buttons.at(id).autoRepeat.standardRateMs))) {
-        state.lastRepeatTime = now;
-        notifyObservers(id); // Notify subsequent auto-repeat events
-      }
-    } else {
-      state.isInAutoRepeatMode = false;
-    }
-
-    // Update last press time
-    if (state.isPressed != state.button->isPressed()) {
-      state.isPressed = state.button->isPressed();
-      if (state.isPressed) {
-        state.lastPressTime = now;
-      }
-    }
+    handleAutoRepeat(id, state);
   }
 }
 
-std::shared_ptr<IButton>
-ButtonController::getButtonById(const std::string &id) const {
+std::shared_ptr<IButton> ButtonController::getButtonById(
+    const std::string &id) const {
   auto it = _buttons.find(id);
   return it != _buttons.end() ? it->second : nullptr;
 }
@@ -88,4 +60,43 @@ void ButtonController::setInteractionSettings(
       button->setAutoRepeatSettings(buttonSettingsIter->second.autoRepeat);
     }
   }
+}
+
+void ButtonController::handleAutoRepeat(const std::string &id,
+                                        ButtonState &state) {
+  auto now = std::chrono::steady_clock::now();
+
+  if (state.button->isPressed()) {
+    // Check for auto-repeat activation
+    if (!state.isInAutoRepeatMode &&
+        (now - state.lastPressTime >
+         std::chrono::milliseconds(
+             _settings.buttons.at(id).autoRepeat.initialDelayMs))) {
+      state.isInAutoRepeatMode = true;
+      state.lastRepeatTime = now;
+      notifyMediator(id);  // Notify initial auto-repeat event
+    } else if (state.isInAutoRepeatMode &&
+               (now - state.lastRepeatTime >
+                std::chrono::milliseconds(
+                    _settings.buttons.at(id).autoRepeat.standardRateMs))) {
+      state.lastRepeatTime = now;
+      notifyMediator(id);  // Notify subsequent auto-repeat events
+    }
+  } else {
+    state.isInAutoRepeatMode = false;
+  }
+
+  // Update the last press time
+  if (state.isPressed != state.button->isPressed()) {
+    state.isPressed = state.button->isPressed();
+    if (state.isPressed) {
+      state.lastPressTime = now;
+    }
+  }
+}
+
+void ButtonController::receiveEvent(EventType eventType,
+                                    const EventData *eventData) {
+  // Handle the event
+  // Implementation depends on how ButtonController should react to events
 }

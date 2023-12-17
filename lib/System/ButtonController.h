@@ -1,17 +1,17 @@
 #pragma once
 
-#include "IButton.h"
-#include "IButtonControllerObserver.h"
-#include <algorithm>
 #include <chrono>
 #include <memory>
 #include <unordered_map>
 #include <vector>
 
-class InteractionSettings; // Forward declaration for circular dependency
+#include "InteractionSettings.h"
+#include "Mediator/IColleague.h"
 
-class ButtonController {
-public:
+class IButton;
+
+class ButtonController : public IColleague {
+ public:
   struct ButtonState {
     std::shared_ptr<IButton> button;
     bool isPressed;
@@ -20,19 +20,23 @@ public:
     bool isInAutoRepeatMode;
   };
 
-  virtual void addObserver(std::shared_ptr<IButtonControllerObserver> observer);
+  ButtonController(std::shared_ptr<IMediator> mediator);
+
   virtual void registerButton(const std::string &id,
-                             std::shared_ptr<IButton> button);
+                              std::shared_ptr<IButton> button);
   virtual void processButtonStates();
-  virtual void notifyObservers(const std::string &id);
   virtual std::shared_ptr<IButton> getButtonById(const std::string &id) const;
   virtual void setInteractionSettings(const InteractionSettings &settings);
 
-private:
-  std::vector<std::shared_ptr<IButtonControllerObserver>> _observers;
+  virtual void receiveEvent(EventType eventType,
+                            const EventData *eventData) override;
+
+ private:
   std::unordered_map<std::string, std::shared_ptr<IButton>> _buttons;
   std::unordered_map<std::string, ButtonState> _buttonStates;
+  std::shared_ptr<IMediator> _mediator;
   InteractionSettings _settings;
 
+  void notifyMediator(const std::string &id);
   void handleAutoRepeat(const std::string &id, ButtonState &state);
 };

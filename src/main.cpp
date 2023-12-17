@@ -1,7 +1,6 @@
 #include "ButtonController.h"
 #include "BuzzerPlayer/BuzzerPlayer.h"
 #include "ConfigManager.h"
-#include "DIContainer.h"
 #include "ESP32/ESP32Buzzer.h"
 #include "ESP32/ESP32FileHandler.h"
 #include "Error.h"
@@ -28,12 +27,15 @@ void serialLogCallback(Logger::Level level, const std::string &message);
 void setup() {
   initializeLogger();
 
-  // Register dependencies in the DI Container
-  DIContainer::resolve<ESP32FileHandler>();
-  DIContainer::resolve<ConfigManager>();
-  DIContainer::resolve<ButtonController>();
-  DIContainer::resolve<HardwareFactory>();
-  DIContainer::resolve<HardwareManager>();
+  auto mediator = std::make_shared<ConcreteMediator>();
+  auto fileHandler = std::make_shared<ESP32FileHandler>();
+  auto buttonController = std::make_shared<ButtonController>(mediator);
+  auto hardwareFactory = std::make_shared<HardwareFactory>();
+  auto hardwareManager = std::make_shared<HardwareManager>();
+  auto configManager = std::make_shared<ConfigManager>(mediator, fileHandler);
+  auto oilChangeTracker = std::make_shared<OilChangeTracker>(configManager);
+  auto systemController =
+      std::make_shared<SystemController>(hardwareManager, buttonController);
 
   if (initializeHardware()) {
     Logger::error("[Main] Hardware initialization failed.");
@@ -48,7 +50,7 @@ void setup() {
   }
 }
 
-void loop() { systemController->update(EventType::NOEVENT); }
+void loop() { systemController->performPeriodicUpdate(); }
 
 void initializeLogger() {
   Serial.begin(115200);
@@ -71,7 +73,7 @@ Error initializeHardware() {
 }
 
 void initializeSystemController() {
-  systemController = DIContainer::resolve<SystemController>();
+  systemController = std::make_shared<SystemController>();
   systemController->initialize();
   Logger::info("[Main] System controller initialized2.");
   delay(1000);
