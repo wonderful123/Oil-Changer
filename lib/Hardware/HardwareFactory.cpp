@@ -1,4 +1,5 @@
 #include "HardwareFactory.h"
+
 #include "HardwarePinConfig.h"
 #include "IADC.h"
 #include "IButton.h"
@@ -19,8 +20,8 @@
 #include "MockHardwareFactory.h"
 #endif
 
-std::shared_ptr<HardwareComponent>
-HardwareFactory::createComponent(const HardwarePinConfig &config) {
+std::shared_ptr<HardwareComponent> HardwareFactory::createComponent(
+    const HardwarePinConfig &config) {
   std::shared_ptr<HardwareComponent> hardwareComponent;
 
   if (config.type == "ADC") {
@@ -57,15 +58,21 @@ HardwareFactory::createComponent(const HardwarePinConfig &config) {
   return hardwareComponent;
 }
 
-std::shared_ptr<HardwareFactory> &HardwareFactory::getHardwareFactory() {
-  static std::shared_ptr<HardwareFactory> hardwareFactory;
+std::shared_ptr<HardwareFactory> HardwareFactory::hardwareFactory = nullptr;
+std::mutex HardwareFactory::mutex;
 
+std::shared_ptr<HardwareFactory> HardwareFactory::createInstance() {
 #ifdef PLATFORM_ESP32
-  if (!hardwareFactory)
-    hardwareFactory.reset(new ESP32HardwareFactory());
+  return std::make_shared<ESP32HardwareFactory>();
 #else
-  if (!hardwareFactory)
-    hardwareFactory.reset(new MockHardwareFactory());
+  return std::make_shared<MockHardwareFactory>();
 #endif
+}
+
+std::shared_ptr<HardwareFactory> &HardwareFactory::getHardwareFactory() {
+  std::lock_guard<std::mutex> lock(mutex);
+  if (!hardwareFactory) {
+    hardwareFactory = createInstance();
+  }
   return hardwareFactory;
 }
