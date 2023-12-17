@@ -30,7 +30,7 @@ void Logger::log(Logger::Level level, const std::string &message) {
 }
 
 // Additional function to convert Logger Level to String
-const char *Logger::levelToString(Logger::Level level) {
+const std::string Logger::levelToString(Logger::Level level) {
   switch (level) {
   case Logger::DEBUG:
     return "DEBUG";

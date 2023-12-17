@@ -11,7 +11,7 @@ public:
 
   static void setLogCallback(LogCallback callback);
   static void log(Level level, const std::string &message);
-  static const char *levelToString(Level level);
+  static const std::string levelToString(Level level);
 
   static void debug(const std::string &message) { log(DEBUG, message); }
   static void info(const std::string &message) { log(INFO, message); }
