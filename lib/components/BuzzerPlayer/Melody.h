@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Notes.h" // This includes the Note struct and note definitions
-
 struct Melody {
   Note *notes;
   int length;
