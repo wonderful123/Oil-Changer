@@ -15,6 +15,7 @@ public:
   MOCK_METHOD(void, setOnPressCallback, (ButtonPressCallback callback),
               (override));
   MOCK_METHOD(void, update, (), (override));
+  MOCK_METHOD(ButtonBase::ButtonState, getCurrentState, (), (const));
 };
 
 #endif // PLATFORM_NATIVE
