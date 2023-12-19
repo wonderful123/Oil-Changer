@@ -1,13 +1,16 @@
 #pragma once
 
-#include "IButton.h"
 #include <chrono>
 
+#include "IButton.h"
+
 class ButtonBase : public IButton {
-public:
+ public:
   explicit ButtonBase(const HardwarePinConfig &config)
-      : IButton(config), _isPressed(false),
-        _lastPressTime(std::chrono::steady_clock::now()), _autoRepeatSettings(),
+      : IButton(config),
+        _isPressed(false),
+        _lastPressTime(std::chrono::steady_clock::now()),
+        _autoRepeatSettings(),
         _isInAutoRepeatMode(false) {}
 
   virtual bool isPressed() const override { return _isPressed; }
@@ -16,7 +19,7 @@ public:
     _onPressCallback = callback;
   }
 
-  virtual void update() = 0; // Must be implemented in derived classes
+  virtual void update() = 0;  // Must be implemented in derived classes
 
   void setAutoRepeatSettings(
       const InteractionSettings::AutoRepeat &settings) override {
@@ -46,11 +49,20 @@ public:
     return false;
   }
 
-protected:
-  bool _isPressed; // Current pressed state of the Button
-  ButtonPressCallback _onPressCallback = nullptr; // Callback for button press
+  // Method to get the current state of the button
+  ButtonState getCurrentState() const {
+    ButtonState state;
+    state.isPressed = _isPressed;
+    state.isInAutoRepeatMode = _isInAutoRepeatMode;
+
+    return state;
+  }
+
+ protected:
+  bool _isPressed;  // Current pressed state of the Button
+  ButtonPressCallback _onPressCallback = nullptr;  // Callback for button press
   std::chrono::steady_clock::time_point _lastPressTime;
-  InteractionSettings::AutoRepeat _autoRepeatSettings; // Auto-repeat settings
-  bool _isInAutoRepeatMode; // Flag to indicate if the button is in auto-repeat
-                            // mode
+  InteractionSettings::AutoRepeat _autoRepeatSettings;  // Auto-repeat settings
+  bool _isInAutoRepeatMode;  // Flag to indicate if the button is in auto-repeat
+                             // mode
 };
