@@ -37,6 +37,7 @@ class ButtonController : public IColleague {
   std::shared_ptr<IMediator> _mediator;
   InteractionSettings _settings;
 
+  void handleButtonPress(const std::string &id);
   void notifyMediator(const std::string &id);
   void handleAutoRepeat(const std::string &id, ButtonState &state);
 };

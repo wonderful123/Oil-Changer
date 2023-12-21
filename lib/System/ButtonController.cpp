@@ -15,15 +15,21 @@ void ButtonController::registerButton(const std::string &id,
                                       std::shared_ptr<IButton> button) {
   if (_buttons.find(id) == _buttons.end()) {
     _buttons[id] = button;
-    _buttonStates[id] =
-        ButtonState{button, false, std::chrono::steady_clock::now(),
-                    std::chrono::steady_clock::now(), false};
+
+    // Set a callback for the button
+    button->setOnPressCallback([this](const std::string &buttonId) {
+      this->handleButtonPress(buttonId);
+    });
 
     // Apply settings to the button if available
     if (_settings.buttons.find(id) != _settings.buttons.end()) {
       button->setAutoRepeatSettings(_settings.buttons.at(id).autoRepeat);
     }
   }
+}
+
+void ButtonController::handleButtonPress(const std::string &id) {
+  notifyMediator(id);
 }
 
 void ButtonController::notifyMediator(const std::string &id) {
