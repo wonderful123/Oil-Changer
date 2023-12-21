@@ -9,9 +9,9 @@ class ESP32Button : public ButtonBase {
 public:
   explicit ESP32Button(const HardwarePinConfig &config);
 
-  void update() override; // Update button state
+  void updateButtonState() override;  // Update button state
 
-private:
+ private:
   Bounce _debouncer;
 };
 

@@ -10,23 +10,9 @@ ESP32Button::ESP32Button(const HardwarePinConfig &config) : ButtonBase(config) {
   _debouncer.interval(50); // Debounce interval
 }
 
-void ESP32Button::update() {
+void ESP32Button::updateButtonState() {
   _debouncer.update();
-  bool previouslyPressed = _isPressed;
-  _isPressed = _debouncer.read() == LOW; // Assuming active LOW
-
-  if (_isPressed && !previouslyPressed) {
-    _lastPressTime = std::chrono::steady_clock::now();
-    if (_onPressCallback) {
-      _onPressCallback(id());
-    }
-  } else if (!_isPressed && previouslyPressed) {
-    _isInAutoRepeatMode = false;
-  }
-
-  if (checkAutoRepeat() && _onPressCallback) {
-    _onPressCallback(id());
-  }
+  _isPressed = _debouncer.read() == LOW;  // Assuming active LOW
 }
 
 #endif // PLATFORM_ESP32
