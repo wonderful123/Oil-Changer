@@ -20,24 +20,21 @@ using ButtonPressCallback = std::function<void(const std::string &)>;
 /**
  * Test Cases for ButtonBase and Derived Classes
  *
- * - ParsesValidButtonSettings: Verifies if the MockButton is correctly
- * initialized with HardwarePinConfig.
- * - PressDetection: Checks if the isPressed() method accurately detects a
- * button press and if the press callback is invoked.
- * - ReleaseDetection: Ensures that isPressed() detects button release correctly
- * and that no callback is invoked upon release.
- * - AutoRepeatFunctionality: Tests the auto-repeat feature of the button under
- * various delay and repeat rate settings.
- * - StateTransition: Verifies the transition of button states from pressed to
- * not pressed and vice versa.
- * - UpdateMethodBehavior: Ensures the update() method in ButtonBase behaves
- * correctly, managing state and invoking callbacks appropriately.
- * - ErrorHandlingAndEdgeCases: Tests specific error conditions or edge cases
- * that ButtonBase or MockButton should handle.
- * - CallbackInvocation: Verifies that callbacks are correctly set and invoked
- * under different scenarios.
- * - ButtonStateConsistency: Checks the consistency and correctness of the
- * ButtonState object under various use cases.
+ * - ParsesValidButtonSettings: Checks if MockButton is correctly initialized
+ * with HardwarePinConfig.
+ * - PressedButtonChangesStateToPressed: Verifies that the button state changes
+ * to 'pressed' upon a button press.
+ * - ButtonReleaseChangesStateAfterPressed: Ensures that the button state
+ * changes from 'pressed' to 'not pressed' upon release.
+ * - PressedButtonInvokesCallback: Checks if pressing the button invokes the set
+ * callback.
+ * - ReleaseDetection: Verifies that the callback is not invoked upon button
+ * release.
+ * - AutoRepeatAfterInitialDelay: Tests if the button enters auto-repeat mode
+ * after the initial delay.
+ * - ExitAutoRepeatOnRelease: Checks if the button exits auto-repeat mode upon
+ * release.
+ *
  */
 
 class ButtonTest : public ::testing::Test {
