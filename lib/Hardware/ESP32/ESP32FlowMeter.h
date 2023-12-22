@@ -2,12 +2,15 @@
 
 #ifdef PLATFORM_ESP32
 
-#include "FlowMeterBase.h"
 #include <driver/pcnt.h>
+
 #include <functional>
 
+#include "Error.h"
+#include "FlowMeterBase.h"
+
 class ESP32FlowMeter : public FlowMeterBase {
-public:
+ public:
   using PulseCallback = std::function<void()>;
 
   ESP32FlowMeter(const HardwarePinConfig &config);
@@ -17,11 +20,11 @@ public:
   virtual double getFlowRate() const override;
   virtual void reset() override;
 
-protected:
+ protected:
   // Method to initialize PCNT for the given pin
   void initPcnt(pcnt_unit_t pcntUnit);
 
-private:
+ private:
   volatile int16_t _pulseCount;
   PulseCallback _pulseCallback;
   pcnt_unit_t _pcntUnit;
@@ -30,4 +33,4 @@ private:
   int16_t getPulseCount() const;
 };
 
-#endif // PLATFORM_ESP32
+#endif  // PLATFORM_ESP32
