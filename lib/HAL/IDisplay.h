@@ -1,7 +1,11 @@
-#include "../Mediator/IColleague.h"
+#pragma once
+
+#include <string>
+
+#include "IColleague.h"
 
 class IDisplay : public IColleague {
-public:
+ public:
   virtual ~IDisplay() {}
 
   // Display data on the screen
