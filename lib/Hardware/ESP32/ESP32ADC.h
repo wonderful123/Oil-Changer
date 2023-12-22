@@ -2,14 +2,17 @@
 
 #ifdef PLATFORM_ESP32
 
-#include "ADCBase.h"
+#include <Arduino.h>
 #include <driver/adc.h>
 
+#include "ADCBase.h"
+#include "Error.h"
+
 class ESP32ADC : public ADCBase {
-private:
+ private:
   adc_attenuation_t _attenuation;
 
-public:
+ public:
   /**
    * @brief Construct a new ESP32ADC object.
    *
@@ -19,7 +22,7 @@ public:
 
   virtual int read() const override;
 
-private:
+ private:
   /**
    * @brief Configures the attenuation for the ADC.
    *
@@ -28,4 +31,4 @@ private:
   void configureAttenuation(const HardwarePinConfig &config);
 };
 
-#endif // PLATFORM_ESP32
+#endif  // PLATFORM_ESP32
