@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Notes.h"
+
 struct Melody {
   Note *notes;
   int length;
