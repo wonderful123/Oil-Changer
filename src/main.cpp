@@ -1,20 +1,26 @@
+#include <Arduino.h>
+#include <FS.h>
+#include <LittleFS.h>
+
+#include <memory>
+#include <tinyfsm.hpp>
+
 #include "ButtonController.h"
 #include "BuzzerPlayer/BuzzerPlayer.h"
+#include "ConcreteMediator.h"
 #include "ConfigManager.h"
 #include "ESP32/ESP32Buzzer.h"
 #include "ESP32/ESP32FileHandler.h"
 #include "Error.h"
 #include "FSM/States.h"
 #include "HardwareConfig.h"
+#include "HardwareFactory.h"
 #include "HardwareManager.h"
 #include "SystemController.h"
-#include <Arduino.h>
-#include <FS.h>
-#include <LittleFS.h>
-#include <memory>
-#include <tinyfsm.hpp>
 
 // Global objects
+std::shared_ptr<ConfigManager> configManager;
+std::shared_ptr<HardwareManager> hardwareManager;
 std::shared_ptr<SystemController> systemController;
 
 // Forward Declarations
@@ -30,21 +36,25 @@ void setup() {
   auto mediator = std::make_shared<ConcreteMediator>();
   auto fileHandler = std::make_shared<ESP32FileHandler>();
   auto buttonController = std::make_shared<ButtonController>(mediator);
-  auto hardwareFactory = std::make_shared<HardwareFactory>();
-  auto hardwareManager = std::make_shared<HardwareManager>();
-  auto configManager = std::make_shared<ConfigManager>(mediator, fileHandler);
-  auto oilChangeTracker = std::make_shared<OilChangeTracker>(configManager);
-  auto systemController =
-      std::make_shared<SystemController>(hardwareManager, buttonController);
+  auto hardwareFactory = HardwareFactory::getHardwareFactory();
 
+  // Initialize global objects
+  configManager = std::make_shared<ConfigManager>(mediator, fileHandler);
+  hardwareManager = std::make_shared<HardwareManager>(
+      mediator, configManager, hardwareFactory, buttonController);
+  systemController = std::make_shared<SystemController>(
+      mediator, buttonController, hardwareManager);
+  Logger::info("[Main] System controller initialized.");
+
+  auto oilChangeTracker =
+      std::make_shared<OilChangeTracker>(mediator, configManager);
+
+  // System initialization sequence
   if (initializeHardware()) {
     Logger::error("[Main] Hardware initialization failed.");
-    return; // Consider appropriate error handling or system halt
+    return;  // Consider appropriate error handling or system halt
   }
 
-  initializeSystemController();
-  Logger::info("[Main] System controller initialized.");
-  delay(1000);
   if (initializeBuzzerPlayer()) {
     Logger::warn("[Main] Buzzer player initialization failed.");
   }
@@ -55,7 +65,7 @@ void loop() { systemController->performPeriodicUpdate(); }
 void initializeLogger() {
   Serial.begin(115200);
   while (!Serial)
-    ; // Wait for Serial port to connect
+    ;  // Wait for Serial port to connect
 
   Logger::setLogCallback(serialLogCallback);
   Logger::info(R"(
@@ -64,7 +74,7 @@ void initializeLogger() {
  | (_) | | | (__| ' \/ _` | ' \/ _` / -_) '_|
   \___/|_|_|\___|_||_\__,_|_||_\__, \___|_|  
                                |___/
-    )";
+    )");
   Logger::info("[Main] Logger initialized and ready.");
 }
 
@@ -76,14 +86,7 @@ Error initializeHardware() {
                   Error::getFormattedMessage(configLoadError.code()));
     return configLoadError;
   }
-  return Error::OK; // No error
-}
-
-void initializeSystemController() {
-  systemController = std::make_shared<SystemController>();
-  systemController->initialize();
-  Logger::info("[Main] System controller initialized2.");
-  delay(1000);
+  return Error::OK;  // No error
 }
 
 Error initializeBuzzerPlayer() {
@@ -112,17 +115,16 @@ Error initializeBuzzerPlayer() {
       Logger::info("[Main] Playing wonderboy theme tune...");
       // player->playTune(WONDERBOY_THEME);
 
-      return Error::OK; // Buzzer initialized successfully
+      return Error::OK;  // Buzzer initialized successfully
     }
   }
 
   Logger::warn("[Main] Buzzer not found in hardware configuration.");
-  return Error::HardwareConfigBuzzerInitError; // Error code for missing buzzer
+  return Error::HardwareConfigBuzzerInitError;  // Error code for missing buzzer
 }
 
 void serialLogCallback(Logger::Level level, const std::string &message) {
-  if (!Serial)
-    return;
+  if (!Serial) return;
 
   const char *levelStr[] = {"DEBUG", "INFO", "WARN", "ERROR", "LOG"};
   Serial.print('[');
