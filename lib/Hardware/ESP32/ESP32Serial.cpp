@@ -19,7 +19,7 @@ ESP32Serial::ESP32Serial(const HardwarePinConfig &config)
       Error(Error::SerialInvalidUartPortNumber);
       return;
     }
-    uartPortNumber = static_cast<int>(portNum);
+    int uartPortNumber = static_cast<int>(portNum);
     _serial = HardwareSerial(uartPortNumber);
   }
 
