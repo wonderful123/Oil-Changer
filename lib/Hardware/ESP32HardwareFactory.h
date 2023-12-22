@@ -66,9 +66,10 @@ public:
     return std::make_shared<ESP32InterfaceDisplay>(commInterface, displayId);
   }
 
-  virtual std::shared_ptr<ICommunicationInterface> createCommunicationInterface() override {
-    // Example implementation assuming a serial communication interface
-    return std::make_shared<ESP32SerialCommunication>();
+  virtual std::shared_ptr<IDisplay> createDisplay(const std::string &displayId, ICommunicationInterface &commInterface) override {
+    std::shared_ptr<IMediator> mediator = /* however you obtain a mediator */;
+    return std::make_shared<ESP32InterfaceDisplay>(mediator, commInterface,
+                                                   displayId);
   }
 };
 
