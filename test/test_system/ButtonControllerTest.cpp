@@ -65,30 +65,31 @@ class ButtonControllerTest : public ::testing::Test {
   std::shared_ptr<MockButton> mockButton;
   std::shared_ptr<ButtonController> buttonController;
   std::string testButtonId = "testButton";
-  InteractionSettings settings;
+  InteractionSettings interactionSettings;
   std::shared_ptr<MockMediator> mockMediator = std::make_shared<MockMediator>();
 
   void SetUp() override {
-    auto mediator = std::make_shared<ConcreteMediator>();
     buttonController = std::make_shared<ButtonController>(mockMediator);
     mockButton = std::make_shared<MockButton>(testConfig);
 
-    EXPECT_CALL(*mockButton, update()).Times(AnyNumber());
-    ON_CALL(*mockButton, getCurrentState())
-        .WillByDefault(Return(MockButton::ButtonState{false, false}));
     ON_CALL(*mockMediator, registerColleague(_)).WillByDefault(Return());
 
     buttonController->registerButton(testButtonId, mockButton);
 
     // Initialize interaction settings for the button
-    InteractionSettings::Button buttonSettings;
-    buttonSettings.autoRepeat.initialDelayMs = 500;  // e.g., 500 ms
-    buttonSettings.autoRepeat.standardRateMs = 100;  // e.g., 100 ms
-    settings.buttons[testButtonId] = buttonSettings;
+    interactionSettings.buttons[testButtonId].autoRepeat.initialDelayMs = 500;
+    interactionSettings.buttons[testButtonId].autoRepeat.standardRateMs = 100;
+    buttonController->setInteractionSettings(interactionSettings);
 
-    // Register and set up the button
-    buttonController->registerButton(testButtonId, mockButton);
-    buttonController->setInteractionSettings(settings);
+    auto appliedSettings = mockButton->getAppliedSettings();
+    EXPECT_EQ(appliedSettings.initialDelayMs, 500);
+    EXPECT_EQ(appliedSettings.standardRateMs, 100);
+  }
+
+  void SimulateTimePassage(int milliseconds) {
+    auto duration = std::chrono::milliseconds(milliseconds);
+    // Set the mock button's internal state to simulate time passage
+    mockButton->mockAdjustLastPressTime(duration);
   }
 };
 
@@ -101,7 +102,7 @@ TEST_F(ButtonControllerTest, RegisterAndRetrieveButton) {
   auto retrievedButton = buttonController->getButtonById(testButtonId);
   EXPECT_EQ(retrievedButton, mockButton)
       << "Retrieved button should be the same as the registered button";
-}
+};
 
 // Test retrieving a non-existent button
 TEST_F(ButtonControllerTest, RetrieveNonExistentButton) {
@@ -109,103 +110,99 @@ TEST_F(ButtonControllerTest, RetrieveNonExistentButton) {
   auto retrievedButton = buttonController->getButtonById("nonExistentButton");
   EXPECT_EQ(retrievedButton, nullptr)
       << "Retrieving a non-existent button should return nullptr";
-}
+};
 
 TEST_F(ButtonControllerTest, UpdateButtonStateOnPressAndRelease) {
   // Setting up the button to be pressed
-  EXPECT_CALL(*mockButton, isPressed()).WillRepeatedly(Return(true));
-  // Set the expected state for getCurrentState when the button is pressed
-  ON_CALL(*mockButton, getCurrentState())
-      .WillByDefault(Return(MockButton::ButtonState{true, false}));
+  mockButton->simulatePress(true);
   buttonController->processButtonStates();
   auto buttonState = mockButton->getCurrentState();
   EXPECT_TRUE(buttonState.isPressed);
 
-  // Setting up the button to be released
-  EXPECT_CALL(*mockButton, isPressed()).WillRepeatedly(Return(false));
-  // Set the expected state for getCurrentState when the button is released
-  ON_CALL(*mockButton, getCurrentState())
-      .WillByDefault(Return(MockButton::ButtonState{false, false}));
+  // Simulate button press and update the button state
+  mockButton->simulatePress(false);
   buttonController->processButtonStates();
+
+  // Verify that the button state reflects 'pressed'
   buttonState = mockButton->getCurrentState();
   EXPECT_FALSE(buttonState.isPressed);
-}
+};
 
-TEST_F(ButtonControllerTest, HandleAutoRepeatActivation) {
-  // Expect the button to be pressed for auto-repeat
-  EXPECT_CALL(*mockButton, isPressed()).WillRepeatedly(Return(true));
-  // Set up the return value for getCurrentState() specific to this test
-  ON_CALL(*mockButton, getCurrentState())
-      .WillByDefault(Return(MockButton::ButtonState{true, true}));
-  std::this_thread::sleep_for(std::chrono::milliseconds(600));
-  buttonController->processButtonStates();
+TEST_F(ButtonControllerTest, HoldingButtonChangesStateToAutoRepeat) {
   auto buttonState = mockButton->getCurrentState();
-  EXPECT_TRUE(
-      buttonState.isInAutoRepeatMode);  // Verifying auto-repeat activation
-}
+  EXPECT_FALSE(buttonState.isPressed);
+  
+  // Set the button to be continuously pressed
+  mockButton->simulatePress(true);
+  buttonController->processButtonStates();
+  buttonState = mockButton->getCurrentState();
+  EXPECT_TRUE(buttonState.isPressed);
+  EXPECT_FALSE(buttonState.isInAutoRepeatMode);
 
-TEST_F(ButtonControllerTest, GenerateRepeatedEvents) {
-  EXPECT_CALL(*mockButton, isPressed()).WillRepeatedly(Return(true));
-  std::this_thread::sleep_for(
-      std::chrono::milliseconds(600));  // Wait for initial delay
+  // Simulate initial delay for auto-repeat activation
+  SimulateTimePassage(5001);  // Wait for initial delay
   buttonController->processButtonStates();
-  std::this_thread::sleep_for(
-      std::chrono::milliseconds(200));  // Wait for two standard rate intervals
-  buttonController->processButtonStates();
-  // Additional checks can be added here based on how ButtonController
-  // notifies events
-}
+  buttonState = mockButton->getCurrentState();
+  EXPECT_TRUE(buttonState.isInAutoRepeatMode);
+
+  // Simulate additional time for a couple of auto-repeat intervals
+  // SimulateTimePassage(200);  // Wait for two standard rate intervals
+  // buttonController->processButtonStates();
+  // buttonState = mockButton->getCurrentState();
+  // EXPECT_TRUE(buttonState.isInAutoRepeatMode);
+};
 
 TEST_F(ButtonControllerTest, StopAutoRepeatOnRelease) {
-  EXPECT_CALL(*mockButton, isPressed()).WillRepeatedly(Return(true));
-  std::this_thread::sleep_for(
-      std::chrono::milliseconds(600));  // Wait for initial delay
-  buttonController->processButtonStates();
-  EXPECT_CALL(*mockButton, isPressed()).WillRepeatedly(Return(false));
+  // Simulate button press and initial delay for auto-repeat activation
+  mockButton->simulatePress(true);
   buttonController->processButtonStates();
   auto buttonState = mockButton->getCurrentState();
+  EXPECT_TRUE(buttonState.isPressed);
+
+  SimulateTimePassage(501);  // Wait for initial delay
+  buttonController->processButtonStates();
+  buttonState = mockButton->getCurrentState();
+  EXPECT_TRUE(buttonState.isInAutoRepeatMode);
+
+  // Simulate button release
+  mockButton->simulatePress(false);
+  buttonController->processButtonStates();
+
+  // Check if the button exits auto-repeat mode upon release
+  buttonState = mockButton->getCurrentState();
+  EXPECT_FALSE(buttonState.isPressed);
   EXPECT_FALSE(buttonState.isInAutoRepeatMode);
-}
+};
 
 TEST_F(ButtonControllerTest, NotifyMediatorOnButtonPress) {
-  std::shared_ptr<MockMediator> mockMediator = std::make_shared<MockMediator>();
-  buttonController = std::make_shared<ButtonController>(mockMediator);
-
-  // Set the expected state for getCurrentState when the button is pressed
-  ON_CALL(*mockButton, getCurrentState())
-      .WillByDefault(Return(MockButton::ButtonState{true, false}));
-
-  // Setting up the button to be pressed
-  EXPECT_CALL(*mockButton, isPressed()).WillOnce(Return(true));
+  // Simulate button press and process the state change
+  mockButton->simulatePress(true);
+  buttonController->processButtonStates();
 
   // Expect the mediator to be notified on button press
   EXPECT_CALL(*mockMediator,
               notify(buttonController.get(), EventType::BUTTON_PRESSED, _))
       .Times(1);
-
-  // Process the button states
-  buttonController->processButtonStates();
-}
+};
 
 TEST_F(ButtonControllerTest, NotifyMediatorOnAutoRepeatEvents) {
-  std::shared_ptr<MockMediator> mockMediator = std::make_shared<MockMediator>();
-  buttonController = std::make_shared<ButtonController>(mockMediator);
-
-  // Setting up the button to be in auto-repeat mode
-  EXPECT_CALL(*mockButton, isPressed()).WillRepeatedly(Return(true));
-  ON_CALL(*mockButton, getCurrentState())
-      .WillByDefault(Return(MockButton::ButtonState{true, true}));
-
-  // Simulate the delay for auto-repeat activation
-  std::this_thread::sleep_for(milliseconds(600));  // Wait for initial delay
+  // Set the button to be continuously pressed for auto-repeat
+  mockButton->simulatePress(true);
+  buttonController->processButtonStates();
+  
+  // Simulate the initial delay for auto-repeat activation
+  SimulateTimePassage(501);  // Wait for initial delay
+  buttonController->processButtonStates();
 
   // Expect the mediator to be notified on auto-repeat events
   EXPECT_CALL(*mockMediator,
               notify(buttonController.get(), EventType::BUTTON_AUTO_REPEAT, _))
       .Times(AtLeast(1));
 
+  // Simulate time passage for auto-repeat intervals
+  SimulateTimePassage(200);  // Wait for two standard rate intervals
   buttonController->processButtonStates();
-}
+};
 
 TEST_F(ButtonControllerTest, HandleInteractionSettings) {
   // Initial settings
@@ -233,4 +230,4 @@ TEST_F(ButtonControllerTest, HandleInteractionSettings) {
   appliedSettings = mockButton->getAppliedSettings();
   EXPECT_EQ(appliedSettings.initialDelayMs, 600);
   EXPECT_EQ(appliedSettings.standardRateMs, 150);
-}
+};
