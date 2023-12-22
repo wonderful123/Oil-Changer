@@ -1,19 +1,22 @@
 #pragma once
 
-#include "IDisplay.h"
 #include <string>
 
-class ICommunicationInterface;
+#include "ICommunicationInterface.h"
+#include "IDisplay.h"
 
 class DisplayBase : public IDisplay {
-private:
+ private:
   ICommunicationInterface &_commInterface;
   std::string _displayId;
 
-public:
-  explicit DisplayBase(ICommunicationInterface &commInterface,
-                       const std::string &displayId)
-      : _commInterface(commInterface), _displayId(displayId) {}
+ public:
+  DisplayBase(std::shared_ptr<IMediator> mediator,
+              ICommunicationInterface &commInterface,
+              const std::string &displayId)
+      : IDisplay(mediator),
+        _commInterface(commInterface),
+        _displayId(displayId) {}
 
   virtual ~DisplayBase() {}
 
