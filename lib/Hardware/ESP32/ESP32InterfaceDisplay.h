@@ -2,13 +2,14 @@
 
 #ifdef PLATFORM_ESP32
 
-#include "DisplayBase.h"
 #include <string>
+
+#include "DisplayBase.h"
 
 class ICommunicationInterface;
 
 class ESP32InterfaceDisplay : public DisplayBase {
-public:
+ public:
   // Constructor
   ESP32InterfaceDisplay(ICommunicationInterface &commInterface,
                         const std::string &displayId)
@@ -16,6 +17,18 @@ public:
 
   // Destructor
   virtual ~ESP32InterfaceDisplay() {}
+
+  void setMediator(std::shared_ptr<IMediator> mediator) override {
+    // Implementation
+  }
+
+  void receiveEvent(EventType eventType, const std::string &data) override {
+    // Implementation
+  }
+
+  void displayData(const std::string &data) override {
+    // Implementation
+  }
 };
 
-#endif // PLATFORM_ESP32
+#endif  // PLATFORM_ESP32
