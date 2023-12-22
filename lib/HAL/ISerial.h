@@ -1,12 +1,13 @@
 #pragma once
 
-#include "HardwareComponent.h"
 #include <string>
+
+#include "HardwareComponent.h"
 
 class HardwarePinConfig;
 
-    class ISerial : public HardwareComponent {
-public:
+class ISerial : public HardwareComponent {
+ public:
   explicit ISerial(const HardwarePinConfig &config)
       : HardwareComponent(config) {}
 
@@ -19,6 +20,6 @@ public:
   virtual int available() = 0;
   virtual void flush() = 0;
 
-protected:
+ protected:
   int _baud = 115200;
 };

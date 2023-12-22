@@ -1,13 +1,14 @@
 #pragma once
 
-#include "HardwareComponent.h"
 #include <cstddef>
 #include <cstdint>
 
+#include "HardwareComponent.h"
+
 class HardwarePinConfig;
 
-    class II2C : public HardwareComponent {
-public:
+class II2C : public HardwareComponent {
+ public:
   explicit II2C(const HardwarePinConfig &config) : HardwareComponent(config) {}
 
   virtual ~II2C() = default;

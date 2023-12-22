@@ -12,7 +12,7 @@
  * file system.
  */
 class IFileHandler {
-public:
+ public:
   virtual ~IFileHandler() = default;
 
   /**

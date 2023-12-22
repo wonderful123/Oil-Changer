@@ -3,9 +3,9 @@
 #include "HardwareComponent.h"
 
 class IPWM : public HardwareComponent {
-public:
-  using HardwareComponent::HardwareComponent; // Inherit constructor
-  
+ public:
+  using HardwareComponent::HardwareComponent;  // Inherit constructor
+
   virtual ~IPWM() = default;
   virtual void setDutyCycle(double dutyCycle) = 0;
   virtual double getDutyCycle() const = 0;

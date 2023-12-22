@@ -3,8 +3,8 @@
 #include "HardwareComponent.h"
 
 class IFlowMeter : public HardwareComponent {
-public:
-  using HardwareComponent::HardwareComponent; // Inherit constructor
+ public:
+  using HardwareComponent::HardwareComponent;  // Inherit constructor
 
   virtual ~IFlowMeter() = default;
 
