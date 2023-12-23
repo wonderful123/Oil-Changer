@@ -86,6 +86,9 @@ Error initializeHardware() {
                   Error::getFormattedMessage(configLoadError.code()));
     return configLoadError;
   }
+
+  hardwareManager->initialize();
+  
   return Error::OK;  // No error
 }
 
