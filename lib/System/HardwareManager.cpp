@@ -5,6 +5,7 @@
 #include "HardwareComponent.h"
 #include "HardwareConfig.h"
 #include "HardwareFactory.h"
+#include "HardwareInitializer.h"
 #include "HardwarePinConfig.h"
 #include "IButton.h"
 #include "IBuzzer.h"
@@ -26,54 +27,17 @@ HardwareManager::HardwareManager(
   _mediator->registerColleague(this);
 }
 
-void HardwareManager::initializeHardware() {
-  Logger::info("[HardwareManager] Starting hardware initialization");
-  auto hardwareConfig = _configManager->getHardwareConfig();
-  if (!hardwareConfig) {
-    Logger::error("[HardwareManager] Hardware configuration is not available");
-    return;
-  }
-
-  bool allComponentsInitialized = true;
-  for (const auto &config : hardwareConfig->getHardwarePinConfigs()) {
-    if (!initializeComponent(config)) {
-      allComponentsInitialized = false;
-      break;  // Stop if any component fails
-    }
-  }
-
-  if (allComponentsInitialized) {
-    Logger::info("[HardwareManager] All hardware components initialized");
+void HardwareManager::initialize() {
+  HardwareInitializer initializer(_configManager, _hardwareFactory,
+                                  _buttonController, _buzzerManager, _mediator);
+                                  
+  if (initializer.initialize(_components)) {
+    Logger::info(
+        "[HardwareManager] All hardware components initialized successfully");
   } else {
     Logger::error(
         "[HardwareManager] Some hardware components failed to initialize");
   }
-}
-
-bool HardwareManager::initializeComponent(const HardwarePinConfig &config) {
-  auto component = _hardwareFactory->createComponent(config);
-  if (component) {
-    std::shared_ptr<HardwareComponent> sharedComponent = std::move(component);
-    _components[config.id] = sharedComponent;
-
-    // Delegate button registration to ButtonController
-    if (config.type == "Button") {
-      auto button = std::static_pointer_cast<IButton>(sharedComponent);
-      if (button) {
-        _buttonController->registerButton(config.id, button);
-      } else {
-        Logger::error("[HardwareManager] Failed to cast to IButton: " +
-                      config.id);
-      }
-    }
-
-    Logger::info("[HardwareManager] Created component: " + config.id);
-  } else {
-    Logger::error("[HardwareManager] Failed to create component: " + config.id);
-    return false;
-  }
-
-  return true;
 }
 
 bool HardwareManager::isComponentInitialized(
@@ -125,8 +89,6 @@ void HardwareManager::receiveEvent(EventType eventType,
     InteractionSettings newSettings = newSettingsConfig->getSettings();
     _buttonController->setInteractionSettings(newSettings);
   }
-
-  updateBuzzerSettings();
 }
 
 void HardwareManager::notifyMediator(EventType eventType) {
@@ -136,39 +98,5 @@ void HardwareManager::notifyMediator(EventType eventType) {
 }
 
 void HardwareManager::triggerBuzzer() {
-  auto it = _components.find("Buzzer");
-  if (it != _components.end() && it->second->type() == "Buzzer") {
-    auto buzzer = std::static_pointer_cast<IBuzzer>(it->second);
-    if (buzzer) {
-      buzzer->beep(2731, 150);  // Example frequency and duration
-    } else {
-      Logger::error("[HardwareManager] Buzzer component cast failed.");
-    }
-  } else {
-    Logger::error(
-        "[HardwareManager] Buzzer component not found or type mismatch.");
-  }
-}
-
-void HardwareManager::updateBuzzerSettings() {
-  auto interactionConfig = _configManager->getInteractionSettingsConfig();
-  if (!interactionConfig) {
-    Logger::error(
-        "[HardwareManager] Interaction settings configuration is not "
-        "available");
-    return;
-  }
-
-  auto settings = interactionConfig->getSettings();
-  auto buzzerIt = _components.find("Buzzer");
-  if (buzzerIt != _components.end()) {
-    auto buzzer = std::static_pointer_cast<IBuzzer>(buzzerIt->second);
-    if (buzzer) {
-      buzzer->updateSettings(settings);
-    } else {
-      Logger::error("[HardwareManager] Buzzer component cast failed.");
-    }
-  } else {
-    Logger::error("[HardwareManager] Buzzer component not found.");
-  }
+  _buzzerManager->triggerBuzzer(2731, 150);
 }

@@ -18,6 +18,8 @@ concerns.
 #include <unordered_map>
 
 #include "Mediator/IColleague.h"
+#include "BuzzerManager.h"
+#include "HardwareInitializer.h"
 
 class ButtonController;
 class ConfigManager;
@@ -30,13 +32,12 @@ class HardwareManager : public IColleague {
   std::shared_ptr<ConfigManager> _configManager;
   std::shared_ptr<HardwareFactory> _hardwareFactory;
   std::shared_ptr<ButtonController> _buttonController;
+  std::shared_ptr<BuzzerManager> _buzzerManager;
   std::shared_ptr<IMediator> _mediator;
   // Unified map to hold all types of components by id
   std::map<std::string, std::shared_ptr<HardwareComponent>> _components;
 
-  virtual bool initializeComponent(const HardwarePinConfig &config);
   void notifyMediator(EventType eventType);
-  void changeStateBasedOnButton(const std::string &buttonId);
 
  public:
   HardwareManager(std::shared_ptr<IMediator> mediator,
@@ -44,12 +45,11 @@ class HardwareManager : public IColleague {
                   std::shared_ptr<HardwareFactory> hardwareFactory,
                   std::shared_ptr<ButtonController> buttonController);
 
-  virtual void initializeHardware();
+  virtual void initialize();
   virtual bool isComponentInitialized(const std::string &componentId) const;
   virtual std::shared_ptr<HardwareComponent> getComponentById(
       const std::string &id) const;
-  virtual void triggerBuzzer();
-  void updateBuzzerSettings();
 
+  virtual void triggerBuzzer();
   void receiveEvent(EventType eventType, const EventData *eventData) override;
 };
