@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "IButton.h"
 #include "InteractionSettings.h"
 #include "Mediator/IColleague.h"
 
