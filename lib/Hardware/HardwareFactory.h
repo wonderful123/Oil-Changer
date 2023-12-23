@@ -49,7 +49,8 @@ class HardwareFactory {
   virtual std::shared_ptr<ISerial> createSerial(
       const HardwarePinConfig &config) = 0;
   virtual std::shared_ptr<IDisplay> createDisplay(
-      const std::string &displayId, ICommunicationInterface &commInterface) = 0;
+      const std::string &displayId, ICommunicationInterface &commInterface,
+      const HardwarePinConfig &config) = 0;
 
  private:
   static std::shared_ptr<HardwareFactory> hardwareFactory;
