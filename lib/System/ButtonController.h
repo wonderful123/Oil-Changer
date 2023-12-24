@@ -9,8 +9,6 @@
 #include "InteractionSettings.h"
 #include "Mediator/IColleague.h"
 
-class IButton;
-
 class ButtonController : public IColleague {
  public:
   struct ButtonState {
@@ -34,11 +32,10 @@ class ButtonController : public IColleague {
 
  private:
   std::unordered_map<std::string, std::shared_ptr<IButton>> _buttons;
-  std::unordered_map<std::string, ButtonState> _buttonStates;
   std::shared_ptr<IMediator> _mediator;
   InteractionSettings _settings;
 
   void handleButtonPress(const std::string &id);
-  void notifyMediator(const std::string &id);
-  void handleAutoRepeat(const std::string &id, ButtonState &state);
+  void notifyMediator(const std::string &id, EventType eventType);
+  void handleAutoRepeat(const std::string &id, const IButton::ButtonState &state);
 };
