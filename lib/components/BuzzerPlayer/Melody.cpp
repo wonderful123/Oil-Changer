@@ -1934,4 +1934,6 @@ Melody melodies[] = {
     {wonderboyThemeNotes, sizeof(wonderboyThemeNotes) / sizeof(Note),
      "Wonderboy C64 Theme"}};
 
-Melody getMelody(MelodyName name) { return melodies[name]; }
+Melody getMelody(MelodyID id) { return melodies[id]; }
+
+std::string getMelodyName(MelodyID id) { return melodies[id].name; }

@@ -1,15 +1,17 @@
 #pragma once
 
+#include <string>
+
 #include "Notes.h"
 
 struct Melody {
   Note *notes;
   int length;
-  const char *name; // Name of the melody
+  std::string name;  // Name of the melody
 };
 
 // Enumeration for different melodies
-enum MelodyName {
+enum MelodyID {
   SUPER_MARIO_THEME,
   SUPER_MARIO_ARTICULATION_THEME,
   STARWARS_THEME,
@@ -18,4 +20,6 @@ enum MelodyName {
 };
 
 // Function to get a melody by name
-Melody getMelody(MelodyName name);
+Melody getMelody(MelodyID id);
+
+std::string getMelodyName(MelodyID id);

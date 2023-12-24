@@ -13,7 +13,7 @@ class BuzzerPlayer {
 private:
   IBuzzer &_buzzer;
   Ticker _noteTimer;
-  std::queue<MelodyName> _tuneQueue;
+  std::queue<MelodyID> _tuneQueue;
   Melody _currentMelody;
   float _notePauseFactor = 1.0;
   int _currentNoteIndex = 0;
@@ -64,7 +64,7 @@ private:
   }
 
   void finishTune() {
-    Logger::info("Finished playing tune");
+    Logger::info("[BuzzerPlayer] Finished playing tune");
     _currentNoteIndex = 0;
     _isPlaying = false;
     playNextInQueue();
@@ -72,7 +72,7 @@ private:
 
   void playNextInQueue() {
     if (!_tuneQueue.empty()) {
-      MelodyName nextTune = _tuneQueue.front();
+      MelodyID nextTune = _tuneQueue.front();
       _tuneQueue.pop();
       playTune(nextTune);
     }
@@ -81,16 +81,16 @@ private:
 public:
   explicit BuzzerPlayer(IBuzzer &buzzer) : _buzzer(buzzer) {}
 
-  void playTune(MelodyName melodyName) {
+  void playTune(MelodyID id) {
     if (!_isPlaying) {
       _isPlaying = true;
-      _currentMelody = getMelody(melodyName);
+      _currentMelody = getMelody(id);
       _currentNoteIndex = 0;
-      Logger::info("Starting to play tune: " + melodyName);
+      Logger::info("[BuzzerPlayer] Starting to play tune: " + _currentMelody.name);
       playNote(); // Start playing the first note
     } else {
-      Logger::info("Enqueueing tune: " + melodyName);
-      _tuneQueue.push(melodyName);
+      Logger::info("[BuzzerPlayer] Enqueueing tune: " + getMelodyName(id));
+      _tuneQueue.push(id);
     }
   }
 };
