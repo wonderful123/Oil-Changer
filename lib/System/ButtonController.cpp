@@ -29,22 +29,27 @@ void ButtonController::registerButton(const std::string &id,
 }
 
 void ButtonController::handleButtonPress(const std::string &id) {
-  notifyMediator(id);
+  notifyMediator(id, EventType::BUTTON_PRESSED);
+  Logger::info("ButtonController::handleButtonPress: Button pressed: " + id);
 }
 
-void ButtonController::notifyMediator(const std::string &id) {
+void ButtonController::notifyMediator(const std::string &id,
+                                      EventType eventType) {
   if (_mediator) {
     EventData eventData;
     eventData.id = id;
-    _mediator->notify(this, EventType::BUTTON_PRESSED, &eventData);
+    _mediator->notify(this, eventType, &eventData);
   }
 }
 
 void ButtonController::processButtonStates() {
-  auto now = std::chrono::steady_clock::now();
-  for (auto &[id, state] : _buttonStates) {
-    state.button->update();
-    handleAutoRepeat(id, state);
+  for (const auto &pair : _buttons) {
+    const auto &id = pair.first;
+    auto &button = pair.second;
+
+    button->update();                        // Update the state of the button
+    auto state = button->getCurrentState();  // Get the current state
+    handleAutoRepeat(id, state);  // Handle auto-repeat logic if necessary
   }
 }
 
@@ -69,35 +74,10 @@ void ButtonController::setInteractionSettings(
 }
 
 void ButtonController::handleAutoRepeat(const std::string &id,
-                                        ButtonState &state) {
-  auto now = std::chrono::steady_clock::now();
-
-  if (state.button->isPressed()) {
-    // Check for auto-repeat activation
-    if (!state.isInAutoRepeatMode &&
-        (now - state.lastPressTime >
-         std::chrono::milliseconds(
-             _settings.buttons.at(id).autoRepeat.initialDelayMs))) {
-      state.isInAutoRepeatMode = true;
-      state.lastRepeatTime = now;
-      notifyMediator(id);  // Notify initial auto-repeat event
-    } else if (state.isInAutoRepeatMode &&
-               (now - state.lastRepeatTime >
-                std::chrono::milliseconds(
-                    _settings.buttons.at(id).autoRepeat.standardRateMs))) {
-      state.lastRepeatTime = now;
-      notifyMediator(id);  // Notify subsequent auto-repeat events
-    }
-  } else {
-    state.isInAutoRepeatMode = false;
-  }
-
-  // Update the last press time
-  if (state.isPressed != state.button->isPressed()) {
-    state.isPressed = state.button->isPressed();
-    if (state.isPressed) {
-      state.lastPressTime = now;
-    }
+                                       const IButton::ButtonState &state) {
+  if (state.isPressed && state.isInAutoRepeatMode) {
+    // If the button is pressed and in auto-repeat mode, notify the mediator
+//    notifyMediator(id, EventType::BUTTON_AUTO_REPEAT);
   }
 }
 
