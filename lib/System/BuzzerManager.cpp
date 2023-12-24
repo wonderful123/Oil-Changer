@@ -9,8 +9,11 @@ BuzzerManager::BuzzerManager(std::shared_ptr<IMediator> mediator,
 }
 
 void BuzzerManager::triggerBuzzer(int frequency, int duration) {
+  Logger::info("[BuzzerManager] Triggering buzzer");
   if (_buzzer) {
-    _buzzer->beep(frequency, duration);
+    Logger::info("[BuzzerManager] BEEP");
+    //_buzzer->beep();
+    //_buzzer->beep(frequency, duration);
   }
 }
 
@@ -25,8 +28,16 @@ void BuzzerManager::updateSettings(const InteractionSettings& settings) {
 
 void BuzzerManager::receiveEvent(EventType eventType,
                                  const EventData* eventData) {
-  // Handle events if necessary, potentially triggering the buzzer in response
-  if (eventType == EventType::BUTTON_PRESSED) {
-    // Trigger or update buzzer based on the event
+  if (eventType == BUTTON_PRESSED) {
+    // Check specific button if needed and trigger buzzer
+    Logger::info("[BuzzerManager] Button pressed - event received");
+    //_buzzer->beep();
+  }
+
+  if (eventType == BUTTON_AUTO_REPEAT) {
+    Logger::info("[BuzzerManager] Button auto repeat - event received");
+    const auto& beepSettings = _settings.beepSettings;
+    _buzzer->beep(beepSettings.standardFrequency,
+                  beepSettings.standardDurationMs);
   }
 }
