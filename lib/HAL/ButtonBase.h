@@ -5,10 +5,8 @@
 
 class ButtonBase : public IButton {
 public:
-  explicit ButtonBase(const HardwarePinConfig &config,
-                      unsigned long debounceDuration)
-      : IButton(config, debounceDuration), _debounceDuration(debounceDuration) {
-  }
+  explicit ButtonBase(const HardwarePinConfig &config)
+      : IButton(config), _isPressed(false), _wasPressed(false) {}
 
   virtual bool isPressed() const override { return _isPressed; }
 
@@ -39,5 +37,4 @@ protected:
   bool _wasPressed; // Previous pressed state of the Button
   std::chrono::steady_clock::time_point
       _lastPressTime; // Time of the last state change
-  unsigned long _debounceDuration;
 };

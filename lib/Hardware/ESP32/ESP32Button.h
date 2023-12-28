@@ -7,12 +7,13 @@
 
 class ESP32Button : public ButtonBase {
 public:
-  explicit ESP32Button(const HardwarePinConfig &config,
-                       unsigned long debounceDuration = 50);
+  explicit ESP32Button(const HardwarePinConfig &config);
 
-  void updateButtonState() override;  // Update button state
+  void updateButtonState() override; // Update button state
 
- private:
+  void setDebounceDuration(int durationMs);
+
+private:
   Bounce _debouncer;
 };
 
