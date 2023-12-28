@@ -3,7 +3,7 @@
 #include "JSONDeserializer.h"
 
 BaseConfig::BaseConfig(std::shared_ptr<IFileHandler> fileHandler)
-    : _fileHandler(std::move(fileHandler)) {}
+    : _fileHandler(fileHandler) {}
 
 Error BaseConfig::load(const std::string &filename) {
   FileGuard fileGuard(_fileHandler.get(), filename);
