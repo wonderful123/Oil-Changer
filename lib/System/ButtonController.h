@@ -24,7 +24,7 @@ public:
 
 private:
   std::unordered_map<std::string, std::shared_ptr<IButton>> _buttons;
-  std::vector<std::shared_ptr<IObserver>> observers;
+  std::vector<std::shared_ptr<IObserver>> _observers;
   InteractionSettings _settings;
 
   void applySettingsToButton(std::shared_ptr<IButton> button,
