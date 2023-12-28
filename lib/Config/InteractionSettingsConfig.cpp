@@ -2,7 +2,7 @@
 
 InteractionSettingsConfig::InteractionSettingsConfig(
     std::shared_ptr<IFileHandler> fileHandler)
-    : BaseConfig(std::move(fileHandler)) {}
+    : BaseConfig(fileHandler) {}
 
 Error InteractionSettingsConfig::save(const std::string &filename) const {
   // TODO: Implement this function
