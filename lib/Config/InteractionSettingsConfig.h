@@ -16,6 +16,8 @@ public:
 protected:
   Error parseJson(const DynamicJsonDocument &doc) override;
 
+  void parseCommonSettings(const JsonObjectConst &buttonInteraction);
+
   Error parseButtonSettings(const JsonObjectConst &buttonObj);
 
   Error parseBeepSettings(const JsonObjectConst &beepSettings);

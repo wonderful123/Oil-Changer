@@ -13,15 +13,9 @@ Error InteractionSettingsConfig::parseJson(const DynamicJsonDocument &doc) {
   if (!doc.containsKey("buttonInteraction")) {
     return Error(Error::InteractionSettingsButtonInteractionKeyMissing);
   }
-
   const JsonObjectConst buttonInteraction = doc["buttonInteraction"];
 
-  // Parse common settings
-  if (buttonInteraction.containsKey("commonSettings")) {
-    const JsonObjectConst commonSettings = buttonInteraction["commonSettings"];
-    _interactionSettings.commonSettings.debounceMs =
-        commonSettings["debounceMs"];
-  }
+  parseCommonSettings(buttonInteraction);
 
   if (buttonInteraction.containsKey("buttons")) {
     Error err =
@@ -53,6 +47,34 @@ Error InteractionSettingsConfig::parseJson(const DynamicJsonDocument &doc) {
   return Error(Error::OK);
 }
 
+
+void InteractionSettingsConfig::parseCommonSettings(
+    const JsonObjectConst &buttonInteraction) {
+  // Parse common settings
+  if (buttonInteraction.containsKey("commonSettings")) {
+    const JsonObjectConst commonSettings = buttonInteraction["commonSettings"];
+    _interactionSettings.commonSettings.debounceMs =
+        commonSettings["debounceMs"];
+
+    // Parse autorepeat settings
+    if (commonSettings.containsKey("autoRepeat")) {
+      const JsonObjectConst autoRepeatObj =
+          commonSettings["autoRepeat"].as<JsonObjectConst>();
+      _interactionSettings.commonSettings.autoRepeat.initialDelayMs =
+          autoRepeatObj["initialDelayMs"];
+      _interactionSettings.commonSettings.autoRepeat.standardRateMs =
+          autoRepeatObj["standardRateMs"];
+      _interactionSettings.commonSettings.autoRepeat.acceleration.startAfterMs =
+          autoRepeatObj["acceleration"]["startAfterMs"];
+      _interactionSettings.commonSettings.autoRepeat.acceleration
+          .rateDecreaseIntervalMs =
+          autoRepeatObj["acceleration"]["rateDecreaseIntervalMs"];
+      _interactionSettings.commonSettings.autoRepeat.acceleration
+          .minimumRateMs = autoRepeatObj["acceleration"]["minimumRateMs"];
+    }
+  }
+}
+
 Error InteractionSettingsConfig::parseButtonSettings(
     const JsonObjectConst &buttonObj) {
   for (auto buttonPair : buttonObj) {
@@ -66,22 +88,7 @@ Error InteractionSettingsConfig::parseButtonSettings(
     // Parsing 'autoRepeat' settings
     if (buttonSettingsObj.containsKey("autoRepeat") &&
         buttonSettingsObj["autoRepeat"].as<bool>()) {
-      const JsonObjectConst autoRepeatObj =
-          buttonSettingsObj["autoRepeat"].as<JsonObjectConst>();
-      InteractionSettings::AutoRepeat autoRepeat;
-
-      autoRepeat.initialDelayMs = autoRepeatObj["initialDelayMs"];
-      autoRepeat.standardRateMs = autoRepeatObj["standardRateMs"];
-
-      const JsonObjectConst accelerationObj =
-          autoRepeatObj["acceleration"].as<JsonObjectConst>();
-      autoRepeat.acceleration.startAfterMs = accelerationObj["startAfterMs"];
-      autoRepeat.acceleration.rateDecreaseIntervalMs =
-          accelerationObj["rateDecreaseIntervalMs"];
-      autoRepeat.acceleration.minimumRateMs = accelerationObj["minimumRateMs"];
-
       button.hasAutoRepeat = true;
-      button.autoRepeat = autoRepeat;
     } else {
       button.hasAutoRepeat = false;
     }
