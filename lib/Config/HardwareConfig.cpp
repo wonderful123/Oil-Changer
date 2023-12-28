@@ -1,13 +1,16 @@
 #include "HardwareConfig.h"
-#include "Logger.h"
+
 #include <ArduinoJson.h>
+
 #include <string>
 
-HardwareConfig::HardwareConfig(std::shared_ptr<IFileHandler> fileHandler)
-    : BaseConfig(std::move(fileHandler)) {}
+#include "Logger.h"
 
-const std::vector<HardwarePinConfig> &
-HardwareConfig::getHardwarePinConfigs() const {
+HardwareConfig::HardwareConfig(std::shared_ptr<IFileHandler> fileHandler)
+    : BaseConfig(fileHandler) {}
+
+const std::vector<HardwarePinConfig> &HardwareConfig::getHardwarePinConfigs()
+    const {
   return _hardwarePinConfigs;
 }
 
@@ -16,7 +19,7 @@ const std::vector<DisplayConfig> &HardwareConfig::getDisplayConfigs() const {
 }
 
 Error HardwareConfig::parseJson(const DynamicJsonDocument &doc) {
-  Logger::info("[HardwareConfig] Parsing hardware configuration JSON...");
+  Logger::info("[HardwareConfig] Parsing JSON document...");
 
   if (!doc.containsKey("components")) {
     return Error(Error::HardwareConfigComponentsKeyMissing);
@@ -48,7 +51,7 @@ Error HardwareConfig::parseJson(const DynamicJsonDocument &doc) {
     }
   }
 
-  Logger::info("[HardwareConfig] Successfully parsed hardware configuration.");
+  Logger::info("[HardwareConfig] JSON document parsed successfully");
   return Error(Error::OK);
 }
 
@@ -59,8 +62,8 @@ Error HardwareConfig::parsePinGroup(const JsonArrayConst &groupObj,
     std::string type = obj["type"].as<std::string>();
     HardwarePinConfig config = isMultiPin ? parseMultiPin(obj, id, type)
                                           : parseSinglePin(obj, id, type);
-    parseOptions(obj, config);             // Parse options if any
-    _hardwarePinConfigs.push_back(config); // Add to list of configs
+    parseOptions(obj, config);              // Parse options if any
+    _hardwarePinConfigs.push_back(config);  // Add to list of configs
   }
 
   return Error(Error::OK);
@@ -103,8 +106,8 @@ Error HardwareConfig::parseDisplays(const JsonArrayConst &displayArray) {
     std::string id = obj["id"].as<std::string>();
     std::string interfaceId = obj["interfaceId"].as<std::string>();
 
-    Logger::info("[HardwareConfig] Parsed Display: " + id +
-                 " with Interface: " + interfaceId);
+    Logger::info("[HardwareConfig] Parsed: Display (" + id +
+                 " with Interface: " + interfaceId + ")");
 
     _displayConfigs.push_back(DisplayConfig(id, interfaceId));
   }
