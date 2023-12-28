@@ -13,7 +13,9 @@ ButtonController::ButtonController(std::shared_ptr<IMediator> mediator)
 
 void ButtonController::registerButton(const std::string &id,
                                       std::shared_ptr<IButton> button) {
+  // Check if the button is already registered
   if (_buttons.find(id) == _buttons.end()) {
+    // Add the button
     _buttons[id] = button;
 
     // Set a callback for the button
@@ -25,6 +27,8 @@ void ButtonController::registerButton(const std::string &id,
     if (_settings.buttons.find(id) != _settings.buttons.end()) {
       button->setAutoRepeatSettings(_settings.buttons.at(id).autoRepeat);
     }
+
+    Logger::info("[ButtonController] Registered: " + id);
   }
 }
 
@@ -47,14 +51,14 @@ void ButtonController::processButtonStates() {
     const auto &id = pair.first;
     auto &button = pair.second;
 
-    button->update();                        // Update the state of the button
-    auto state = button->getCurrentState();  // Get the current state
-    handleAutoRepeat(id, state);  // Handle auto-repeat logic if necessary
+    button->update(); // Update the state of the button
+    auto state = button->getCurrentState(); // Get the current state
+    handleAutoRepeat(id, state); // Handle auto-repeat logic if necessary
   }
 }
 
-std::shared_ptr<IButton> ButtonController::getButtonById(
-    const std::string &id) const {
+std::shared_ptr<IButton>
+ButtonController::getButtonById(const std::string &id) const {
   auto it = _buttons.find(id);
   return it != _buttons.end() ? it->second : nullptr;
 }
@@ -74,10 +78,13 @@ void ButtonController::setInteractionSettings(
 }
 
 void ButtonController::handleAutoRepeat(const std::string &id,
-                                       const IButton::ButtonState &state) {
+                                        const IButton::ButtonState &state) {
   if (state.isPressed && state.isInAutoRepeatMode) {
     // If the button is pressed and in auto-repeat mode, notify the mediator
-//    notifyMediator(id, EventType::BUTTON_AUTO_REPEAT);
+    //    notifyMediator(id, EventType::BUTTON_AUTO_REPEAT);
+    Logger::info("[ButtonController] handleAutoRepeat: " + id + " " +
+                 std::to_string(state.isPressed) + " " +
+                 std::to_string(state.isInAutoRepeatMode));
   }
 }
 
