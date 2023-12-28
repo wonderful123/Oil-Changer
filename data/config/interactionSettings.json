@@ -5,7 +5,7 @@
       "debounceMs": 150,
       "autoRepeat": {
         "description": "Auto-repeat behavior on long press",
-        "initialDelayMs": 500,
+        "initialDelayMs": 1000,
         "standardRateMs": 100,
         "acceleration": {
           "description": "Acceleration parameters for auto-repeat",
@@ -31,7 +31,8 @@
         "description": "Settings for manual fill button"
       },
       "ButtonStart": {
-        "description": "Settings for start button"
+        "description": "Settings for start button",
+        "autoRepeat": true
       },
       "ButtonStop": {
         "description": "Settings for stop button"
