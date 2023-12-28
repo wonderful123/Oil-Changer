@@ -26,26 +26,24 @@ class ButtonBase : public IButton {
   }
 
   virtual void update() override {
+    bool prevState = _isPressed;
     updateButtonState();  // Reflect hardware state in _isPressed
 
-    // Handle state change: press or release
-    if (_isPressed != _wasPressed) {
+    // If the button was pressed and is now released or was released and is now
+    // pressed, handle the state change.
+    if (prevState != _isPressed) {
       handleStateChange();
     }
 
-    // Auto-repeat functionality for held-down button
+    // Handle auto-repeat functionality for held-down button
     if (_isPressed && shouldAutoRepeat()) {
       invokePressCallback();
     }
   }
 
   // Method to get the current state of the button
-  ButtonState getCurrentState() const {
-    ButtonState state;
-    state.isPressed = _isPressed;
-    state.isInAutoRepeatMode = _isInAutoRepeatMode;
-
-    return state;
+  IButton::ButtonState getCurrentState() const {
+    return IButton::ButtonState{_isPressed, _isInAutoRepeatMode};
   }
 
  protected:
@@ -74,12 +72,10 @@ class ButtonBase : public IButton {
   }
 
   void handleStateChange() {
-    resetLastPressTime();         // Resetting time on state change
-    _isInAutoRepeatMode = false;  // Reset auto-repeat mode on any state change
-
     if (_isPressed) {
-      // Optionally, invoke the callback only on press
-      invokePressCallback();
+      resetLastPressTime();         // Resetting time on button press
+      _isInAutoRepeatMode = false;  // Reset auto-repeat mode on button press
+      invokePressCallback();        // Invoke the callback on button press
     }
 
     _wasPressed = _isPressed;
@@ -106,7 +102,7 @@ class ButtonBase : public IButton {
     if (_isInAutoRepeatMode &&
         elapsedTime >= _autoRepeatSettings.standardRateMs) {
       resetLastPressTime();  // Reset for next interval
-      return true;
+      return false;
     }
 
     return false;
