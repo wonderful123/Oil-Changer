@@ -1,5 +1,6 @@
 #include "ButtonController.h"
 #include "Logger.h"
+#include <algorithm>
 
 ButtonController::ButtonController(const InteractionSettings &settings)
     : _settings(settings) {}
@@ -17,8 +18,7 @@ void ButtonController::applySettingsToButton(std::shared_ptr<IButton> button,
                                              const std::string &id) {
   auto settingsIter = _settings.buttons.find(id);
   if (settingsIter != _settings.buttons.end()) {
-    // If your IButton class supports setting auto-repeat settings, apply them
-    // here. button->setAutoRepeatSettings(settingsIter->second.autoRepeat);
+    // TODO apply settings
   }
 }
 
@@ -41,18 +41,20 @@ void ButtonController::processButtonStates() {
 }
 
 void ButtonController::notify(const std::string &event, const std::string &id) {
-  for (const auto &observer : observers) {
+  for (const auto &observer : _observers) {
     observer->onNotify(event, id);
   }
 }
 
 void ButtonController::attach(std::shared_ptr<IObserver> observer) {
-  observers.push_back(observer);
+  _observers.push_back(observer);
 }
 
 void ButtonController::detach(std::shared_ptr<IObserver> observer) {
-  observers.erase(std::remove(observers.begin(), observers.end(), observer),
-                  observers.end());
+  auto it = std::find(_observers.begin(), _observers.end(), observer);
+  if (it != _observers.end()) {
+    _observers.erase(it);
+  }
 }
 
 std::shared_ptr<IButton>
