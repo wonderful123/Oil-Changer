@@ -9,6 +9,7 @@
 ESP32Button::ESP32Button(const HardwarePinConfig &config) : ButtonBase(config) {
   pinMode(config.pinNumber, INPUT_PULLUP);
   _debouncer = Bounce();
+  // TODO: implement the debounce time from the interactionSettings
   _debouncer.interval(50);  // Debounce interval
   _debouncer.attach(config.pinNumber);
 }
