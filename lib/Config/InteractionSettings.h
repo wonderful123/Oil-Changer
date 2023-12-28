@@ -6,14 +6,14 @@
 
 struct InteractionSettings {
   struct Acceleration {
-    uint32_t startAfterMs;
-    uint32_t rateDecreaseIntervalMs;
-    uint32_t minimumRateMs;
+    int startAfterMs;
+    int rateDecreaseIntervalMs;
+    int minimumRateMs;
   };
 
   struct AutoRepeat {
-    uint32_t initialDelayMs;
-    uint32_t standardRateMs;
+    int initialDelayMs;
+    int standardRateMs;
     Acceleration acceleration;
   };
 
@@ -24,15 +24,15 @@ struct InteractionSettings {
 
   struct LimitReachedPattern {
     std::string description;
-    uint32_t frequency;
-    uint32_t durationMs;
+    int frequency;
+    int durationMs;
     std::string pattern;
   };
 
   struct BeepSettings {
     std::string description;
-    uint32_t standardFrequency;
-    uint32_t standardDurationMs;
+    int standardFrequency;
+    int standardDurationMs;
     LimitReachedPattern limitReachedPattern;
   };
 
@@ -43,7 +43,7 @@ struct InteractionSettings {
   };
 
   struct CommonSettings {
-    uint32_t debounceMs; // Common debounce setting for all buttons
+    int debounceMs; // Common debounce setting for all buttons
     AutoRepeat autoRepeat;
   };
 
