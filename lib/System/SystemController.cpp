@@ -16,12 +16,10 @@ SystemController::SystemController(
     std::shared_ptr<IMediator> mediator,
     std::shared_ptr<HardwareManager> hardwareManager,
     std::shared_ptr<ConfigManager> configManager)
-    : IColleague(mediator),
-      _mediator(mediator),
-      _hardwareManager(hardwareManager),
-      _configManager(configManager) {
+    : IColleague(mediator), _mediator(mediator),
+      _hardwareManager(hardwareManager), _configManager(configManager) {
   _mediator->registerColleague(this);
-  _stateMachine.start();  // Initialize the state machine
+  _stateMachine.start(); // Initialize the state machine
 }
 
 void SystemController::initializeSystemComponents() {
@@ -31,14 +29,24 @@ void SystemController::initializeSystemComponents() {
 }
 
 Error SystemController::initializeButtonController() {
-  _buttonController = std::make_shared<ButtonController>(_mediator);
+  auto interactionSettingsConfig =
+      _configManager->getConfig<InteractionSettingsConfig>(
+          ConfigType::INTERACTION_SETTINGS);
+  if (!interactionSettingsConfig) {
+    return Error::ConfigManagerInteractionSettingsError;
+  }
+
+  _buttonController = std::make_shared<ButtonController>(
+      interactionSettingsConfig->getSettings());
+
   // Check and log if button controller is not created
   if (!_buttonController) {
     Logger::error("[SystemController] Button controller not created");
     return Error::HardwareConfigButtonsNotFound;
   }
 
-  auto buttonComponents = _hardwareManager->getComponentsByType<IButton>("Button");
+  auto buttonComponents =
+      _hardwareManager->getComponentsByType<IButton>("Button");
   if (buttonComponents.empty()) {
     Logger::error(
         "[SystemController] No buttons found in hardware configuration");
@@ -49,16 +57,6 @@ Error SystemController::initializeButtonController() {
   for (const auto &button : buttonComponents) {
     _buttonController->registerButton(button->id(), button);
   }
-
-  auto interactionSettingsConfig =
-      _configManager->getConfig<InteractionSettingsConfig>(
-          ConfigType::INTERACTION_SETTINGS);
-  if (!interactionSettingsConfig) {
-    return Error::ConfigManagerInteractionSettingsError;
-  }
-
-  auto interactionSettings = interactionSettingsConfig->getSettings();
-  _buttonController->setInteractionSettings(interactionSettings);
 
   return Error::OK;
 }
