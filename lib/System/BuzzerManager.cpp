@@ -12,12 +12,13 @@ void BuzzerManager::triggerBuzzer(int frequency, int duration) {
   Logger::info("[BuzzerManager] Triggering buzzer");
   if (_buzzer) {
     Logger::info("[BuzzerManager] BEEP");
-    //_buzzer->beep();
-    //_buzzer->beep(frequency, duration);
+    _buzzer->beep();
+    _buzzer->beep(frequency, duration);
   }
 }
 
 void BuzzerManager::updateSettings(const InteractionSettings& settings) {
+  Logger::debug("[BuzzerManager] Updating settings");
   if (_buzzer) {
     _buzzer->updateSettings(settings);
   } else {
