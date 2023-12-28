@@ -1,10 +1,11 @@
 #include "ConfigManager.h"
+
+#include <string>
+
 #include "BaseConfig.h"
 #include "HardwareConfig.h"
 #include "IFileHandler.h"
 #include "InteractionSettingsConfig.h"
-#include <string>
-
 // Responsible for loading configuration data from a source (like a JSON file)
 // and passing it to the appropriate managers
 
@@ -12,48 +13,55 @@ ConfigManager::ConfigManager(std::shared_ptr<IMediator> mediator,
                              std::shared_ptr<IFileHandler> fileHandler)
     : IColleague(mediator), _mediator(mediator), _fileHandler(fileHandler) {}
 
-std::shared_ptr<HardwareConfig> ConfigManager::getHardwareConfig() const {
-  auto it = configs.find("HardwareConfig");
-  if (it != configs.end()) {
-    return std::static_pointer_cast<HardwareConfig>(it->second);
-  }
-  return nullptr; // Return nullptr to indicate config not found
-}
-
-std::shared_ptr<InteractionSettingsConfig>
-ConfigManager::getInteractionSettingsConfig() const {
-  auto it = configs.find("InteractionSettingsConfig");
-  if (it != configs.end()) {
-    return std::static_pointer_cast<InteractionSettingsConfig>(it->second);
-  }
-  return nullptr; // Return nullptr to indicate config not found
-}
-
-Error ConfigManager::loadConfig(const std::string &configType) {
-  std::shared_ptr<BaseConfig> config;
-  std::string filePath;
+Error ConfigManager::loadConfig(ConfigType type) {
+  std::shared_ptr<IConfig> config;
+  std::string filePath =
+      ConfigPaths::getPathForType(type); // Get the path using the enum
   EventType eventType;
 
-  // Map config type to the corresponding file path and event type
-  if (configType == "HardwareConfig") {
+  Logger::info("[ConfigManager] Loading " + ConfigPaths::getNameForType(type));
+
+  if (_fileHandler == nullptr) {
+    Logger::error("[ConfigManager] _fileHandler is null");
+    return Error::FileHandlerIsNull;
+  }
+
+  // Determine the specific config object and event type based on the ConfigType
+  // enum
+  switch (type) {
+  case ConfigType::HARDWARE:
     config = std::make_shared<HardwareConfig>(_fileHandler);
-    filePath = "/config/hardwareConfig.json";
     eventType = EventType::HARDWARE_CONFIG_CHANGED;
-  } else if (configType == "InteractionSettings") {
+    break;
+  case ConfigType::INTERACTION_SETTINGS:
     config = std::make_shared<InteractionSettingsConfig>(_fileHandler);
-    filePath = "/config/interactionSettingsConfig.json";
     eventType = EventType::INTERACTION_SETTINGS_CHANGED;
-  } else {
+    break;
+  default:
+    Logger::error("[ConfigManager] Unknown configuration type");
     return Error(Error::ConfigTypeNotRecognized);
   }
 
   Error error = config->load(filePath);
   if (error == Error::OK) {
-    configs[configType] = config;
+    Logger::info("[ConfigManager] " +
+                 ConfigPaths::getNameForType(type) + " parsed successfully");
+    std::string name = ConfigPaths::getNameForType(type);
+    _configs[name] = config; // Store using the ConfigType enum
     _mediator->notify(this, eventType);
   }
 
   return error;
+}
+
+bool ConfigManager::isConfigLoaded(ConfigType type) {
+  std::string name = ConfigPaths::getNameForType(type);
+  return _configs.find(name) != _configs.end();
+}
+
+void ConfigManager::releaseConfig(ConfigType type) {
+  std::string name = ConfigPaths::getNameForType(type);
+  _configs.erase(name);
 }
 
 void ConfigManager::receiveEvent(EventType eventType,
