@@ -7,12 +7,8 @@
 #include "HardwarePinConfig.h"
 #include "Logger.h"
 
-HardwareManager::HardwareManager(std::shared_ptr<ConfigManager> configManager)
-    : _configManager(configManager) {}
-
 Error HardwareManager::initialize() {
-  HardwareInitializer initializer(_configManager,
-                                  HardwareFactory::getHardwareFactory());
+  HardwareInitializer initializer(ConfigManager::getInstance(), HardwareFactory::getHardwareFactory());
 
   Error initError = initializer.initialize(_components);
   if (initError) {

@@ -8,10 +8,9 @@
 #include "Mediator/IColleague.h"
 
 class SystemController : public IColleague {
- public:
+public:
   SystemController(std::shared_ptr<IMediator> mediator,
-                   std::shared_ptr<HardwareManager> hardwareManager,
-                   std::shared_ptr<ConfigManager> configManager);
+                   std::shared_ptr<HardwareManager> hardwareManager);
 
   void initializeSystemComponents();
 
@@ -23,16 +22,15 @@ class SystemController : public IColleague {
 
   void performPeriodicUpdate();
 
- private:
+private:
   StateMachine _stateMachine;
   std::shared_ptr<HardwareManager> _hardwareManager;
   std::shared_ptr<ButtonController> _buttonController;
   std::shared_ptr<BuzzerManager> _buzzerManager;
-  std::shared_ptr<ConfigManager> _configManager;
   std::shared_ptr<IMediator> _mediator;
 
-  Error initializeButtonController();
-  Error initializeBuzzerManager();
+  Error initializeButtonController(InteractionSettings interactionSettings);
+  Error initializeBuzzerManager(InteractionSettings interactionSettings);
 
   void onButtonPress(const std::string &id);
 };

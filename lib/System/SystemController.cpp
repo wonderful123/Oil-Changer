@@ -1,5 +1,6 @@
 #include "SystemController.h"
 
+#include "AutoRepeatHandler.h"
 #include "ButtonController.h"
 #include "ConfigTypes.h"
 #include "FSM/StateMachine.h"
@@ -14,30 +15,39 @@ FSM_INITIAL_STATE(StateMachine, Ready);
 
 SystemController::SystemController(
     std::shared_ptr<IMediator> mediator,
-    std::shared_ptr<HardwareManager> hardwareManager,
-    std::shared_ptr<ConfigManager> configManager)
+    std::shared_ptr<HardwareManager> hardwareManager)
     : IColleague(mediator), _mediator(mediator),
-      _hardwareManager(hardwareManager), _configManager(configManager) {
+      _hardwareManager(hardwareManager) {
   _mediator->registerColleague(this);
   _stateMachine.start(); // Initialize the state machine
 }
 
 void SystemController::initializeSystemComponents() {
-  initializeButtonController();
-  initializeBuzzerManager();
+  auto configManager =
+      ConfigManager::getInstance(); // Access the singleton instance
+  auto interactionSettingsConfig =
+      configManager->getConfig<InteractionSettingsConfig>(
+          ConfigType::INTERACTION_SETTINGS);
+  if (!interactionSettingsConfig) {
+    Logger::error("[SystemController] Failed to load interaction settings");
+    return; // Handle error appropriately
+  }
+  auto interactionSettings = interactionSettingsConfig->getSettings();
+
+  initializeButtonController(interactionSettings);
+  initializeBuzzerManager(interactionSettings);
+
+  auto autoRepeatHandler = std::make_shared<AutoRepeatHandler>(
+      _buttonController, interactionSettings);
+  _buttonController->attach(autoRepeatHandler);
+
   Logger::info("[SystemFactory] System components initialized");
 }
 
-Error SystemController::initializeButtonController() {
-  auto interactionSettingsConfig =
-      _configManager->getConfig<InteractionSettingsConfig>(
-          ConfigType::INTERACTION_SETTINGS);
-  if (!interactionSettingsConfig) {
-    return Error::ConfigManagerInteractionSettingsError;
-  }
 
-  _buttonController = std::make_shared<ButtonController>(
-      interactionSettingsConfig->getSettings());
+Error SystemController::initializeButtonController(
+    InteractionSettings interactionSettings) {
+  _buttonController = std::make_shared<ButtonController>(interactionSettings);
 
   // Check and log if button controller is not created
   if (!_buttonController) {
@@ -61,22 +71,15 @@ Error SystemController::initializeButtonController() {
   return Error::OK;
 }
 
-Error SystemController::initializeBuzzerManager() {
+Error SystemController::initializeBuzzerManager(
+    InteractionSettings interactionSettings) {
   auto buzzer = _hardwareManager->getComponentById<IBuzzer>("Buzzer");
   if (!buzzer) {
     return Error::HardwareConfigBuzzerInitError;
   }
 
-  auto interactionSettingsConfig =
-      _configManager->getConfig<InteractionSettingsConfig>(
-          ConfigType::INTERACTION_SETTINGS);
-  if (!interactionSettingsConfig) {
-    return Error::ConfigManagerInteractionSettingsError;
-  }
-
-  auto settings = interactionSettingsConfig->getSettings();
-
-  _buzzerManager = std::make_shared<BuzzerManager>(_mediator, buzzer, settings);
+  _buzzerManager =
+      std::make_shared<BuzzerManager>(_mediator, buzzer, interactionSettings);
 
   return Error::OK;
 }

@@ -11,15 +11,13 @@
 #include "SystemController.h"
 
 class SystemFactory {
- public:
+public:
   explicit SystemFactory(std::shared_ptr<IFileHandler> fileHandler);
   void initializeSystem();
   std::shared_ptr<SystemController> getSystemController();
   std::shared_ptr<HardwareManager> getHardwareManager();
-  std::shared_ptr<ConfigManager> getConfigManager();
 
- private:
-  std::shared_ptr<ConfigManager> _configManager;
+private:
   std::shared_ptr<HardwareManager> _hardwareManager;
   std::shared_ptr<SystemController> _systemController;
   std::shared_ptr<IFileHandler> _fileHandler;
@@ -29,4 +27,5 @@ class SystemFactory {
   void createConfigManager();
   void createHardwareManager();
   void createSystemController();
+  void createOilChangeTracker();
 };

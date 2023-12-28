@@ -1,25 +1,17 @@
 // OilChangeTracker.cpp
 
-#include "OilChangeTracker.h"  // Include the header file for the class
+#include "OilChangeTracker.h" // Include the header file for the class
 
 #include "Mediator/ConcreteMediator.h"
 
-OilChangeTracker::OilChangeTracker(std::shared_ptr<IMediator> mediator,
-                                   std::shared_ptr<ConfigManager> configManager)
-    : IColleague(mediator),
-      _mediator(mediator),
-      _configManager(configManager),
-      _fillCapacity(0),
-      _amountFilled(0),
-      _amountExtracted(0),
-      _flowRateFill(0),
-      _flowRateExtract(0),
-      _voltage(0) {}
+OilChangeTracker::OilChangeTracker(std::shared_ptr<IMediator> mediator)
+    : IColleague(mediator), _mediator(mediator), _fillCapacity(0),
+      _amountFilled(0), _amountExtracted(0), _flowRateFill(0),
+      _flowRateExtract(0), _voltage(0) {}
 
-OilChangeTracker &OilChangeTracker::getInstance(
-    std::shared_ptr<IMediator> mediator,
-    std::shared_ptr<ConfigManager> configManager) {
-  static OilChangeTracker instance(mediator, configManager);
+OilChangeTracker &
+OilChangeTracker::getInstance(std::shared_ptr<IMediator> mediator) {
+  static OilChangeTracker instance(mediator);
   return instance;
 }
 

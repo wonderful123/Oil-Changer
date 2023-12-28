@@ -26,13 +26,10 @@ class HardwarePinConfig;
 
 class HardwareManager {
 private:
-  std::shared_ptr<ConfigManager> _configManager;
   // Unified map to hold all types of components by id
   std::map<std::string, std::shared_ptr<HardwareComponent>> _components;
 
 public:
-  HardwareManager(std::shared_ptr<ConfigManager> configManager);
-
   virtual Error initialize();
   virtual bool isComponentInitialized(const std::string &componentId) const;
 

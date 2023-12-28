@@ -8,13 +8,11 @@
 #include "Mediator/IColleague.h"
 
 class OilChangeTracker : public IColleague {
- public:
-  OilChangeTracker(std::shared_ptr<IMediator> mediator,
-                   std::shared_ptr<ConfigManager> configManager);
+public:
+  OilChangeTracker(std::shared_ptr<IMediator> mediator);
 
-  static OilChangeTracker &getInstance(
-      std::shared_ptr<IMediator> mediator = nullptr,
-      std::shared_ptr<ConfigManager> configManager = nullptr);
+  static OilChangeTracker &
+  getInstance(std::shared_ptr<IMediator> mediator = nullptr);
 
   OilChangeTracker(OilChangeTracker const &) = delete;
   void operator=(OilChangeTracker const &) = delete;
@@ -45,13 +43,13 @@ class OilChangeTracker : public IColleague {
   bool isFull() const;
   bool isEmpty() const;
 
- private:
+private:
   double _fillCapacity = 0;
   double _amountFilled = 0;
   double _amountExtracted = 0;
-  double _flowRateFill = 0;     // Current flow rate for filling
-  double _flowRateExtract = 0;  // Current flow rate for extraction
-  double _voltage = 0;          // Voltage sense
+  double _flowRateFill = 0;    // Current flow rate for filling
+  double _flowRateExtract = 0; // Current flow rate for extraction
+  double _voltage = 0;         // Voltage sense
 
   std::shared_ptr<IMediator> _mediator;
   std::shared_ptr<ConfigManager> _configManager;
