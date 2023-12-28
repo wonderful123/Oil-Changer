@@ -19,12 +19,12 @@ class SystemFactory {
   std::shared_ptr<ConfigManager> getConfigManager();
 
  private:
-  std::shared_ptr<ConfigManager> configManager;
-  std::shared_ptr<HardwareManager> hardwareManager;
-  std::shared_ptr<SystemController> systemController;
-  std::shared_ptr<IFileHandler> fileHandler;
-  std::shared_ptr<IMediator> mediator;
-  std::shared_ptr<OilChangeTracker> oilChangeTracker;
+  std::shared_ptr<ConfigManager> _configManager;
+  std::shared_ptr<HardwareManager> _hardwareManager;
+  std::shared_ptr<SystemController> _systemController;
+  std::shared_ptr<IFileHandler> _fileHandler;
+  std::shared_ptr<IMediator> _mediator;
+  std::shared_ptr<OilChangeTracker> _oilChangeTracker;
 
   void createConfigManager();
   void createHardwareManager();
