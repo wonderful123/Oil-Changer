@@ -11,45 +11,51 @@ concerns.
 
 #pragma once
 
-#include <functional>
 #include <map>
 #include <memory>
-#include <tinyfsm.hpp>
-#include <unordered_map>
+#include <typeindex>
+#include <typeinfo>
+#include <vector>
 
-#include "Mediator/IColleague.h"
 #include "BuzzerManager.h"
 #include "HardwareInitializer.h"
 
-class ButtonController;
 class ConfigManager;
 class HardwareComponent;
-class HardwareFactory;
 class HardwarePinConfig;
 
-class HardwareManager : public IColleague {
- private:
+class HardwareManager {
+private:
   std::shared_ptr<ConfigManager> _configManager;
-  std::shared_ptr<HardwareFactory> _hardwareFactory;
-  std::shared_ptr<ButtonController> _buttonController;
-  std::shared_ptr<BuzzerManager> _buzzerManager;
-  std::shared_ptr<IMediator> _mediator;
   // Unified map to hold all types of components by id
   std::map<std::string, std::shared_ptr<HardwareComponent>> _components;
 
-  void notifyMediator(EventType eventType);
+public:
+  HardwareManager(std::shared_ptr<ConfigManager> configManager);
 
- public:
-  HardwareManager(std::shared_ptr<IMediator> mediator,
-                  std::shared_ptr<ConfigManager> configManager,
-                  std::shared_ptr<HardwareFactory> hardwareFactory,
-                  std::shared_ptr<ButtonController> buttonController);
-
-  virtual void initialize();
+  virtual Error initialize();
   virtual bool isComponentInitialized(const std::string &componentId) const;
-  virtual std::shared_ptr<HardwareComponent> getComponentById(
-      const std::string &id) const;
 
-  virtual void triggerBuzzer();
-  void receiveEvent(EventType eventType, const EventData *eventData) override;
+  template <typename T>
+  std::shared_ptr<T> getComponentById(const std::string &id) const {
+    auto it = _components.find(id);
+    if (it != _components.end()) {
+      auto component = std::static_pointer_cast<T>(it->second);
+      return component;
+    }
+
+    return nullptr;
+  }
+
+  template <typename T>
+  std::vector<std::shared_ptr<T>> getComponentsByType(const std::string &type) {
+    std::vector<std::shared_ptr<T>> componentsOfType;
+    for (const auto &pair : _components) {
+      auto component = pair.second;
+      if (component && component->type() == type) {
+        componentsOfType.push_back(std::static_pointer_cast<T>(component));
+      }
+    }
+    return componentsOfType;
+  }
 };
