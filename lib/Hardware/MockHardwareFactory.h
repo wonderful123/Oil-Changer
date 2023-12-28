@@ -32,7 +32,8 @@ public:
               createCommunicationInterface, ());
   MOCK_METHOD(std::shared_ptr<IDisplay>, createDisplay,
               (const std::string &displayId,
-               ICommunicationInterface &commInterface));
+               ICommunicationInterface &commInterface,
+               const HardwarePinConfig &config));
 };
 
 #endif
