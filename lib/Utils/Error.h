@@ -59,6 +59,7 @@
              "Failed to return hardware configuration from config manager.") \
   ERROR_CODE(HardwareConfigButtonsNotFound,                                  \
              "No buttons found in hardware configuration.")                  \
+  ERROR_CODE(FileHandlerIsNull, "FileHandler is null.")                      \
 
 #undef ERROR_CODE
 
