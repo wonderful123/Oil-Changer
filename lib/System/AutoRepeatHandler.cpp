@@ -8,45 +8,61 @@ AutoRepeatHandler::AutoRepeatHandler(
     : _controller(controller), _settings(settings) {}
 
 void AutoRepeatHandler::onNotify(const std::string &event,
-                                 const std::string &id) {
+                                 const std::string &buttonId) {
   if (event == "button_pressed") {
-    handleButtonPressed(id);
+    handleButtonPressed(buttonId);
   } else if (event == "button_released") {
-    handleButtonReleased(id);
+    handleButtonReleased(buttonId);
   }
 }
 
-void AutoRepeatHandler::handleButtonPressed(const std::string &id) {
-  _lastPressTime[id] = std::chrono::steady_clock::now();
-  // Check if we should consider auto-repeat for this button
-  if (_settings.buttons.find(id) != _settings.buttons.end() &&
-      _settings.buttons[id].hasAutoRepeat) {
-    checkAutoRepeat(id);
+void AutoRepeatHandler::handleButtonPressed(const std::string &buttonId) {
+  if (_settings.buttons.find(buttonId) != _settings.buttons.end() &&
+      _settings.buttons[buttonId].hasAutoRepeat) {
+    _lastPressTime[buttonId] = std::chrono::steady_clock::now();
+    _cachedAutoRepeatSettings[buttonId] =
+        _settings.commonSettings.autoRepeat;
+    _buttonsInAutoRepeatMode.insert(buttonId);
+    _isInAutoRepeatMode[buttonId] = false;
+    _autoRepeatNotified[buttonId] = false; // Reset notification status
   }
 }
 
-void AutoRepeatHandler::handleButtonReleased(const std::string &id) {
-  _lastPressTime.erase(id);
-  _isInAutoRepeatMode[id] = false;
+void AutoRepeatHandler::handleButtonReleased(const std::string &buttonId) {
+  _buttonsInAutoRepeatMode.erase(buttonId);
+  _isInAutoRepeatMode[buttonId] = false;
+  _autoRepeatNotified[buttonId] = false;
 }
 
-void AutoRepeatHandler::checkAutoRepeat(const std::string &id) {
-  if (_lastPressTime.find(id) != _lastPressTime.end()) {
-    auto now = std::chrono::steady_clock::now();
+void AutoRepeatHandler::checkAutoRepeat() {
+  auto now = std::chrono::steady_clock::now();
+  for (const auto &buttonId : _buttonsInAutoRepeatMode) {
+    auto &autoRepeatSettings = _cachedAutoRepeatSettings[buttonId];
     auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
-        now - _lastPressTime[id]);
+        now - _lastPressTime[buttonId]);
 
-    auto &autoRepeatSettings = _settings.buttons[id].autoRepeat;
-
-    if (!_isInAutoRepeatMode[id] &&
+    // Check if the button is eligible for auto-repeat mode
+    if (!_isInAutoRepeatMode[buttonId] &&
         elapsed.count() >= autoRepeatSettings.initialDelayMs) {
-      _isInAutoRepeatMode[id] = true;
-      _controller->notify("button_auto_repeat", id);
-      _lastPressTime[id] = now; // Reset the timer for the next interval
-    } else if (_isInAutoRepeatMode[id] &&
-               elapsed.count() >= autoRepeatSettings.standardRateMs) {
-      _controller->notify("button_auto_repeat", id);
-      _lastPressTime[id] = now; // Reset the timer for the next interval
+      _isInAutoRepeatMode[buttonId] = true;
+      _autoRepeatNotified[buttonId] = false; // Ensure it's ready to notify
+      _lastPressTime[buttonId] =
+          now; // Reset the timer for auto-repeat rate calculation
+    }
+
+    // Check if it's time to send an auto-repeat notification
+    if (_isInAutoRepeatMode[buttonId]) {
+      auto elapsedSinceModeStarted =
+          std::chrono::duration_cast<std::chrono::milliseconds>(
+              now - _lastPressTime[buttonId]);
+      if (elapsedSinceModeStarted.count() >=
+          autoRepeatSettings.standardRateMs) {
+        if (!_autoRepeatNotified[buttonId]) {
+          _controller->notify("button_auto_repeat", buttonId);
+          _autoRepeatNotified[buttonId] = true; // Mark as notified
+        }
+        _lastPressTime[buttonId] = now; // Reset the timer for the next interval
+      }
     }
   }
 }
