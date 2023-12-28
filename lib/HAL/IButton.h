@@ -6,7 +6,9 @@
 
 class IButton : public HardwareComponent {
 public:
-  using HardwareComponent::HardwareComponent; // Inherit constructor
+  explicit IButton(const HardwarePinConfig &config,
+                   unsigned long debounceDuration)
+      : HardwareComponent(config) {}
 
   virtual ~IButton() = default; // Virtual destructor for cleanup
 

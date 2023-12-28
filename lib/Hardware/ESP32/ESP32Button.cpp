@@ -6,11 +6,11 @@
 
 #include "Logger.h"
 
-ESP32Button::ESP32Button(const HardwarePinConfig &config) : ButtonBase(config) {
-  pinMode(config.pinNumber, INPUT_PULLUP);
+ESP32Button::ESP32Button(const HardwarePinConfig &config,
+                         unsigned long debounceDuration)
+    : ButtonBase(config, debounceDuration) {
   _debouncer = Bounce();
-  // TODO: implement the debounce time from the interactionSettings
-  _debouncer.interval(50);  // Debounce interval
+  _debouncer.interval(debounceDuration);
   _debouncer.attach(config.pinNumber);
 }
 
@@ -21,4 +21,4 @@ void ESP32Button::updateButtonState() {
   }
 }
 
-#endif  // PLATFORM_ESP32
+#endif // PLATFORM_ESP32
