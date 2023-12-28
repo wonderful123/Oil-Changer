@@ -16,13 +16,20 @@ Error InteractionSettingsConfig::parseJson(const DynamicJsonDocument &doc) {
 
   const JsonObjectConst buttonInteraction = doc["buttonInteraction"];
 
-  if (!buttonInteraction.containsKey("buttons")) {
-    return Error(Error::InteractionSettingsButtonsSubkeyMissing);
-  } else {
+  // Parse common settings
+  if (buttonInteraction.containsKey("commonSettings")) {
+    const JsonObjectConst commonSettings = buttonInteraction["commonSettings"];
+    _interactionSettings.commonSettings.debounceMs =
+        commonSettings["debounceMs"];
+  }
+
+  if (buttonInteraction.containsKey("buttons")) {
     Error err =
         parseButtonSettings(buttonInteraction["buttons"].as<JsonObjectConst>());
     if (err)
       return err;
+  } else {
+    return Error(Error::InteractionSettingsButtonsSubkeyMissing);
   }
 
   if (!buttonInteraction.containsKey("beepSettings")) {
@@ -57,20 +64,28 @@ Error InteractionSettingsConfig::parseButtonSettings(
     button.description = buttonSettingsObj["description"].as<std::string>();
 
     // Parsing 'autoRepeat' settings
-    const JsonObjectConst autoRepeatObj =
-        buttonSettingsObj["autoRepeat"].as<JsonObjectConst>();
-    InteractionSettings::AutoRepeat autoRepeat;
-    autoRepeat.initialDelayMs = autoRepeatObj["initialDelayMs"];
-    autoRepeat.standardRateMs = autoRepeatObj["standardRateMs"];
+    if (buttonSettingsObj.containsKey("autoRepeat") &&
+        buttonSettingsObj["autoRepeat"].as<bool>()) {
+      const JsonObjectConst autoRepeatObj =
+          buttonSettingsObj["autoRepeat"].as<JsonObjectConst>();
+      InteractionSettings::AutoRepeat autoRepeat;
 
-    const JsonObjectConst accelerationObj =
-        autoRepeatObj["acceleration"].as<JsonObjectConst>();
-    autoRepeat.acceleration.startAfterMs = accelerationObj["startAfterMs"];
-    autoRepeat.acceleration.rateDecreaseIntervalMs =
-        accelerationObj["rateDecreaseIntervalMs"];
-    autoRepeat.acceleration.minimumRateMs = accelerationObj["minimumRateMs"];
+      autoRepeat.initialDelayMs = autoRepeatObj["initialDelayMs"];
+      autoRepeat.standardRateMs = autoRepeatObj["standardRateMs"];
 
-    button.autoRepeat = autoRepeat;
+      const JsonObjectConst accelerationObj =
+          autoRepeatObj["acceleration"].as<JsonObjectConst>();
+      autoRepeat.acceleration.startAfterMs = accelerationObj["startAfterMs"];
+      autoRepeat.acceleration.rateDecreaseIntervalMs =
+          accelerationObj["rateDecreaseIntervalMs"];
+      autoRepeat.acceleration.minimumRateMs = accelerationObj["minimumRateMs"];
+
+      button.hasAutoRepeat = true;
+      button.autoRepeat = autoRepeat;
+    } else {
+      button.hasAutoRepeat = false;
+    }
+
     _interactionSettings.buttons[buttonKey] = button;
   }
 

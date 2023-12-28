@@ -1,30 +1,40 @@
 {
   "buttonInteraction": {
     "description": "Configuration for button behaviors and interactions",
-    "buttons": {
-      "adjustment": {
-        "description": "Settings for increment/decrement buttons",
-        "autoRepeat": {
-          "description": "Auto-repeat behavior on long press",
-          "initialDelayMs": 500,
-          "standardRateMs": 100,
-          "acceleration": {
-            "description": "Acceleration parameters for auto-repeat",
-            "startAfterMs": 2000,
-            "rateDecreaseIntervalMs": 500,
-            "minimumRateMs": 10
-          }
-        },
-        "rapidPress": {
-          "description": "Debounce setting for rapid button presses",
-          "debounceMs": 150
+    "commonSettings": {
+      "debounceMs": 150,
+      "autoRepeat": {
+        "description": "Auto-repeat behavior on long press",
+        "initialDelayMs": 500,
+        "standardRateMs": 100,
+        "acceleration": {
+          "description": "Acceleration parameters for auto-repeat",
+          "startAfterMs": 2000,
+          "rateDecreaseIntervalMs": 500,
+          "minimumRateMs": 10
         }
+      }
+    },
+    "buttons": {
+      "ButtonPlus": {
+        "description": "Settings for increment (plus) button",
+        "autoRepeat": true
       },
-      "start": {
-        "description": "Settings for start button (placeholder for future configurations)"
+      "ButtonMinus": {
+        "description": "Settings for decrement (minus) button",
+        "autoRepeat": true
       },
-      "stop": {
-        "description": "Settings for stop button (placeholder for future configurations)"
+      "ButtonManualExtract": {
+        "description": "Settings for manual extract button"
+      },
+      "ButtonManualFill": {
+        "description": "Settings for manual fill button"
+      },
+      "ButtonStart": {
+        "description": "Settings for start button"
+      },
+      "ButtonStop": {
+        "description": "Settings for stop button"
       }
     },
     "beepSettings": {

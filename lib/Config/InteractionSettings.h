@@ -12,15 +12,17 @@ struct InteractionSettings {
   };
 
   struct AutoRepeat {
+    bool enabled; // Flag to indicate if auto-repeat is enabled for a button
     uint32_t initialDelayMs;
     uint32_t standardRateMs;
     Acceleration acceleration;
-    uint32_t rapidPressDebounceMs;
   };
 
   struct Button {
     std::string description;
-    AutoRepeat autoRepeat;
+    bool hasAutoRepeat; // Indicate if this button has auto-repeat functionality
+    AutoRepeat autoRepeat; // Auto-repeat settings specific to this button (if
+                           // applicable)
   };
 
   struct LimitReachedPattern {
@@ -43,8 +45,14 @@ struct InteractionSettings {
     bool audioFeedbackOnLimit;
   };
 
+  struct CommonSettings {
+    uint32_t debounceMs; // Common debounce setting for all buttons
+  };
+
   std::string description;
-  std::unordered_map<std::string, Button> buttons;
+  CommonSettings commonSettings; // Common settings applicable to all buttons
+  std::unordered_map<std::string, Button>
+      buttons; // Settings specific to each button
   BeepSettings beepSettings;
   Feedback feedback;
 };
