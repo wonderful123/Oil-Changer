@@ -20,6 +20,7 @@
 std::shared_ptr<SystemController> systemController;
 std::shared_ptr<HardwareManager> hardwareManager;
 std::unique_ptr<BuzzerPlayer> player;
+std::shared_ptr<IFileHandler> fileHandler;
 
 // Forward Declarations
 void initializeLogger();
@@ -37,7 +38,7 @@ void loop() { systemController->performPeriodicUpdate(); }
 void initializeLogger() {
   Serial.begin(115200);
   while (!Serial)
-    ;  // Wait for Serial port to connect
+    ; // Wait for Serial port to connect
 
   Logger::setLogCallback(serialLogCallback);
   Logger::info(R"(
@@ -51,23 +52,26 @@ void initializeLogger() {
 }
 
 Error initializeSystem() {
-  auto fileHandler = std::make_shared<ESP32FileHandler>();
+  fileHandler = std::shared_ptr<IFileHandler>(new ESP32FileHandler());
   SystemFactory systemFactory(fileHandler);
   systemFactory.initializeSystem();
   systemController = systemFactory.getSystemController();
   hardwareManager = systemFactory.getHardwareManager();
 
-  if (!initializeBuzzerPlayer()) {
-    Logger::warn("[Main] Buzzer player initialization failed.");
-  }
+  // if (!initializeBuzzerPlayer() != Error::OK) {
+  //   Logger::warn("[Main] Buzzer player initialization failed");
+  // }
 
-  Logger::info("[Main] System initialization complete.");
-  return Error::OK;  // Adjust based on actual success or failure
+  Logger::info("==== SYSTEM INITIALIZATION =====");
+  Logger::info(" Status: SUCCESSFULLY COMPLETED");
+  Logger::info("================================");
+
+  return Error::OK;
 }
 
 Error initializeBuzzerPlayer() {
   auto buzzer = hardwareManager->getComponentById<IBuzzer>("Buzzer");
-  if (!buzzer) {
+  if (buzzer) {
     player = std::unique_ptr<BuzzerPlayer>(new BuzzerPlayer(*buzzer));
     buzzer->setVolume(10);
 
@@ -84,15 +88,16 @@ Error initializeBuzzerPlayer() {
     Logger::info("[Main] Playing wonderboy theme tune...");
     //  player->playTune(WONDERBOY_THEME);
 
-    return Error::OK;  // Buzzer initialized successfully
+    return Error::OK; // Buzzer initialized successfully
   }
 
-  Logger::warn("[Main] Buzzer not found in hardware configuration.");
-  return Error::HardwareConfigBuzzerInitError;  // Error code for missing buzzer
+  Logger::warn("[Main] Buzzer not found in HardwareManager");
+  return Error::HardwareConfigBuzzerInitError; // Error code for missing buzzer
 }
 
 void serialLogCallback(Logger::Level level, const std::string &message) {
-  if (!Serial) return;
+  if (!Serial)
+    return;
 
   const char *levelStr[] = {"DEBUG", "INFO", "WARN", "ERROR", "LOG"};
   Serial.print('[');
