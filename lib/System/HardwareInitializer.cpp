@@ -6,16 +6,13 @@ HardwareInitializer::HardwareInitializer(
     : _configManager(configManager), _hardwareFactory(hardwareFactory) {}
 
 Error HardwareInitializer::initialize(
-    std::map<std::string, std::shared_ptr<HardwareComponent>>& components) {
-  Logger::info("[HardwareInitializer] Starting initialization...");
+    std::map<std::string, std::shared_ptr<HardwareComponent>> &components) {
 
-  auto hardwareConfig = _configManager->getHardwareConfig();
-  if (!hardwareConfig) {
-    Logger::error("[HardwareInitializer] Configuration not available.");
-    return Error::ConfigManagerHardwareConfigNotFound;
-  }
+  Logger::info("[HardwareInitializer] Loading hardware configuration...");
+  auto hardwareConfig =
+      _configManager->getConfig<HardwareConfig>(ConfigType::HARDWARE);
 
-  for (const auto& pinConfig : hardwareConfig->getHardwarePinConfigs()) {
+  for (const auto &pinConfig : hardwareConfig->getHardwarePinConfigs()) {
     std::shared_ptr<HardwareComponent> component;
     auto error = initializeComponent(pinConfig, component);
     if (error) {
@@ -25,15 +22,19 @@ Error HardwareInitializer::initialize(
       return error;
     }
     components[pinConfig.id] = component;
-    Logger::info("[HardwareInitializer] Initialized: " + pinConfig.id);
+    Logger::info("[HardwareInitializer] Created: " + pinConfig.type +
+                 " (id: " + pinConfig.id + ")");
   }
+
+  // Release the hardware config from the config manager to free up memory
+  _configManager->releaseConfig(ConfigType::HARDWARE);
 
   return Error::OK;
 }
 
 Error HardwareInitializer::initializeComponent(
-    const HardwarePinConfig& config,
-    std::shared_ptr<HardwareComponent>& component) {
+    const HardwarePinConfig &config,
+    std::shared_ptr<HardwareComponent> &component) {
   component = _hardwareFactory->createComponent(config);
   if (!component) {
     Logger::error("[HardwareInitializer] Component creation failed: " +
