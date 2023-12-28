@@ -27,8 +27,8 @@ void ButtonController::processButtonStates() {
     const auto &id = pair.first;
     auto &button = pair.second;
 
-    auto prevState = button->getPreviousState(); // Ensure this method is
-                                                 // implemented in IButton
+    button->update();
+    auto prevState = button->getPreviousState();
     auto currentState = button->getCurrentState();
 
     if (!prevState.isPressed && currentState.isPressed) {
@@ -41,6 +41,7 @@ void ButtonController::processButtonStates() {
 }
 
 void ButtonController::notify(const std::string &event, const std::string &id) {
+  Logger::info("[ButtonController] Notifying: " + event + " " + id);
   for (const auto &observer : _observers) {
     observer->onNotify(event, id);
   }
