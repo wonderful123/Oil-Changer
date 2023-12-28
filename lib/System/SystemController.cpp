@@ -37,13 +37,13 @@ void SystemController::initializeSystemComponents() {
   initializeButtonController(interactionSettings);
   initializeBuzzerManager(interactionSettings);
 
-  auto autoRepeatHandler = std::make_shared<AutoRepeatHandler>(
-      _buttonController, interactionSettings);
-  _buttonController->attach(autoRepeatHandler);
+  _autoRepeatHandler = std::make_shared<AutoRepeatHandler>(_buttonController,
+                                                           interactionSettings);
+  // Attach auto repeat handler to the button controller events
+  _buttonController->attach(_autoRepeatHandler);
 
   Logger::info("[SystemFactory] System components initialized");
 }
-
 
 Error SystemController::initializeButtonController(
     InteractionSettings interactionSettings) {
@@ -112,4 +112,5 @@ void SystemController::update(EventType eventType) {
 
 void SystemController::performPeriodicUpdate() {
   _buttonController->processButtonStates();
+  _autoRepeatHandler->checkAutoRepeat();
 }

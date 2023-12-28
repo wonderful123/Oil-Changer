@@ -1,5 +1,6 @@
 #pragma once
 
+#include "AutoRepeatHandler.h"
 #include "ButtonController.h"
 #include "BuzzerManager.h"
 #include "ConfigManager.h"
@@ -28,6 +29,7 @@ private:
   std::shared_ptr<ButtonController> _buttonController;
   std::shared_ptr<BuzzerManager> _buzzerManager;
   std::shared_ptr<IMediator> _mediator;
+  std::shared_ptr<AutoRepeatHandler> _autoRepeatHandler;
 
   Error initializeButtonController(InteractionSettings interactionSettings);
   Error initializeBuzzerManager(InteractionSettings interactionSettings);
