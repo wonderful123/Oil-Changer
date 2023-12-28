@@ -9,9 +9,25 @@
 // Responsible for loading configuration data from a source (like a JSON file)
 // and passing it to the appropriate managers
 
-ConfigManager::ConfigManager(std::shared_ptr<IMediator> mediator,
-                             std::shared_ptr<IFileHandler> fileHandler)
-    : IColleague(mediator), _mediator(mediator), _fileHandler(fileHandler) {}
+std::mutex ConfigManager::_mutex; // Define the static mutex
+std::shared_ptr<ConfigManager> ConfigManager::_instance = nullptr;
+
+ConfigManager::ConfigManager() : IColleague(nullptr) {}
+
+std::shared_ptr<ConfigManager> ConfigManager::getInstance() {
+  std::lock_guard<std::mutex> lock(_mutex); // Ensure thread safety
+  if (!_instance) {
+    _instance = std::shared_ptr<ConfigManager>(
+        new ConfigManager()); // Create the Singleton instance
+  }
+  return _instance;
+}
+
+void ConfigManager::initialize(std::shared_ptr<IMediator> mediator,
+                               std::shared_ptr<IFileHandler> fileHandler) {
+  _mediator = mediator;
+  _fileHandler = fileHandler;
+}
 
 Error ConfigManager::loadConfig(ConfigType type) {
   std::shared_ptr<IConfig> config;
@@ -44,8 +60,8 @@ Error ConfigManager::loadConfig(ConfigType type) {
 
   Error error = config->load(filePath);
   if (error == Error::OK) {
-    Logger::info("[ConfigManager] " +
-                 ConfigPaths::getNameForType(type) + " parsed successfully");
+    Logger::info("[ConfigManager] " + ConfigPaths::getNameForType(type) +
+                 " parsed successfully");
     std::string name = ConfigPaths::getNameForType(type);
     _configs[name] = config; // Store using the ConfigType enum
     _mediator->notify(this, eventType);
@@ -60,8 +76,11 @@ bool ConfigManager::isConfigLoaded(ConfigType type) {
 }
 
 void ConfigManager::releaseConfig(ConfigType type) {
+  std::lock_guard<std::mutex> lock(_mutex);
   std::string name = ConfigPaths::getNameForType(type);
-  _configs.erase(name);
+  if (_referenceCounts[name] > 0 && --_referenceCounts[name] == 0) {
+    _configs.erase(name);
+  }
 }
 
 void ConfigManager::receiveEvent(EventType eventType,
