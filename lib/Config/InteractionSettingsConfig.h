@@ -11,19 +11,19 @@ public:
 
   Error save(const std::string &filename) const override;
 
-  InteractionSettings getSettings();
+  std::shared_ptr<InteractionSettings> getSettings();
 
 protected:
   Error parseJson(const DynamicJsonDocument &doc) override;
 
-  void parseCommonSettings(const JsonObjectConst &buttonInteraction);
+  Error parseCommonSettings(const JsonObjectConst commonSettings);
 
-  Error parseButtonSettings(const JsonObjectConst &buttonObj);
+  Error parseButtonSettings(const JsonObjectConst buttonObj);
 
-  Error parseBeepSettings(const JsonObjectConst &beepSettings);
+  Error parseBeepSettings(const JsonObjectConst beepSettings);
 
-  Error parseFeedbackSettings(const JsonObjectConst &feedbackSettings);
+  Error parseFeedbackSettings(const JsonObjectConst feedbackSettings);
 
 private:
-  InteractionSettings _interactionSettings;
+  std::shared_ptr<InteractionSettings> _interactionSettings;
 };

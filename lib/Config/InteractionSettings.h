@@ -1,19 +1,18 @@
 #pragma once
 
-#include <cstdint>
 #include <string>
 #include <unordered_map>
 
 struct InteractionSettings {
   struct Acceleration {
-    int startAfterMs;
-    int rateDecreaseIntervalMs;
-    int minimumRateMs;
+    uint startAfterMs;
+    uint rateDecreaseuintervalMs;
+    uint minimumRateMs;
   };
 
   struct AutoRepeat {
-    int initialDelayMs;
-    int standardRateMs;
+    uint initialDelayMs;
+    uint standardRateMs;
     Acceleration acceleration;
   };
 
@@ -24,15 +23,20 @@ struct InteractionSettings {
 
   struct LimitReachedPattern {
     std::string description;
-    int frequency;
-    int durationMs;
+    uint frequency;
+    uint durationMs;
+    uint pauseDuration;
     std::string pattern;
   };
 
   struct BeepSettings {
     std::string description;
-    int standardFrequency;
-    int standardDurationMs;
+    uint standardFrequency;
+    uint standardDurationMs;
+    float buzzerVolume;
+    uint rapidBeepDuration;
+    uint rapidBeepFrequency;
+    uint rapidBeepPauseDuration;
     LimitReachedPattern limitReachedPattern;
   };
 
@@ -43,7 +47,7 @@ struct InteractionSettings {
   };
 
   struct CommonSettings {
-    int debounceMs; // Common debounce setting for all buttons
+    uint debounceMs; // Common debounce setting for all buttons
     AutoRepeat autoRepeat;
   };
 

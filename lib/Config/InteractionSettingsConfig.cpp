@@ -1,8 +1,10 @@
-#include "InteractionSettingsConfig.h"
+#include "interactionSettingsConfig.h"
+#include "Logger.h"
 
 InteractionSettingsConfig::InteractionSettingsConfig(
     std::shared_ptr<IFileHandler> fileHandler)
-    : BaseConfig(fileHandler) {}
+    : BaseConfig(fileHandler),
+      _interactionSettings(std::make_shared<InteractionSettings>()) {}
 
 Error InteractionSettingsConfig::save(const std::string &filename) const {
   // TODO: Implement this function
@@ -10,127 +12,138 @@ Error InteractionSettingsConfig::save(const std::string &filename) const {
 }
 
 Error InteractionSettingsConfig::parseJson(const DynamicJsonDocument &doc) {
-  if (!doc.containsKey("buttonInteraction")) {
-    return Error(Error::InteractionSettingsButtonInteractionKeyMissing);
-  }
   const JsonObjectConst buttonInteraction = doc["buttonInteraction"];
 
-  parseCommonSettings(buttonInteraction);
-
-  if (buttonInteraction.containsKey("buttons")) {
-    Error err =
-        parseButtonSettings(buttonInteraction["buttons"].as<JsonObjectConst>());
-    if (err)
-      return err;
-  } else {
-    return Error(Error::InteractionSettingsButtonsSubkeyMissing);
+  if (buttonInteraction == nullptr) {
+    return Error(Error::InteractionSettingsButtonInteractionKeyMissing);
   }
 
-  if (!buttonInteraction.containsKey("beepSettings")) {
-    return Error(Error::InteractionSettingsBeepSettingsSubkeyMissing);
-  } else {
-    Error err = parseBeepSettings(
-        buttonInteraction["beepSettings"].as<JsonObjectConst>());
-    if (err)
-      return err;
+  Error err = parseCommonSettings(buttonInteraction["commonSettings"]);
+  if (err != Error::OK) {
+    return err;
   }
 
-  if (!buttonInteraction.containsKey("feedback")) {
-    return Error(Error::InteractionSettingsFeedbackSubkeyMissing);
-  } else {
-    Error err = parseFeedbackSettings(
-        buttonInteraction["feedback"].as<JsonObjectConst>());
-    if (err)
-      return err;
+  err = parseButtonSettings(buttonInteraction["buttons"]);
+  if (err != Error::OK) {
+    return err;
+  }
+
+  err = parseBeepSettings(buttonInteraction["beepSettings"]);
+  if (err != Error::OK) {
+    return err;
+  }
+
+  err = parseFeedbackSettings(buttonInteraction["feedback"]);
+  if (err != Error::OK) {
+    return err;
   }
 
   return Error(Error::OK);
 }
 
-
-void InteractionSettingsConfig::parseCommonSettings(
-    const JsonObjectConst &buttonInteraction) {
-  // Parse common settings
-  if (buttonInteraction.containsKey("commonSettings")) {
-    const JsonObjectConst commonSettings = buttonInteraction["commonSettings"];
-    _interactionSettings.commonSettings.debounceMs =
-        commonSettings["debounceMs"];
-
-    // Parse autorepeat settings
-    if (commonSettings.containsKey("autoRepeat")) {
-      const JsonObjectConst autoRepeatObj =
-          commonSettings["autoRepeat"].as<JsonObjectConst>();
-      _interactionSettings.commonSettings.autoRepeat.initialDelayMs =
-          autoRepeatObj["initialDelayMs"];
-      _interactionSettings.commonSettings.autoRepeat.standardRateMs =
-          autoRepeatObj["standardRateMs"];
-      _interactionSettings.commonSettings.autoRepeat.acceleration.startAfterMs =
-          autoRepeatObj["acceleration"]["startAfterMs"];
-      _interactionSettings.commonSettings.autoRepeat.acceleration
-          .rateDecreaseIntervalMs =
-          autoRepeatObj["acceleration"]["rateDecreaseIntervalMs"];
-      _interactionSettings.commonSettings.autoRepeat.acceleration
-          .minimumRateMs = autoRepeatObj["acceleration"]["minimumRateMs"];
-    }
+Error InteractionSettingsConfig::parseCommonSettings(
+    const JsonObjectConst commonSettings) {
+  if (commonSettings == nullptr) {
+    return Error(Error::InteractionSettingsCommonSettingsKeyMissing);
   }
+
+  InteractionSettings::CommonSettings settings;
+
+  // Parsing 'debounceMs'
+  settings.debounceMs = commonSettings["debounceMs"];
+
+  // Parsing 'autoRepeat'
+  const JsonObjectConst autoRepeatObj = commonSettings["autoRepeat"];
+  settings.autoRepeat.initialDelayMs = autoRepeatObj["initialDelayMs"];
+  settings.autoRepeat.standardRateMs = autoRepeatObj["standardRateMs"];
+
+  // Parsing 'acceleration'
+  const JsonObjectConst accelerationObj = autoRepeatObj["acceleration"];
+  settings.autoRepeat.acceleration.startAfterMs =
+      accelerationObj["startAfterMs"];
+  settings.autoRepeat.acceleration.rateDecreaseuintervalMs =
+      accelerationObj["rateDecreaseuintervalMs"];
+  settings.autoRepeat.acceleration.minimumRateMs =
+      accelerationObj["minimumRateMs"];
+
+  _interactionSettings->commonSettings = settings;
+
+  return Error::OK;
 }
 
 Error InteractionSettingsConfig::parseButtonSettings(
-    const JsonObjectConst &buttonObj) {
-  for (auto buttonPair : buttonObj) {
-    const std::string buttonKey = buttonPair.key().c_str();
-    const JsonObjectConst buttonSettingsObj =
-        buttonPair.value().as<JsonObjectConst>();
+    const JsonObjectConst buttonsJson) {
+  if (buttonsJson == nullptr) {
+    return Error::InteractionSettingsButtonsSubkeyMissing;
+  }
+
+  for (auto buttonObj : buttonsJson) {
+    const std::string buttonKey = buttonObj.key().c_str();
+    const JsonObjectConst buttonSettingsObj = buttonObj.value();
 
     InteractionSettings::Button button;
     button.description = buttonSettingsObj["description"].as<std::string>();
 
-    // Parsing 'autoRepeat' settings
-    if (buttonSettingsObj.containsKey("autoRepeat") &&
-        buttonSettingsObj["autoRepeat"].as<bool>()) {
+    // Parsing optional 'autoRepeat' flag
+    if (buttonSettingsObj["autoRepeat"].as<bool>()) {
       button.hasAutoRepeat = true;
     } else {
       button.hasAutoRepeat = false;
     }
 
-    _interactionSettings.buttons[buttonKey] = button;
+    _interactionSettings->buttons[buttonKey] = button;
   }
 
   return Error(Error::OK);
 }
 
 Error InteractionSettingsConfig::parseBeepSettings(
-    const JsonObjectConst &beepSettings) {
+    const JsonObjectConst beepSettings) {
+  if (beepSettings == nullptr) {
+    return Error::InteractionSettingsBeepSettingsSubkeyMissing;
+  }
+
   InteractionSettings::BeepSettings settings;
   settings.description = beepSettings["description"].as<std::string>();
-  settings.standardFrequency = beepSettings["standardFrequency"];
-  settings.standardDurationMs = beepSettings["standardDurationMs"];
+  settings.standardFrequency = beepSettings["standardFrequency"].as<uint>();
+  settings.standardDurationMs = beepSettings["standardDurationMs"].as<uint>();
+  settings.buzzerVolume = beepSettings["buzzerVolume"].as<float>();
+  settings.rapidBeepDuration = beepSettings["rapidBeepDuration"].as<uint>();
+  settings.rapidBeepFrequency = beepSettings["rapidBeepFrequency"].as<uint>();
+  settings.rapidBeepPauseDuration =
+      beepSettings["rapidBeepPauseDuration"].as<uint>();
 
   const JsonObjectConst limitPattern = beepSettings["limitReachedPattern"];
   settings.limitReachedPattern.description =
       limitPattern["description"].as<std::string>();
   settings.limitReachedPattern.frequency = limitPattern["frequency"];
   settings.limitReachedPattern.durationMs = limitPattern["durationMs"];
+  settings.limitReachedPattern.pauseDuration = limitPattern["pauseDuration"];
   settings.limitReachedPattern.pattern =
       limitPattern["pattern"].as<std::string>();
 
-  _interactionSettings.beepSettings = settings;
+  _interactionSettings->beepSettings = settings;
 
   return Error(Error::OK);
 }
 
 Error InteractionSettingsConfig::parseFeedbackSettings(
-    const JsonObjectConst &feedbackSettings) {
+    const JsonObjectConst feedbackSettings) {
+  if (feedbackSettings == nullptr) {
+    return Error::Error::InteractionSettingsFeedbackSubkeyMissing;
+  }
+
   InteractionSettings::Feedback feedback;
   feedback.description = feedbackSettings["description"].as<std::string>();
   feedback.onButtonRelease = feedbackSettings["onButtonRelease"];
   feedback.audioFeedbackOnLimit = feedbackSettings["audioFeedbackOnLimit"];
 
-  _interactionSettings.feedback = feedback;
+  _interactionSettings->feedback = feedback;
 
   return Error(Error::OK);
 }
 
-InteractionSettings InteractionSettingsConfig::getSettings() {
+std::shared_ptr<InteractionSettings>
+InteractionSettingsConfig::getSettings() {
   return _interactionSettings;
 }
