@@ -25,6 +25,15 @@ std::shared_ptr<HardwareManager> SystemFactory::getHardwareManager() {
   return _hardwareManager;
 }
 
+std::shared_ptr<ButtonController> SystemFactory::getButtonController() {
+  if (!_systemController) {
+    // Handle the case where _systemController isn't set up yet
+    Logger::error("[SystemFactory] SystemController is not initialized.");
+    return nullptr;
+  }
+  return _systemController->getButtonController();
+}
+
 void SystemFactory::createConfigManager() {
   Logger::info("[SystemFactory] Creating ConfigManager...");
   ConfigManager::getInstance()->initialize(_mediator, _fileHandler);

@@ -24,6 +24,8 @@ public:
 
   void performPeriodicUpdate();
 
+  std::shared_ptr<ButtonController> getButtonController();
+
 private:
   StateMachine _stateMachine;
   std::shared_ptr<HardwareManager> _hardwareManager;

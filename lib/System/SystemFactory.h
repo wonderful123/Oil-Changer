@@ -16,10 +16,12 @@ public:
   void initializeSystem();
   std::shared_ptr<SystemController> getSystemController();
   std::shared_ptr<HardwareManager> getHardwareManager();
+  std::shared_ptr<ButtonController> getButtonController();
 
 private:
   std::shared_ptr<HardwareManager> _hardwareManager;
   std::shared_ptr<SystemController> _systemController;
+  std::shared_ptr<SystemController> _buttonController;
   std::shared_ptr<IFileHandler> _fileHandler;
   std::shared_ptr<IMediator> _mediator;
   std::shared_ptr<OilChangeTracker> _oilChangeTracker;
