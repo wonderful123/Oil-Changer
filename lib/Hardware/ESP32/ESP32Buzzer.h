@@ -13,19 +13,19 @@ public:
 
   void beep(uint frequency, uint duration) override;
   void doubleBeep(uint frequency, uint duration, uint pauseDuration) override;
-  static void doubleBeepCallback(ESP32Buzzer *buzzer);
+  static void handleDoubleBeepCallback(ESP32Buzzer *buzzer);
   void stop() override;
-  void stopTone();
-  void setVolume(float volume) override;
+  void silenceBuzzer();
+  void adjustVolume(float volume) override;
 
   void rapidBeep(uint frequency, uint duration, uint pauseInterval);
-  static void rapidBeepCallback(ESP32Buzzer *buzzer);
+  static void handleRapidBeepCallback(ESP32Buzzer *buzzer);
 
 private:
-  Ticker _timer;
+  Ticker _beepTimer;
   Ticker _rapidBeepTimer;
 
-  static void timerCallback(ESP32Buzzer *buzzer);
+  static void handleBeepFinishCallback(ESP32Buzzer *buzzer);
 };
 
 #endif // PLATFORM_ESP32

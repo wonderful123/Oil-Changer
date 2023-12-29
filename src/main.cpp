@@ -73,7 +73,7 @@ Error initializeBuzzerPlayer() {
   auto buzzer = hardwareManager->getComponentById<IBuzzer>("Buzzer");
   if (buzzer) {
     player = std::unique_ptr<BuzzerPlayer>(new BuzzerPlayer(*buzzer));
-    buzzer->setVolume(10);
+    buzzer->adjustVolume(10);
 
     Logger::info("[Main] Buzzer initialized.");
 

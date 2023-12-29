@@ -26,13 +26,13 @@ private:
       // Set the volume based on the dynamics
       switch (note.dynamics) {
       case DYNAMICS_SOFT:
-        _buzzer.setVolume(0.25);
+        _buzzer.adjustVolume(0.25);
         break;
       case DYNAMICS_MEDIUM:
-        _buzzer.setVolume(0.50);
+        _buzzer.adjustVolume(0.50);
         break;
       case DYNAMICS_LOUD:
-        _buzzer.setVolume(1.00);
+        _buzzer.adjustVolume(1.00);
         break;
       }
 
