@@ -5,7 +5,7 @@
       "debounceMs": 150,
       "autoRepeat": {
         "description": "Auto-repeat behavior on long press",
-        "initialDelayMs": 1000,
+        "initialDelayMs": 500,
         "standardRateMs": 100,
         "acceleration": {
           "description": "Acceleration parameters for auto-repeat",
@@ -41,11 +41,16 @@
     "beepSettings": {
       "description": "Audio feedback settings for button interactions",
       "standardFrequency": 2731,
-      "standardDurationMs": 150,
+      "standardDurationMs": 100,
+      "buzzerVolume": 1.0,
+      "rapidBeepDuration": 50,
+      "rapidBeepPauseDuration": 50,
+      "rapidBeepFrequency": 2731,
       "limitReachedPattern": {
         "description": "Special beep pattern when a limit is reached",
-        "frequency": 3500,
-        "durationMs": 250,
+        "frequency": 2731,
+        "durationMs": 100,
+        "pauseDuration": 50,
         "pattern": "double-beep"
       }
     },
