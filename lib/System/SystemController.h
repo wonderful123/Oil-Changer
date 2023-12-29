@@ -15,6 +15,8 @@ public:
 
   void initializeSystemComponents();
 
+  bool loadInteractionSettings();
+
   virtual void receiveEvent(EventType eventType,
                             const EventData *eventData) override;
   void handleEvent(const EventType &eventType);
@@ -30,6 +32,10 @@ private:
   std::shared_ptr<BuzzerManager> _buzzerManager;
   std::shared_ptr<IMediator> _mediator;
   std::shared_ptr<AutoRepeatHandler> _autoRepeatHandler;
+  std::shared_ptr<InteractionSettings> _interactionSettings;
+
+  void initializeAutoRepeatHandler(
+      std::shared_ptr<InteractionSettings> &interactionSettings);
 
   Error initializeButtonController(
       std::shared_ptr<InteractionSettings> &interactionSettings);

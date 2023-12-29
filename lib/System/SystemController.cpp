@@ -27,26 +27,45 @@ SystemController::SystemController(
 }
 
 void SystemController::initializeSystemComponents() {
-  auto configManager =
-      ConfigManager::getInstance(); // Access the singleton instance
+  if (!loadInteractionSettings()) {
+    Logger::error("[SystemController] Failed to load interaction settings");
+    return;
+  }
+
+  if (initializeButtonController(_interactionSettings) != Error::OK) {
+    Logger::error("[SystemController] Failed to initialize Button Controller");
+    return;
+  }
+
+  if (initializeBuzzerManager(_interactionSettings) != Error::OK) {
+    Logger::error("[SystemController] Failed to initialize Buzzer Manager");
+    return;
+  }
+
+  initializeAutoRepeatHandler(_interactionSettings);
+  Logger::info("[SystemFactory] System components initialized");
+}
+
+bool SystemController::loadInteractionSettings() {
+  auto configManager = ConfigManager::getInstance();
   auto interactionSettingsConfig =
       configManager->getConfig<InteractionSettingsConfig>(
           ConfigType::INTERACTION_SETTINGS);
+
   if (!interactionSettingsConfig) {
-    Logger::error("[SystemController] Failed to load interaction settings");
-    return; // Handle error appropriately
+    Logger::error("[SystemController] Interaction settings config not found");
+    return false;
   }
-  auto interactionSettings = interactionSettingsConfig->getSettings();
 
-  initializeButtonController(interactionSettings);
-  initializeBuzzerManager(interactionSettings);
+  _interactionSettings = interactionSettingsConfig->getSettings();
+  return true;
+}
 
+void SystemController::initializeAutoRepeatHandler(
+    std::shared_ptr<InteractionSettings> &interactionSettings) {
   _autoRepeatHandler = std::make_shared<AutoRepeatHandler>(_buttonController,
                                                            interactionSettings);
-  // Attach auto repeat handler to the button controller events
   _buttonController->attach(_autoRepeatHandler);
-
-  Logger::info("[SystemFactory] System components initialized");
 }
 
 Error SystemController::initializeButtonController(
