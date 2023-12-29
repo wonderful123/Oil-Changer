@@ -46,7 +46,7 @@ void SystemController::initializeSystemComponents() {
 }
 
 Error SystemController::initializeButtonController(
-    InteractionSettings interactionSettings) {
+    std::shared_ptr<InteractionSettings> &interactionSettings) {
   _buttonController = std::make_shared<ButtonController>(interactionSettings);
 
   // Check and log if button controller is not created
@@ -72,15 +72,15 @@ Error SystemController::initializeButtonController(
 }
 
 Error SystemController::initializeBuzzerManager(
-    InteractionSettings interactionSettings) {
+    std::shared_ptr<InteractionSettings> &interactionSettings) {
   auto buzzer = _hardwareManager->getComponentById<IBuzzer>("Buzzer");
   if (!buzzer) {
     return Error::HardwareConfigBuzzerInitError;
   }
 
-  _buzzerManager =
-      std::make_shared<BuzzerManager>(_mediator, buzzer, interactionSettings);
-
+  _buzzerManager = std::make_shared<BuzzerManager>(buzzer, interactionSettings);
+  _buttonController->attach(_buzzerManager); // Attach BuzzerManager as an
+                                             // observer to ButtonController
   return Error::OK;
 }
 

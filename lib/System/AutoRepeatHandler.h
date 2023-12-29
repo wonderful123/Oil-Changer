@@ -11,14 +11,15 @@
 class AutoRepeatHandler : public IObserver {
 public:
   explicit AutoRepeatHandler(std::shared_ptr<ButtonController> controller,
-                             const InteractionSettings &settings);
+                             std::shared_ptr<InteractionSettings> &settings);
   virtual void onNotify(const std::string &event,
                         const std::string &buttonId) override;
   void checkAutoRepeat(); // Call this periodically
+  void startRapidBeep(const std::string &buttonId);
 
 private:
   std::shared_ptr<ButtonController> _controller;
-  InteractionSettings _settings;
+  std::shared_ptr<InteractionSettings> _settings;
   std::unordered_map<std::string, std::chrono::steady_clock::time_point>
       _lastPressTime;
   std::unordered_map<std::string, InteractionSettings::AutoRepeat>

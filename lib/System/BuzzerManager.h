@@ -1,22 +1,22 @@
-// BuzzerManager.h
 #pragma once
 
 #include <memory>
 
 #include "IBuzzer.h"
-#include "Mediator/IColleague.h"
+#include "Observer/IObserver.h"
 
-class BuzzerManager : public IColleague {
- public:
-  BuzzerManager(std::shared_ptr<IMediator> mediator,
-                std::shared_ptr<IBuzzer> buzzer,
-                const InteractionSettings& settings);
+class BuzzerManager : public IObserver { // Inherit from IObserver
+public:
+  BuzzerManager(std::shared_ptr<IBuzzer> buzzer,
+                std::shared_ptr<InteractionSettings> &settings);
 
   void triggerBuzzer(int frequency, int duration);
-  void updateSettings(const InteractionSettings& settings);
-  void receiveEvent(EventType eventType, const EventData* eventData) override;
+  void startRapidBeep();
+  void updateSettings(std::shared_ptr<InteractionSettings> &settings);
+  void onNotify(const std::string &event, const std::string &buttonId)
+      override; // Implement onNotify from IObserver
 
- private:
+private:
   std::shared_ptr<IBuzzer> _buzzer;
-  InteractionSettings _settings;  // Store the current settings if needed
+  std::shared_ptr<InteractionSettings> _settings;
 };

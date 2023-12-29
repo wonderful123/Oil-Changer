@@ -4,7 +4,7 @@
 
 AutoRepeatHandler::AutoRepeatHandler(
     std::shared_ptr<ButtonController> controller,
-    const InteractionSettings &settings)
+    std::shared_ptr<InteractionSettings> &settings)
     : _controller(controller), _settings(settings) {}
 
 void AutoRepeatHandler::onNotify(const std::string &event,
@@ -17,11 +17,10 @@ void AutoRepeatHandler::onNotify(const std::string &event,
 }
 
 void AutoRepeatHandler::handleButtonPressed(const std::string &buttonId) {
-  if (_settings.buttons.find(buttonId) != _settings.buttons.end() &&
-      _settings.buttons[buttonId].hasAutoRepeat) {
+  if (_settings->buttons.find(buttonId) != _settings->buttons.end() &&
+      _settings->buttons[buttonId].hasAutoRepeat) {
     _lastPressTime[buttonId] = std::chrono::steady_clock::now();
-    _cachedAutoRepeatSettings[buttonId] =
-        _settings.commonSettings.autoRepeat;
+    _cachedAutoRepeatSettings[buttonId] = _settings->commonSettings.autoRepeat;
     _buttonsInAutoRepeatMode.insert(buttonId);
     _isInAutoRepeatMode[buttonId] = false;
     _autoRepeatNotified[buttonId] = false; // Reset notification status

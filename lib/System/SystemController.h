@@ -31,8 +31,10 @@ private:
   std::shared_ptr<IMediator> _mediator;
   std::shared_ptr<AutoRepeatHandler> _autoRepeatHandler;
 
-  Error initializeButtonController(InteractionSettings interactionSettings);
-  Error initializeBuzzerManager(InteractionSettings interactionSettings);
+  Error initializeButtonController(
+      std::shared_ptr<InteractionSettings> &interactionSettings);
+  Error initializeBuzzerManager(
+      std::shared_ptr<InteractionSettings> &interactionSettings);
 
   void onButtonPress(const std::string &id);
 };
