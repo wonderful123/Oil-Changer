@@ -1,5 +1,9 @@
 #include "SystemController.h"
 
+// External dependencies
+#include <memory>
+
+// Project-specific headers
 #include "AutoRepeatHandler.h"
 #include "ButtonController.h"
 #include "ConfigTypes.h"
