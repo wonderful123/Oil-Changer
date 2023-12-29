@@ -20,5 +20,7 @@ public:
   virtual void rapidBeep(uint frequency, uint duration, uint interval) = 0;
   virtual void stop() = 0;
   virtual bool isBeeping() = 0;
-  virtual void setVolume(float volume) = 0;
+  virtual void adjustVolume(float volume) = 0;
+
+  virtual void setOnBeepCallback(std::function<void()> callback) = 0;
 };
