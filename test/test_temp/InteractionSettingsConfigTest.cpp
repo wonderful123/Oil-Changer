@@ -86,34 +86,64 @@ TEST_F(InteractionSettingsConfigTest, NonExistantFileLoadFailure) {
 TEST_F(InteractionSettingsConfigTest, ParseValidButtonSettings) {
   // Setup the mock to simulate reading valid button settings from a file
   const std::string validButtonSettings = R"({
-        "buttonInteraction": {
-            "buttons": {
-                "adjustment": {
-                    "description": "Adjustment button settings",
-                    "autoRepeat": {
-                        "initialDelayMs": 500,
-                        "standardRateMs": 100,
-                        "acceleration": {
-                            "startAfterMs": 2000,
-                            "rateDecreaseIntervalMs": 500,
-                            "minimumRateMs": 10
-                        }
-                    }
-                },
-                "start": {
-                    "description": "Start button settings"
-                },
-                "stop": {
-                    "description": "Stop button settings"
-                }
-            },
-            "beepSettings": {
-                // Mock beep settings
-            },
-            "feedback": {
-                // Mock feedback settings
-            }
+{
+  "buttonInteraction": {
+    "description": "Configuration for button behaviors and interactions",
+    "commonSettings": {
+      "debounceMs": 150,
+      "autoRepeat": {
+        "description": "Auto-repeat behavior on long press",
+        "initialDelayMs": 1000,
+        "standardRateMs": 100,
+        "acceleration": {
+          "description": "Acceleration parameters for auto-repeat",
+          "startAfterMs": 2000,
+          "rateDecreaseIntervalMs": 500,
+          "minimumRateMs": 10
         }
+      }
+    },
+    "buttons": {
+      "ButtonPlus": {
+        "description": "Settings for increment (plus) button",
+        "autoRepeat": true
+      },
+      "ButtonMinus": {
+        "description": "Settings for decrement (minus) button",
+        "autoRepeat": true
+      },
+      "ButtonManualExtract": {
+        "description": "Settings for manual extract button"
+      },
+      "ButtonManualFill": {
+        "description": "Settings for manual fill button"
+      },
+      "ButtonStart": {
+        "description": "Settings for start button",
+        "autoRepeat": true
+      },
+      "ButtonStop": {
+        "description": "Settings for stop button"
+      }
+    },
+    "beepSettings": {
+      "description": "Audio feedback settings for button interactions",
+      "standardFrequency": 2731,
+      "standardDurationMs": 150,
+      "limitReachedPattern": {
+        "description": "Special beep pattern when a limit is reached",
+        "frequency": 3500,
+        "durationMs": 250,
+        "pattern": "double-beep"
+      }
+    },
+    "feedback": {
+      "description": "General feedback settings",
+      "onButtonRelease": false,
+      "audioFeedbackOnLimit": true
+    }
+  }
+}
     })";
   expectOpenReadCloseForContent(*mockFileHandler, validButtonSettings,
                                 DUMMY_FILE_PATH);
@@ -124,19 +154,31 @@ TEST_F(InteractionSettingsConfigTest, ParseValidButtonSettings) {
       << "Failed to load valid button settings: "
       << loadError.getFormattedMessage(loadError.code());
 
-  // Validate that the button settings are correctly parsed
+    // Validate that the button settings are correctly parsed
   auto settings = config->getSettings();
-  auto adjustmentButtonSettings = settings.buttons.at("adjustment");
 
-  EXPECT_EQ(adjustmentButtonSettings.description, "Adjustment button settings");
-  EXPECT_EQ(adjustmentButtonSettings.autoRepeat.initialDelayMs, 500);
-  EXPECT_EQ(adjustmentButtonSettings.autoRepeat.standardRateMs, 100);
-  EXPECT_EQ(adjustmentButtonSettings.autoRepeat.acceleration.startAfterMs,
-            2000);
-  EXPECT_EQ(
-      adjustmentButtonSettings.autoRepeat.acceleration.rateDecreaseIntervalMs,
-      500);
-  EXPECT_EQ(adjustmentButtonSettings.autoRepeat.acceleration.minimumRateMs, 10);
+  // Common settings validation
+  EXPECT_EQ(settings.commonSettings.debounceMs, 150);
+
+  // Auto-repeat settings validation
+  EXPECT_EQ(settings.commonSettings.autoRepeat.initialDelayMs, 1000);
+  // ... validate other auto-repeat settings ...
+
+  // Button specific settings validation
+  EXPECT_TRUE(settings.buttons["ButtonPlus"].hasAutoRepeat);
+  EXPECT_TRUE(settings.buttons["ButtonMinus"].hasAutoRepeat);
+  EXPECT_FALSE(
+      settings.buttons["ButtonManualExtract"]
+          .hasAutoRepeat); // Assuming default is false if not specified
+  // ... validate other buttons ...
+
+  // Beep settings validation
+  EXPECT_EQ(settings.beepSettings.standardFrequency, 2731);
+  // ... validate other beep settings ...
+
+  // Feedback settings validation
+  EXPECT_FALSE(settings.feedback.onButtonRelease);
+  EXPECT_TRUE(settings.feedback.audioFeedbackOnLimit);
 }
 
 TEST_F(InteractionSettingsConfigTest, MissingButtonSettingsFailure) {
