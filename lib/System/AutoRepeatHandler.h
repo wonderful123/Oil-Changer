@@ -15,7 +15,6 @@ public:
   virtual void onNotify(const std::string &event,
                         const std::string &buttonId) override;
   void checkAutoRepeat(); // Call this periodically
-  void startRapidBeep(const std::string &buttonId);
 
 private:
   std::shared_ptr<ButtonController> _controller;
