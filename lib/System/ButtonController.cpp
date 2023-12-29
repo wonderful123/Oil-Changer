@@ -2,24 +2,11 @@
 #include "Logger.h"
 #include <algorithm>
 
-ButtonController::ButtonController(
-    std::shared_ptr<InteractionSettings> &settings)
-    : _settings(settings) {}
-
 void ButtonController::registerButton(const std::string &id,
                                       std::shared_ptr<IButton> button) {
   if (_buttons.find(id) == _buttons.end()) {
     _buttons[id] = button;
-    applySettingsToButton(button, id);
     Logger::info("[ButtonController] Registered: " + id);
-  }
-}
-
-void ButtonController::applySettingsToButton(std::shared_ptr<IButton> button,
-                                             const std::string &id) {
-  auto settingsIter = _settings->buttons.find(id);
-  if (settingsIter != _settings->buttons.end()) {
-    // TODO apply settings
   }
 }
 

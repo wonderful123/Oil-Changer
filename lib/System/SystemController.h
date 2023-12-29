@@ -36,8 +36,7 @@ private:
   void initializeAutoRepeatHandler(
       std::shared_ptr<InteractionSettings> &interactionSettings);
 
-  Error initializeButtonController(
-      std::shared_ptr<InteractionSettings> &interactionSettings);
+  Error initializeButtonController();
   Error initializeBuzzerManager(
       std::shared_ptr<InteractionSettings> &interactionSettings);
 

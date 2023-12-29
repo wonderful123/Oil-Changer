@@ -12,7 +12,6 @@
 
 class ButtonController : public ISubject {
 public:
-  ButtonController(std::shared_ptr<InteractionSettings> &settings);
   virtual void registerButton(const std::string &id,
                               std::shared_ptr<IButton> button);
   virtual void processButtonStates();
@@ -25,8 +24,4 @@ public:
 private:
   std::unordered_map<std::string, std::shared_ptr<IButton>> _buttons;
   std::vector<std::shared_ptr<IObserver>> _observers;
-  std::shared_ptr<InteractionSettings> _settings;
-
-  void applySettingsToButton(std::shared_ptr<IButton> button,
-                             const std::string &id);
 };

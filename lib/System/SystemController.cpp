@@ -32,7 +32,7 @@ void SystemController::initializeSystemComponents() {
     return;
   }
 
-  if (initializeButtonController(_interactionSettings) != Error::OK) {
+  if (initializeButtonController() != Error::OK) {
     Logger::error("[SystemController] Failed to initialize Button Controller");
     return;
   }
@@ -68,9 +68,8 @@ void SystemController::initializeAutoRepeatHandler(
   _buttonController->attach(_autoRepeatHandler);
 }
 
-Error SystemController::initializeButtonController(
-    std::shared_ptr<InteractionSettings> &interactionSettings) {
-  _buttonController = std::make_shared<ButtonController>(interactionSettings);
+Error SystemController::initializeButtonController() {
+  _buttonController = std::make_shared<ButtonController>();
 
   // Check and log if button controller is not created
   if (!_buttonController) {
