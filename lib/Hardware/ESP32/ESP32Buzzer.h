@@ -15,7 +15,7 @@ public:
   void doubleBeep(uint frequency, uint duration, uint pauseDuration) override;
   static void doubleBeepCallback(ESP32Buzzer *buzzer);
   void stop() override;
-  bool isBeeping() const override;
+  void stopTone();
   void setVolume(float volume) override;
 
   void rapidBeep(uint frequency, uint duration, uint pauseInterval);
@@ -24,17 +24,6 @@ public:
 private:
   Ticker _timer;
   Ticker _rapidBeepTimer;
-
-  bool _isBeeping;
-  bool _isRapidBeeping;
-
-  uint _beepFrequency;
-  uint _beepDuration;
-  uint _rapidBeepFrequency;
-  uint _rapidBeepDuration;
-  uint _rapidBeepPauseInterval;
-
-  bool _isSecondBeep;
 
   static void timerCallback(ESP32Buzzer *buzzer);
 };

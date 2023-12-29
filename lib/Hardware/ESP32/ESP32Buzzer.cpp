@@ -2,15 +2,14 @@
 
 #include "ESP32Buzzer.h"
 
-const uint pwmChannel = 0;
-const uint pwmResolution = 8;
-const uint pwmFrequency = 2713;
+const uint DEFAULT_PWM_CHANNEL = 0;
+const uint DEFAULT_PWM_RESOLUTION = 8;
+const uint DEFAULT_PWM_FREQUENCY = 2713;
 
 ESP32Buzzer::ESP32Buzzer(const HardwarePinConfig &config)
-    : BuzzerBase(config), _isBeeping(false), _isRapidBeeping(false),
-      _isSecondBeep(false), _beepFrequency(0), _beepDuration(0) {
-  ledcSetup(pwmChannel, pwmFrequency, pwmResolution);
-  ledcAttachPin(config.pinNumber, pwmChannel);
+    : BuzzerBase(config) {
+  ledcSetup(DEFAULT_PWM_CHANNEL, DEFAULT_PWM_RESOLUTION, DEFAULT_PWM_FREQUENCY);
+  ledcAttachPin(config.pinNumber, DEFAULT_PWM_CHANNEL);
   setInitialized(true);
 }
 
@@ -22,19 +21,19 @@ void ESP32Buzzer::setVolume(float volume) {
   BuzzerBase::setVolume(volume); // Store the volume in the base class
   int dutyCycle = static_cast<int>(
       _volume * 255.0f); // Convert volume to duty cycle (0-255)
-  ledcWrite(pwmChannel,
+  ledcWrite(DEFAULT_PWM_CHANNEL,
             dutyCycle); // Adjust the duty cycle to change the volume
-  ledcWriteTone(pwmChannel, 0);
+  stopTone();
 }
 
 void ESP32Buzzer::beep(uint frequency, uint duration) {
-  ledcWriteTone(pwmChannel, frequency);
+  ledcWriteTone(DEFAULT_PWM_CHANNEL, frequency);
   _isBeeping = true;
   _timer.once_ms(duration, timerCallback, this);
 }
 
 void ESP32Buzzer::timerCallback(ESP32Buzzer *buzzer) {
-  ledcWriteTone(pwmChannel, 0);
+  ledcWriteTone(DEFAULT_PWM_CHANNEL, 0);
   buzzer->_isBeeping = false;
 }
 
@@ -85,7 +84,7 @@ void ESP32Buzzer::rapidBeepCallback(ESP32Buzzer *buzzer) {
 
 void ESP32Buzzer::stop() {
   if (_isBeeping) {
-    ledcWriteTone(pwmChannel, 0); // Stop the buzzer sound instantly
+    stopTone();                   // Stop the buzzer sound instantly
     _timer.detach();              // Detach the timer to stop callbacks
     _isBeeping = false;
   }
@@ -95,6 +94,11 @@ void ESP32Buzzer::stop() {
   }
 }
 
-bool ESP32Buzzer::isBeeping() const { return _isBeeping; }
+void ESP32Buzzer::stopTone() { ledcWriteTone(DEFAULT_PWM_CHANNEL, 0); }
+
+void ESP32Buzzer::stop() {
+  BuzzerBase::stop(); // Call base stop for common logic
+  stopTone();         // Specific logic for ESP32
+}
 
 #endif // PLATFORM_ESP32
