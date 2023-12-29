@@ -37,6 +37,8 @@
              "FlowMeter: No PCNT unit specified for GPIO pin")               \
   ERROR_CODE(InteractionSettingsButtonInteractionKeyMissing,                 \
              "Missing 'buttonInteraction' key in interactionSettings.json")  \
+  ERROR_CODE(InteractionSettingsCommonSettingsKeyMissing,                    \
+             "Missing 'common' key in interactionSettings.json")             \
   ERROR_CODE(InteractionSettingsButtonsSubkeyMissing,                        \
              "Missing 'buttons' subkey in interactionsSettings.json")        \
   ERROR_CODE(InteractionSettingsBeepSettingsSubkeyMissing,                   \
