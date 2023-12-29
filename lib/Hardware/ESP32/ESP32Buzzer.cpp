@@ -8,7 +8,7 @@ const uint DEFAULT_PWM_FREQUENCY = 2713;
 
 ESP32Buzzer::ESP32Buzzer(const HardwarePinConfig &config)
     : BuzzerBase(config) {
-  ledcSetup(DEFAULT_PWM_CHANNEL, DEFAULT_PWM_RESOLUTION, DEFAULT_PWM_FREQUENCY);
+  ledcSetup(DEFAULT_PWM_CHANNEL, DEFAULT_PWM_FREQUENCY, DEFAULT_PWM_RESOLUTION);
   ledcAttachPin(config.pinNumber, DEFAULT_PWM_CHANNEL);
   setInitialized(true);
 }
@@ -33,7 +33,7 @@ void ESP32Buzzer::beep(uint frequency, uint duration) {
 }
 
 void ESP32Buzzer::timerCallback(ESP32Buzzer *buzzer) {
-  ledcWriteTone(DEFAULT_PWM_CHANNEL, 0);
+  buzzer->stopTone();
   buzzer->_isBeeping = false;
 }
 
@@ -95,10 +95,5 @@ void ESP32Buzzer::stop() {
 }
 
 void ESP32Buzzer::stopTone() { ledcWriteTone(DEFAULT_PWM_CHANNEL, 0); }
-
-void ESP32Buzzer::stop() {
-  BuzzerBase::stop(); // Call base stop for common logic
-  stopTone();         // Specific logic for ESP32
-}
 
 #endif // PLATFORM_ESP32
