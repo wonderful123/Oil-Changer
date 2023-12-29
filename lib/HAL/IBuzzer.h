@@ -19,6 +19,6 @@ public:
   virtual void rapidBeep() = 0;
   virtual void rapidBeep(uint frequency, uint duration, uint interval) = 0;
   virtual void stop() = 0;
-  virtual bool isBeeping() const = 0;
+  virtual bool isBeeping() = 0;
   virtual void setVolume(float volume) = 0;
 };

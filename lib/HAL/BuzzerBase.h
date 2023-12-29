@@ -47,7 +47,7 @@ public:
                _doubleBeepPauseDuration);
   }
 
-  bool isBeeping() { return _isBeeping; }
+  bool isBeeping() override { return _isBeeping; }
 
 protected:
   float _volume;
