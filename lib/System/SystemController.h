@@ -19,7 +19,6 @@ public:
 
   virtual void receiveEvent(EventType eventType,
                             const EventData *eventData) override;
-  void handleEvent(const EventType &eventType);
 
   virtual void update(EventType eventType);
 

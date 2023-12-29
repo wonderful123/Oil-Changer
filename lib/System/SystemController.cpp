@@ -107,11 +107,6 @@ Error SystemController::initializeBuzzerManager(
   return Error::OK;
 }
 
-void SystemController::handleEvent(const EventType &eventType) {
-  // Handle events communicated by the mediator
-  // Process the event as needed
-}
-
 void SystemController::receiveEvent(EventType eventType,
                                     const EventData *eventData) {
   // Handle events communicated by the mediator
