@@ -1,17 +1,18 @@
 #pragma once
 
 #include "IBuzzer.h"
+#include "Logger.h"
 
 class BuzzerBase : public IBuzzer {
 public:
   BuzzerBase(const HardwarePinConfig &config)
-      : IBuzzer(config), currentSettings({}), _volume(1.0f) {}
+      : IBuzzer(config), _volume(1.0f) {}
 
   virtual ~BuzzerBase() = default;
 
-  void updateSettings(const InteractionSettings &settings) override {
-    currentSettings = settings;
-    applySettings();
+  void updateSettings(std::shared_ptr<InteractionSettings> &settings) override {
+    _interactionSettings = settings;
+    setVolume(settings->beepSettings.buzzerVolume);
   }
 
   virtual void setVolume(float volume) override {
@@ -20,25 +21,35 @@ public:
   }
 
   // These methods must be implemented by derived classes
-  virtual void beep(int frequency, int duration) = 0;
-  virtual void doubleBeep(int frequency, int duration, int pauseDuration) = 0;
+  virtual void beep(uint frequency, uint duration) = 0;
+  virtual void doubleBeep(uint frequency, uint duration,
+                          uint pauseDuration) = 0;
+  virtual void rapidBeep(uint frequency, uint duration, uint interval) = 0;
   virtual void stop() = 0;
   virtual bool isBeeping() const = 0;
 
+  void rapidBeep() override {
+    uint defaultFrequency =
+        _interactionSettings->beepSettings.rapidBeepFrequency;
+    uint defaultDuration = _interactionSettings->beepSettings.rapidBeepDuration;
+    uint defaultInterval =
+        _interactionSettings->beepSettings.rapidBeepPauseDuration;
+    rapidBeep(defaultFrequency, defaultDuration, defaultInterval);
+  }
+
   virtual void beep() override {
-    beep(currentSettings.beepSettings.standardFrequency,
-         currentSettings.beepSettings.standardDurationMs);
+    beep(_interactionSettings->beepSettings.standardFrequency,
+         _interactionSettings->beepSettings.standardDurationMs);
   }
 
   virtual void doubleBeep() override {
-    doubleBeep(currentSettings.beepSettings.limitReachedPattern.frequency,
-               currentSettings.beepSettings.limitReachedPattern.durationMs,
-               100); // Assuming 100ms as the pause duration
+    doubleBeep(
+        _interactionSettings->beepSettings.limitReachedPattern.frequency,
+        _interactionSettings->beepSettings.limitReachedPattern.durationMs,
+        _interactionSettings->beepSettings.limitReachedPattern.pauseDuration); // Assuming 100ms as the pause duration
   }
 
 protected:
   float _volume;
-  InteractionSettings currentSettings;
-
-  virtual void applySettings() {  }
+  std::shared_ptr<InteractionSettings> _interactionSettings;
 };
