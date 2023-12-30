@@ -35,10 +35,14 @@ protected:
   std::shared_ptr<IMediator> _mediator;
 
 public:
-  explicit IColleague(std::shared_ptr<IMediator> mediator)
+  explicit IColleague(std::shared_ptr<IMediator> mediator = nullptr)
       : _mediator(std::move(mediator)) {}
 
   virtual ~IColleague() = default;
+
+  void setMediator(std::shared_ptr<IMediator> mediator) {
+    this->_mediator = mediator;
+  }
 
   void sendEvent(EventType eventType, const EventData &eventData) {
     _mediator->notify(this, eventType, &eventData);
