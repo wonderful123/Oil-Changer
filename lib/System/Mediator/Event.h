@@ -3,16 +3,13 @@
 #include <functional>
 #include <string>
 
-// Event Types
+// Lower EventType value means higher priority
 enum EventType {
   NOEVENT,
+  BUTTON_PRESSED,
+  OIL_CHANGE_TRACKER_UPDATE,
   HARDWARE_CONFIG_CHANGED,
   INTERACTION_SETTINGS_CHANGED,
-  OIL_LEVEL_CHANGED,
-  VOLTAGE_CHANGED,
-  FLOW_RATE_CHANGED,
-  BUTTON_PRESSED,
-  BUTTON_AUTO_REPEAT,
   // Add more as needed
 };
 
@@ -20,7 +17,7 @@ enum EventType {
 class EventData {
 public:
   std::string id; // For identifying the source, like a button ID
-  // Add other relevant event data fields
+  int value;
 };
 
 // Event Information
@@ -36,8 +33,8 @@ struct EventInfo {
 // Custom comparator for the priority queue (define how to compare events)
 struct EventComparator {
   bool operator()(const EventInfo &a, const EventInfo &b) {
-    // Comparison logic based on event type or other criteria
-    // Example: lower EventType value means higher priority
+    // Comparison logic based on event type
+    // Lower EventType value means higher priority
     return a.eventType < b.eventType;
   }
 };
