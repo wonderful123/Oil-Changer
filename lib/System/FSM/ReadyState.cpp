@@ -9,6 +9,7 @@ Ready::Ready() {
   _buzzerManager = systemFactory.getSystemController()->getBuzzerManager();
   _buttonController = systemFactory.getButtonController();
   _mediator = systemFactory.getMediator();
+  setMediator(systemFactory.getMediator());
 }
 
 void Ready::entry() {
@@ -31,28 +32,19 @@ void Ready::exit() {
 }
 
 void Ready::handleButtonPress(const std::string &id) {
-  if (id == "ButtonPlus") {
-    _mediator->notify("increment_fill_capacity"); // Mediator handles increment
-    Logger::info("[StateMachine: Ready] Fill capacity incremented.");
-  } else if (id == "ButtonMinus") {
-    _mediator.decrementFillCapacity(); // Mediator handles decrement
-    Logger::info("[StateMachine: Ready] Fill capacity decremented.");
-  } else if (id == "ButtonStart") {
-    Logger::info("[StateMachine: Ready] Starting oil change.");
-    transit<Extracting>();
-  }
-}
-
-void Ready::handleButtonPress(const std::string &id) {
-  auto &oilChangeTracker = OilChangeTracker::getInstance();
+  EventData data;
+  data.id = "fill_capacity";
 
   if (id == "ButtonPlus") {
-    // Notify the mediator to increment the fill capacity
-
-    Logger::info("[StateMachine: Ready] Fill capacity incremented.");
+    data.value = 0.1f; // Increment
+    _mediator->notify(this, OIL_CHANGE_TRACKER_UPDATE, &data);
+    Logger::info("[StateMachine: Ready] Notified mediator to increment "
+                 "OilChangeTracker");
   } else if (id == "ButtonMinus") {
-    // Notify the mediator to decrement the fill capacity
-    Logger::info("[StateMachine: Ready] Fill capacity decremented.");
+    data.value = -0.1f; // Decrement
+    _mediator->notify(this, OIL_CHANGE_TRACKER_UPDATE, &data);
+    Logger::info("[StateMachine: Ready] Notified mediator to decrement "
+                 "OilChangeTracker");
   } else if (id == "ButtonStart") {
     Logger::info("[StateMachine: Ready] Starting oil change.");
     transit<Extracting>();
