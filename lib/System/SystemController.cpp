@@ -130,6 +130,7 @@ void SystemController::update(EventType eventType) {
 void SystemController::performPeriodicUpdate() {
   _buttonController->processButtonStates();
   _autoRepeatHandler->checkAutoRepeat();
+  _mediator->processEvents();
 }
 
 std::shared_ptr<ButtonController> SystemController::getButtonController() {
