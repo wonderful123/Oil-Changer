@@ -22,7 +22,6 @@ SystemController::SystemController(
     std::shared_ptr<HardwareManager> hardwareManager)
     : IColleague(mediator), _mediator(mediator),
       _hardwareManager(hardwareManager) {
-  _mediator->registerColleague(this);
   _stateMachine.start(); // Initialize the state machine
 }
 
