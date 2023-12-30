@@ -14,17 +14,16 @@ public:
                    std::shared_ptr<HardwareManager> hardwareManager);
 
   void initializeSystemComponents();
-
   bool loadInteractionSettings();
 
   virtual void receiveEvent(EventType eventType,
                             const EventData *eventData) override;
-
   virtual void update(EventType eventType);
 
   void performPeriodicUpdate();
 
   std::shared_ptr<ButtonController> getButtonController();
+  std::shared_ptr<BuzzerManager> getBuzzerManager();
 
 private:
   StateMachine _stateMachine;
@@ -37,7 +36,6 @@ private:
 
   void initializeAutoRepeatHandler(
       std::shared_ptr<InteractionSettings> &interactionSettings);
-
   Error initializeButtonController();
   Error initializeBuzzerManager(
       std::shared_ptr<InteractionSettings> &interactionSettings);

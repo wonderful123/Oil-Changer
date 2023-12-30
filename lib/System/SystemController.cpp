@@ -135,3 +135,7 @@ void SystemController::performPeriodicUpdate() {
 std::shared_ptr<ButtonController> SystemController::getButtonController() {
   return std::shared_ptr<ButtonController>();
 }
+
+std::shared_ptr<BuzzerManager> SystemController::getBuzzerManager() {
+  return _buzzerManager;
+}
