@@ -27,8 +27,8 @@ public:
   void setFlowRateFill(double rate);
   void setFlowRateExtract(double rate);
   void setVoltage(double volt);
-  void incrementFillCapacity(double amount);
-  void decrementFillCapacity(double amount);
+  void incrementFillCapacity(double amount = 0.1f);
+  void decrementFillCapacity(double amount = 0.1f);
 
   // Getters
   double fillCapacity() const;
