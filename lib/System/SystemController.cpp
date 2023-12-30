@@ -43,7 +43,7 @@ void SystemController::initializeSystemComponents() {
   }
 
   initializeAutoRepeatHandler(_interactionSettings);
-  Logger::info("[SystemFactory] System components initialized");
+  Logger::info("[SystemController] System components initialized");
 }
 
 bool SystemController::loadInteractionSettings() {
