@@ -5,7 +5,7 @@
 #include <string>
 
 #include "ConfigManager.h"
-#include "Mediator/IColleague.h"
+#include "Mediator/IMediator.h"
 
 class OilChangeTracker : public IColleague {
 public:

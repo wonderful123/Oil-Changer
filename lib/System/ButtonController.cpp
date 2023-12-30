@@ -29,7 +29,6 @@ void ButtonController::processButtonStates() {
 }
 
 void ButtonController::notify(const std::string &event, const std::string &id) {
-  Logger::info("[ButtonController] Notifying: " + event + " " + id);
   for (const auto &observer : _observers) {
     observer->onNotify(event, id);
   }

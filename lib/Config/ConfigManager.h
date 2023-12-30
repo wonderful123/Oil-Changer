@@ -5,7 +5,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "../Mediator/IColleague.h"
+#include "Mediator/IMediator.h"
 #include "ConfigTypes.h"
 #include "HardwareConfig.h"
 #include "InteractionSettingsConfig.h"

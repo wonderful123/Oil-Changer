@@ -6,7 +6,7 @@
 #include "ConfigManager.h"
 #include "FSM/StateMachine.h"
 #include "HardwareManager.h"
-#include "Mediator/IColleague.h"
+#include "Mediator/IMediator.h"
 
 class SystemController : public IColleague {
 public:

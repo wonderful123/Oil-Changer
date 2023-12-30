@@ -1,7 +1,7 @@
 #pragma once
 
 #include "HardwareManager.h"
-#include "Mediator/IColleague.h"
+#include "Mediator/IMediator.h"
 #include <functional>
 #include <map>
 #include <memory>
