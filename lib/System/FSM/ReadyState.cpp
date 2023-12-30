@@ -1,8 +1,11 @@
 #include "ReadyState.h"
-
+#include "ButtonController.h"
+#include "BuzzerManager.h"
 #include "ConcreteMediator.h"
 #include "Logger.h"
 #include "States.h"
+#include "SystemController.h"
+#include "SystemFactory.h"
 
 Ready::Ready() {
   auto &systemFactory = SystemFactory::getInstance();
@@ -37,12 +40,12 @@ void Ready::handleButtonPress(const std::string &id) {
 
   if (id == "ButtonPlus") {
     data.value = 0.1f; // Increment
-    _mediator->notify(this, OIL_CHANGE_TRACKER_UPDATE, &data);
+    _mediator->notify(this, EventType::OIL_CHANGE_TRACKER_UPDATE, &data);
     Logger::info("[StateMachine: Ready] Notified mediator to increment "
                  "OilChangeTracker");
   } else if (id == "ButtonMinus") {
     data.value = -0.1f; // Decrement
-    _mediator->notify(this, OIL_CHANGE_TRACKER_UPDATE, &data);
+    _mediator->notify(this, EventType::OIL_CHANGE_TRACKER_UPDATE, &data);
     Logger::info("[StateMachine: Ready] Notified mediator to decrement "
                  "OilChangeTracker");
   } else if (id == "ButtonStart") {

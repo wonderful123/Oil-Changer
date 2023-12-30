@@ -1,13 +1,15 @@
+#pragma once
+
 #include <tinyfsm.hpp>
 
-#include "Observer/IObserver.h"
 #include "Mediator/IMediator.h"
-#include "ButtonController.h"
-#include "BuzzerManager.h"
-#include "SystemFactory.h"
+#include "Observer/IObserver.h"
+#include "StateMachine.h"
 #include <memory>
 
-class StateMachine;
+class BuzzerManager;
+class SystemFactory;
+class ButtonController;
 class Extracting;
 
 class Ready : public StateMachine,
@@ -15,6 +17,7 @@ class Ready : public StateMachine,
               public IColleague,
               public std::enable_shared_from_this<Ready> {
 public:
+  Ready();
   void entry() override;
   void exit() override;
 
