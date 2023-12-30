@@ -68,8 +68,8 @@ public:
 
   bool isBeeping() override { return _state.isBeeping; }
 
-  void setOnBeepCallback(std::function<void()> callback) override {
-    _onBeepCallback = std::move(callback);
+  void setOnRapidBeepCallback(std::function<void()> callback) override {
+    _onRapidBeepCallback = std::move(callback);
   }
 
 protected:
@@ -77,5 +77,5 @@ protected:
   BeepSettings _settings;
   BuzzerState _state;
 
-  std::function<void()> _onBeepCallback;
+  std::function<void()> _onRapidBeepCallback;
 };

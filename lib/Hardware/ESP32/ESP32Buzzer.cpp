@@ -34,7 +34,8 @@ void ESP32Buzzer::handleBeepFinishCallback(ESP32Buzzer *buzzer) {
   buzzer->_state.isBeeping = false;
 }
 
-void ESP32Buzzer::doubleBeep(uint frequency, uint duration, uint pauseDuration) {
+void ESP32Buzzer::doubleBeep(uint frequency, uint duration,
+                             uint pauseDuration) {
   _settings.doubleBeepFrequency = frequency;
   _settings.doubleBeepDuration = duration;
   _state.isDoubleBeepSecondStage =
@@ -42,11 +43,11 @@ void ESP32Buzzer::doubleBeep(uint frequency, uint duration, uint pauseDuration) 
   beep(frequency, duration); // Start the first beep
   // Schedule the second beep after the first beep duration plus the pause
   // duration
-  _rapidBeepTimer.once_ms(duration + pauseDuration, &handleDoubleBeepCallback,
-                          this);
+  _rapidBeepTimer.once_ms(duration + pauseDuration,
+                          &handleDoubleBeepTimerCallback, this);
 }
 
-void ESP32Buzzer::handleDoubleBeepCallback(ESP32Buzzer *buzzer) {
+void ESP32Buzzer::handleDoubleBeepTimerCallback(ESP32Buzzer *buzzer) {
   if (buzzer) {
     if (!buzzer->_state.isDoubleBeepSecondStage) {
       // Time for the second beep
@@ -67,33 +68,31 @@ void ESP32Buzzer::rapidBeep(uint frequency, uint duration, uint pauseInterval) {
   _state.isRapidBeeping = true;
 
   beep(frequency, duration);
-  _rapidBeepTimer.once_ms(duration + pauseInterval, &handleRapidBeepCallback,
-                          this);
+  _onRapidBeepCallback();
+  _rapidBeepTimer.once_ms(duration + pauseInterval,
+                          &handleRapidBeepTimerCallback, this);
 }
 
-void ESP32Buzzer::handleRapidBeepCallback(ESP32Buzzer *buzzer) {
+void ESP32Buzzer::handleRapidBeepTimerCallback(ESP32Buzzer *buzzer) {
   if (buzzer && buzzer->_state.isRapidBeeping) {
     buzzer->beep(buzzer->_settings.rapidBeepFrequency,
                  buzzer->_settings.rapidBeepDuration);
+    buzzer->_onRapidBeepCallback();
     // Schedule the next beep after the current beep duration PLUS the pause
     // interval.
     buzzer->_rapidBeepTimer.once_ms(
         buzzer->_settings.rapidBeepDuration +
             buzzer->_settings.rapidBeepPauseDuration,
-        handleRapidBeepCallback, buzzer);
+        handleRapidBeepTimerCallback, buzzer);
   }
 }
 
 void ESP32Buzzer::stop() {
-  if (_state.isBeeping) {
-    silenceBuzzer();     // Stop the buzzer sound instantly
-    _beepTimer.detach(); // Detach the timer to stop callbacks
-    _state.isBeeping = false;
-  }
-  if (_state.isRapidBeeping) {
-    _state.isRapidBeeping = false;
-    _rapidBeepTimer.detach();
-  }
+  silenceBuzzer();     // Stop the buzzer sound instantly
+  _beepTimer.detach(); // Detach the timer to stop callbacks
+  _state.isBeeping = false;
+  _state.isRapidBeeping = false;
+  _rapidBeepTimer.detach();
 }
 
 void ESP32Buzzer::silenceBuzzer() { ledcWriteTone(DEFAULT_PWM_CHANNEL, 0); }

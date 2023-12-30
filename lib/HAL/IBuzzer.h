@@ -22,5 +22,6 @@ public:
   virtual bool isBeeping() = 0;
   virtual void adjustVolume(float volume) = 0;
 
-  virtual void setOnBeepCallback(std::function<void()> callback) = 0;
+  // Used for increment/decrement OilChangeTracker values at the same time as the rapid beep.
+  virtual void setOnRapidBeepCallback(std::function<void()> callback) = 0;
 };
