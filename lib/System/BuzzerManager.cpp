@@ -4,7 +4,7 @@
 
 BuzzerManager::BuzzerManager(std::shared_ptr<IBuzzer> buzzer,
                              std::shared_ptr<InteractionSettings> &settings)
-    : _settings(settings), _buzzer(buzzer) {
+    : _buzzer(buzzer) {
   if (_buzzer) {
     _buzzer->updateSettings(settings);
   } else {
@@ -40,10 +40,8 @@ void BuzzerManager::onNotify(const std::string &event,
   }
 }
 
-void BuzzerManager::startRapidBeep() {
-  uint rapidBeepFrequency = _settings->beepSettings.rapidBeepFrequency;
-  uint rapidBeepDuration = _settings->beepSettings.rapidBeepDuration;
-  uint rapidBeepPauseDuration = _settings->beepSettings.rapidBeepPauseDuration;
-  _buzzer->rapidBeep(rapidBeepFrequency, rapidBeepDuration,
-                     rapidBeepPauseDuration);
+void BuzzerManager::setOnRapidBeepCallback(std::function<void()> callback) {
+  _buzzer->setOnRapidBeepCallback(callback);
 }
+
+void BuzzerManager::startRapidBeep() { _buzzer->rapidBeep(); }

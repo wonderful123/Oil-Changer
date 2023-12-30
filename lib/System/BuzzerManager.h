@@ -15,8 +15,8 @@ public:
   void updateSettings(std::shared_ptr<InteractionSettings> &settings);
   void onNotify(const std::string &event, const std::string &buttonId)
       override; // Implement onNotify from IObserver
+  void setOnRapidBeepCallback(std::function<void()> callback);
 
 private:
   std::shared_ptr<IBuzzer> _buzzer;
-  std::shared_ptr<InteractionSettings> _settings;
 };
