@@ -1,10 +1,12 @@
 #pragma once
 
+#include "IMediator.h"
 #include <functional>
 #include <string>
+#include <memory>
 
 // Lower EventType value means higher priority
-enum EventType {
+enum class EventType {
   NOEVENT,
   BUTTON_PRESSED,
   OIL_CHANGE_TRACKER_UPDATE,
@@ -22,11 +24,13 @@ public:
 
 // Event Information
 struct EventInfo {
-  const void *sender; // Changed to void* to handle any type of sender
-  EventType eventType;
-  const EventData *data;
+  std::weak_ptr<IColleague> sender;
+  EventType eventType = EventType::NOEVENT;
+  const EventData *data = nullptr;
 
-  EventInfo(const void *sender, EventType type, const EventData *data)
+  EventInfo() = default;
+  EventInfo(std::weak_ptr<IColleague> sender, EventType type,
+            const EventData *data)
       : sender(sender), eventType(type), data(data) {}
 };
 
