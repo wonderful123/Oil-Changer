@@ -3,31 +3,29 @@
 #include "IBuzzer.h"
 #include "Logger.h"
 
+struct BeepSettings {
+  uint standardFrequency;
+  uint standardDurationMs;
+  uint rapidBeepFrequency;
+  uint rapidBeepDuration;
+  uint rapidBeepPauseDuration;
+  uint doubleBeepFrequency;
+  uint doubleBeepDuration;
+  uint doubleBeepPauseDuration;
+};
+
+struct BuzzerState {
+  bool isBeeping;
+  bool isDoubleBeepSecondStage;
+  bool isRapidBeeping;
+};
+
 class BuzzerBase : public IBuzzer {
 public:
   BuzzerBase(const HardwarePinConfig &config)
       : IBuzzer(config), _volume(1.0f) {}
 
   virtual ~BuzzerBase() = default;
-
-  void updateSettings(std::shared_ptr<InteractionSettings> &settings) override {
-    adjustVolume(settings->beepSettings.buzzerVolume);
-
-    _beepFrequency = settings->beepSettings.standardFrequency;
-    _beepDuration = settings->beepSettings.standardDurationMs;
-    _rapidBeepFrequency = settings->beepSettings.rapidBeepFrequency;
-    _rapidBeepDuration = settings->beepSettings.rapidBeepDuration;
-    _rapidBeepPauseDuration = settings->beepSettings.rapidBeepPauseDuration;
-    _doubleBeepFrequency = settings->beepSettings.limitReachedPattern.frequency;
-    _doubleBeepDuration = settings->beepSettings.limitReachedPattern.durationMs;
-    _doubleBeepPauseDuration =
-        settings->beepSettings.limitReachedPattern.pauseDuration;
-  }
-
-  virtual void adjustVolume(float volume) override {
-    _volume =
-        std::max(0.0f, std::min(volume, 1.0f)); // Clamp volume between 0 and 1
-  }
 
   // These methods must be implemented by derived classes
   virtual void beep(uint frequency, uint duration) = 0;
@@ -36,18 +34,39 @@ public:
   virtual void rapidBeep(uint frequency, uint duration, uint interval) = 0;
   virtual void stop() = 0;
 
-  void rapidBeep() override {
-    rapidBeep(_rapidBeepFrequency, _rapidBeepDuration, _rapidBeepPauseDuration);
+  void updateSettings(std::shared_ptr<InteractionSettings> &settings) override {
+    adjustVolume(settings->beepSettings.buzzerVolume);
+
+    _settings = {settings->beepSettings.standardFrequency,
+                 settings->beepSettings.standardDurationMs,
+                 settings->beepSettings.rapidBeepFrequency,
+                 settings->beepSettings.rapidBeepDuration,
+                 settings->beepSettings.rapidBeepPauseDuration,
+                 settings->beepSettings.limitReachedPattern.frequency,
+                 settings->beepSettings.limitReachedPattern.durationMs,
+                 settings->beepSettings.limitReachedPattern.pauseDuration};
   }
 
-  virtual void beep() override { beep(_beepFrequency, _beepDuration); }
+  virtual void adjustVolume(float volume) override {
+    _volume =
+        std::max(0.0f, std::min(volume, 1.0f)); // Clamp volume between 0 and 1
+  }
+
+  void rapidBeep() override {
+    rapidBeep(_settings.rapidBeepFrequency, _settings.rapidBeepDuration,
+              _settings.rapidBeepPauseDuration);
+  }
+
+  virtual void beep() override {
+    beep(_settings.standardFrequency, _settings.standardDurationMs);
+  }
 
   virtual void doubleBeep() override {
-    doubleBeep(_doubleBeepFrequency, _doubleBeepDuration,
-               _doubleBeepPauseDuration);
+    doubleBeep(_settings.doubleBeepFrequency, _settings.doubleBeepDuration,
+               _settings.doubleBeepPauseDuration);
   }
 
-  bool isBeeping() override { return _isBeeping; }
+  bool isBeeping() override { return _state.isBeeping; }
 
   void setOnBeepCallback(std::function<void()> callback) override {
     _onBeepCallback = std::move(callback);
@@ -55,18 +74,8 @@ public:
 
 protected:
   float _volume;
-  bool _isBeeping;
-  bool _isDoubleBeepSecondStage;
-  bool _isRapidBeeping;
-
-  uint _beepFrequency;
-  uint _beepDuration;
-  uint _rapidBeepFrequency;
-  uint _rapidBeepDuration;
-  uint _rapidBeepPauseDuration;
-  uint _doubleBeepFrequency;
-  uint _doubleBeepDuration;
-  uint _doubleBeepPauseDuration;
+  BeepSettings _settings;
+  BuzzerState _state;
 
   std::function<void()> _onBeepCallback;
 };
