@@ -7,7 +7,9 @@
 OilChangeTracker::OilChangeTracker(std::shared_ptr<IMediator> mediator)
     : IColleague(mediator), _mediator(mediator), _fillCapacity(0),
       _amountFilled(0), _amountExtracted(0), _flowRateFill(0),
-      _flowRateExtract(0), _voltage(0) {}
+      _flowRateExtract(0), _voltage(0) {
+  _mediator->registerForEvent(this, EventType::OIL_CHANGE_TRACKER_UPDATE);
+}
 
 OilChangeTracker &
 OilChangeTracker::getInstance(std::shared_ptr<IMediator> mediator) {
@@ -68,7 +70,22 @@ void OilChangeTracker::setMediator(std::shared_ptr<IMediator> mediator) {
 
 void OilChangeTracker::receiveEvent(EventType eventType,
                                     const EventData *eventData) {
-  // Handle events here
+  switch (eventType) {
+  case OIL_CHANGE_TRACKER_UPDATE:
+    if (eventData) {
+      // Assuming 'id' is used to specify what to update (e.g., fill capacity)
+      if (eventData->id == "fill_capacity") {
+        // Check the value to determine increment or decrement
+        if (eventData->value > 0) {
+          incrementFillCapacity(eventData->value);
+        } else if (eventData->value < 0) {
+          decrementFillCapacity(std::abs(eventData->value));
+        }
+      }
+    }
+    break;
+    // Handle other events as needed
+  }
 }
 
 void OilChangeTracker::notifyMediator(EventType eventType) {
