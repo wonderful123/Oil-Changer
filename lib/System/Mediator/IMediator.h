@@ -1,17 +1,49 @@
 #pragma once
 
-#include "EventType.h"
+#include "Event.h"
+#include <memory>
 
 class IColleague;
-class EventData;
 
+// IMediator Interface
 class IMediator {
 public:
   virtual ~IMediator() = default;
 
-  virtual void registerColleague(IColleague *colleague) = 0;
+  // Registers a colleague for a specific event
+  virtual void registerForEvent(IColleague *colleague, EventType eventType) = 0;
 
-  // Method to be called when a colleague has an event to share
+  // Deregisters a colleague from a specific event
+  virtual void deregisterForEvent(IColleague *colleague,
+                                  EventType eventType) = 0;
+
+  // Notify the Mediator about an event from a Colleague
   virtual void notify(const IColleague *sender, EventType eventType,
                       const EventData *data = nullptr) = 0;
+
+  // Queue an event
+  virtual void queueEvent(const IColleague *sender, EventType eventType,
+                          const EventData *data = nullptr) = 0;
+
+  // Process all queued events
+  virtual void processEvents() = 0;
+};
+
+// IColleague Interface
+class IColleague {
+protected:
+  std::shared_ptr<IMediator> _mediator;
+
+public:
+  explicit IColleague(std::shared_ptr<IMediator> mediator)
+      : _mediator(std::move(mediator)) {}
+
+  virtual ~IColleague() = default;
+
+  void sendEvent(EventType eventType, const EventData &eventData) {
+    _mediator->notify(this, eventType, &eventData);
+  }
+
+  virtual void receiveEvent(EventType eventType,
+                            const EventData *eventData) = 0;
 };

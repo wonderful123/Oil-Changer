@@ -3,9 +3,7 @@
 
 #include <iostream>
 
-#include "ConcreteMediator.h"
-#include "EventData.h"
-#include "IColleague.h"
+#include "Mediator/ConcreteMediator.h"
 #include "MockMediator.h"
 
 // Mock class for IColleague

@@ -1,44 +1,62 @@
 #pragma once
 
-#include "IColleague.h"
+#include "Event.h"
 #include <algorithm>
+#include <functional>
 #include <mutex>
+#include <queue>
+#include <unordered_map>
 #include <vector>
 
 class ConcreteMediator : public IMediator {
-  std::vector<IColleague *> colleagues;
+  std::unordered_map<EventType, std::vector<IColleague *>> eventColleagues;
+  std::priority_queue<EventInfo, std::vector<EventInfo>, EventComparator>
+      eventQueue; // Uses a custom comparator for priority
   std::mutex mutex;
+  bool processing = false; // Flag to handle reentrant calls to processEvents
 
 public:
-  void registerColleague(IColleague *colleague) {
-    std::lock_guard<std::mutex> lock(
-        mutex); // Use lock if thread safety is needed.
-    if (std::find(colleagues.begin(), colleagues.end(), colleague) ==
-        colleagues.end()) {
-      colleagues.push_back(colleague);
-    }
+  // Event registration for specific events
+  void registerForEvent(IColleague *colleague, EventType eventType) override {
+    std::lock_guard<std::mutex> lock(mutex);
+    eventColleagues[eventType].push_back(colleague);
   }
 
-  void deregisterColleague(IColleague *colleague) {
-    std::lock_guard<std::mutex> lock(
-        mutex); // Use lock if thread safety is needed.
+  void deregisterForEvent(IColleague *colleague, EventType eventType) override {
+    std::lock_guard<std::mutex> lock(mutex);
+    auto &colleagues = eventColleagues[eventType];
     colleagues.erase(
         std::remove(colleagues.begin(), colleagues.end(), colleague),
         colleagues.end());
   }
 
-  void notify(const IColleague *sender, EventType eventType,
-              const EventData *data = nullptr) override {
-    for (auto &colleague : colleagues) {
-      if (colleague != sender) {
-        colleague->receiveEvent(eventType, data);
-      }
-    }
+  // Queue an event with its data
+  void queueEvent(const IColleague *sender, EventType eventType,
+                  const EventData *data = nullptr) override {
+    std::lock_guard<std::mutex> lock(mutex);
+    eventQueue.push(EventInfo(sender, eventType, data));
   }
 
-  bool isColleagueRegistered(IColleague *colleague) {
-    std::lock_guard<std::mutex> lock(mutex); // Use lock for thread safety
-    return std::find(colleagues.begin(), colleagues.end(), colleague) !=
-           colleagues.end();
+  // Process all queued events in order of priority
+  void processEvents() override {
+    if (processing)
+      return; // Avoid reentrant calls
+    processing = true;
+
+    while (!eventQueue.empty()) {
+      std::lock_guard<std::mutex> lock(mutex); // Lock for each event
+
+      auto event = eventQueue.top();
+      eventQueue.pop();
+
+      // Notify only interested colleagues
+      for (auto &colleague : eventColleagues[event.eventType]) {
+        if (colleague != event.sender) {
+          colleague->receiveEvent(event.eventType, event.data);
+        }
+      }
+    }
+
+    processing = false;
   }
 };
