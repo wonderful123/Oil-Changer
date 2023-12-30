@@ -3,12 +3,10 @@
 
 #include "Logger.h"
 
-SystemFactory::SystemFactory(std::shared_ptr<IFileHandler> fileHandler)
-    : _fileHandler(fileHandler) {
+void SystemFactory::initializeSystem(
+    std::shared_ptr<IFileHandler> fileHandler) {
+  _fileHandler = fileHandler;
   _mediator = std::make_shared<ConcreteMediator>();
-}
-
-void SystemFactory::initializeSystem() {
   createConfigManager();
   createHardwareManager();
   createSystemController();

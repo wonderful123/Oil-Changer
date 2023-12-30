@@ -53,8 +53,8 @@ void initializeLogger() {
 
 Error initializeSystem() {
   fileHandler = std::shared_ptr<IFileHandler>(new ESP32FileHandler());
-  SystemFactory systemFactory(fileHandler);
-  systemFactory.initializeSystem();
+  SystemFactory &systemFactory = SystemFactory::getInstance();
+  systemFactory.initializeSystem(fileHandler);
   systemController = systemFactory.getSystemController();
   hardwareManager = systemFactory.getHardwareManager();
 

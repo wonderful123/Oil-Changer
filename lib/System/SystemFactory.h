@@ -12,8 +12,13 @@
 
 class SystemFactory {
 public:
-  explicit SystemFactory(std::shared_ptr<IFileHandler> fileHandler);
-  void initializeSystem();
+  static SystemFactory &getInstance() {
+    static SystemFactory instance;
+    return instance;
+  }
+
+  void initializeSystem(std::shared_ptr<IFileHandler> fileHandler);
+
   std::shared_ptr<SystemController> getSystemController();
   std::shared_ptr<HardwareManager> getHardwareManager();
   std::shared_ptr<ButtonController> getButtonController();
@@ -30,4 +35,11 @@ private:
   void createHardwareManager();
   void createSystemController();
   void createOilChangeTracker();
+
+  // Private Constructor
+  SystemFactory() {}
+
+  // Delete copy constructor and assignment operator to prevent copies
+  SystemFactory(SystemFactory const &) = delete;            // Copy construct
+  SystemFactory &operator=(SystemFactory const &) = delete; // Copy assign
 };
