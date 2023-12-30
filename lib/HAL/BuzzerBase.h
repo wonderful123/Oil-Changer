@@ -1,7 +1,7 @@
 #pragma once
 
 #include "IBuzzer.h"
-#include "Logger.h"
+#include "InteractionSettings.h"
 
 struct BeepSettings {
   uint standardFrequency;

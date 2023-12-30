@@ -11,18 +11,16 @@ concerns.
 
 #pragma once
 
+#include "HardwareComponent.h"
 #include <map>
 #include <memory>
 #include <typeindex>
 #include <typeinfo>
 #include <vector>
 
-#include "BuzzerManager.h"
-#include "HardwareInitializer.h"
-
 class ConfigManager;
-class HardwareComponent;
 class HardwarePinConfig;
+class Error;
 
 class HardwareManager {
 private:

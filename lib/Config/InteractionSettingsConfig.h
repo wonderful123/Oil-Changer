@@ -1,8 +1,8 @@
 #pragma once
 
 #include "BaseConfig.h"
-#include "InteractionSettings.h"
 
+class InteractionSettings;
 class Error;
 
 class InteractionSettingsConfig : public BaseConfig {

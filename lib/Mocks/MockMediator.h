@@ -1,7 +1,9 @@
+#pragma once
+
 #include <gmock/gmock.h>
 
-#include "EventType.h"
-#include "IMediator.h"
+#include "Mediator/Event.h"
+#include "Mediator/IMediator.h"
 
 class MockMediator : public IMediator {
  public:

@@ -1,14 +1,14 @@
 #include "HardwareManager.h"
 
-#include "ConfigTypes.h"
+#include "ConfigManager.h"
+#include "Error.h"
 #include "HardwareComponent.h"
-#include "HardwareConfig.h"
+#include "HardwareFactory.h"
 #include "HardwareInitializer.h"
-#include "HardwarePinConfig.h"
-#include "Logger.h"
 
 Error HardwareManager::initialize() {
-  HardwareInitializer initializer(ConfigManager::getInstance(), HardwareFactory::getHardwareFactory());
+  HardwareInitializer initializer(ConfigManager::getInstance(),
+                                  HardwareFactory::getHardwareFactory());
 
   Error initError = initializer.initialize(_components);
   if (initError) {

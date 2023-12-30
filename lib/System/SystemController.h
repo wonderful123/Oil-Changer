@@ -1,12 +1,15 @@
 #pragma once
 
-#include "AutoRepeatHandler.h"
-#include "ButtonController.h"
-#include "BuzzerManager.h"
-#include "ConfigManager.h"
+#include "Error.h"
 #include "FSM/StateMachine.h"
-#include "HardwareManager.h"
 #include "Mediator/IMediator.h"
+
+class ButtonController;
+class HardwareManager;
+class AutoRepeatHandler;
+class BuzzerManager;
+class ConfigManager;
+class InteractionSettings;
 
 class SystemController : public IColleague {
 public:

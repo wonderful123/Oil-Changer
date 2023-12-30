@@ -1,4 +1,8 @@
 #include "HardwareInitializer.h"
+#include "ConfigManager.h"
+#include "HardwareConfig.h"
+#include "HardwareFactory.h"
+#include "HardwarePinConfig.h"
 
 HardwareInitializer::HardwareInitializer(
     std::shared_ptr<ConfigManager> configManager,

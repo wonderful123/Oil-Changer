@@ -3,12 +3,13 @@
 
 #include <memory>
 
-#include "ConcreteMediator.h"
-#include "ConfigManager.h"
-#include "HardwareManager.h"
-#include "IFileHandler.h"
-#include "OilChangeTracker.h"
-#include "SystemController.h"
+class IMediator;
+class ConfigManager;
+class IFileHandler;
+class HardwareManager;
+class OilChangeTracker;
+class SystemController;
+class ButtonController;
 
 class SystemFactory {
 public:

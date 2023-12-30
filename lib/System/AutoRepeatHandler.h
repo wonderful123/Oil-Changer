@@ -1,12 +1,14 @@
 #pragma once
 
-#include "ButtonController.h"
 #include "InteractionSettings.h"
 #include "Observer/IObserver.h"
-
 #include <chrono>
+#include <memory>
 #include <unordered_map>
 #include <unordered_set>
+
+class ButtonController;
+class InteractionSettings;
 
 class AutoRepeatHandler : public IObserver {
 public:

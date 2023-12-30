@@ -1,9 +1,10 @@
 #pragma once
 
 #include "HardwareComponent.h"
-#include "InteractionSettings.h"
 #include <functional>
 #include <memory>
+
+class InteractionSettings;
 
 class IBuzzer : public HardwareComponent {
 public:

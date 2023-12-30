@@ -1,5 +1,6 @@
 // BuzzerManager.cpp
 #include "BuzzerManager.h"
+#include "IBuzzer.h"
 #include "Logger.h"
 
 BuzzerManager::BuzzerManager(std::shared_ptr<IBuzzer> buzzer,

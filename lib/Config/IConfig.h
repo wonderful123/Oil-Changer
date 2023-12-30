@@ -1,6 +1,5 @@
 #pragma once
 
-#include <IFileHandler.h>
 #include <string>
 
 class Error;

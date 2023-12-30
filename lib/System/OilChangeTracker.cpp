@@ -2,18 +2,19 @@
 
 #include "OilChangeTracker.h" // Include the header file for the class
 
-#include "Mediator/ConcreteMediator.h"
-
 OilChangeTracker::OilChangeTracker(std::shared_ptr<IMediator> mediator)
-    : IColleague(mediator), _mediator(mediator), _fillCapacity(0),
-      _amountFilled(0), _amountExtracted(0), _flowRateFill(0),
-      _flowRateExtract(0), _voltage(0) {
-  _mediator->registerForEvent(this, EventType::OIL_CHANGE_TRACKER_UPDATE);
+    : _mediator(std::move(mediator)), _fillCapacity(0), _amountFilled(0),
+      _amountExtracted(0), _flowRateFill(0), _flowRateExtract(0), _voltage(0) {
+  if (_mediator) {
+    _mediator->registerForEvent(shared_from_this(),
+                                EventType::OIL_CHANGE_TRACKER_UPDATE);
+  }
 }
 
-OilChangeTracker &
+std::shared_ptr<OilChangeTracker>
 OilChangeTracker::getInstance(std::shared_ptr<IMediator> mediator) {
-  static OilChangeTracker instance(mediator);
+  static std::shared_ptr<OilChangeTracker> instance =
+      std::shared_ptr<OilChangeTracker>(new OilChangeTracker(mediator));
   return instance;
 }
 
@@ -71,7 +72,7 @@ void OilChangeTracker::setMediator(std::shared_ptr<IMediator> mediator) {
 void OilChangeTracker::receiveEvent(EventType eventType,
                                     const EventData *eventData) {
   switch (eventType) {
-  case OIL_CHANGE_TRACKER_UPDATE:
+  case EventType::OIL_CHANGE_TRACKER_UPDATE:
     if (eventData) {
       // Assuming 'id' is used to specify what to update (e.g., fill capacity)
       if (eventData->id == "fill_capacity") {
@@ -88,9 +89,10 @@ void OilChangeTracker::receiveEvent(EventType eventType,
   }
 }
 
-void OilChangeTracker::notifyMediator(EventType eventType) {
+void OilChangeTracker::notifyMediator(EventType eventType,
+                                      const EventData *data) {
   if (_mediator) {
-    _mediator->notify(this, eventType, {/* Additional event data if needed */});
+    _mediator->notify(this, eventType, data);
   }
 }
 

@@ -6,6 +6,8 @@
 // Project-specific headers
 #include "AutoRepeatHandler.h"
 #include "ButtonController.h"
+#include "BuzzerManager.h"
+#include "ConfigManager.h"
 #include "ConfigTypes.h"
 #include "FSM/StateMachine.h"
 #include "FSM/States.h"
@@ -13,6 +15,8 @@
 #include "HardwareManager.h"
 #include "IButton.h"
 #include "IBuzzer.h"
+#include "InteractionSettings.h"
+#include "InteractionSettingsConfig.h"
 #include "Logger.h"
 
 FSM_INITIAL_STATE(StateMachine, Ready);

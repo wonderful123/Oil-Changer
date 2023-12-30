@@ -1,5 +1,6 @@
 // AutoRepeatHandler.cpp
 #include "AutoRepeatHandler.h"
+#include "ButtonController.h"
 #include "Logger.h"
 
 AutoRepeatHandler::AutoRepeatHandler(

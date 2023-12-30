@@ -1,11 +1,10 @@
 #include "ConfigManager.h"
-
-#include <string>
-
-#include "BaseConfig.h"
 #include "HardwareConfig.h"
 #include "IFileHandler.h"
 #include "InteractionSettingsConfig.h"
+
+#include <string>
+
 // Responsible for loading configuration data from a source (like a JSON file)
 // and passing it to the appropriate managers
 

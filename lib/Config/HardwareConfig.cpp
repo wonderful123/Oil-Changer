@@ -4,13 +4,14 @@
 
 #include <string>
 
+#include "HardwarePinConfig.h"
 #include "Logger.h"
 
 HardwareConfig::HardwareConfig(std::shared_ptr<IFileHandler> fileHandler)
     : BaseConfig(fileHandler) {}
 
-const std::vector<HardwarePinConfig> &HardwareConfig::getHardwarePinConfigs()
-    const {
+const std::vector<HardwarePinConfig> &
+HardwareConfig::getHardwarePinConfigs() const {
   return _hardwarePinConfigs;
 }
 
@@ -62,8 +63,8 @@ Error HardwareConfig::parsePinGroup(const JsonArrayConst &groupObj,
     std::string type = obj["type"].as<std::string>();
     HardwarePinConfig config = isMultiPin ? parseMultiPin(obj, id, type)
                                           : parseSinglePin(obj, id, type);
-    parseOptions(obj, config);              // Parse options if any
-    _hardwarePinConfigs.push_back(config);  // Add to list of configs
+    parseOptions(obj, config);             // Parse options if any
+    _hardwarePinConfigs.push_back(config); // Add to list of configs
   }
 
   return Error(Error::OK);

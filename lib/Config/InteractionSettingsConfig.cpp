@@ -1,5 +1,6 @@
-#include "interactionSettingsConfig.h"
-#include "Logger.h"
+#include "InteractionSettingsConfig.h"
+#include "InteractionSettings.h"
+#include "Error.h"
 
 InteractionSettingsConfig::InteractionSettingsConfig(
     std::shared_ptr<IFileHandler> fileHandler)
@@ -143,7 +144,6 @@ Error InteractionSettingsConfig::parseFeedbackSettings(
   return Error(Error::OK);
 }
 
-std::shared_ptr<InteractionSettings>
-InteractionSettingsConfig::getSettings() {
+std::shared_ptr<InteractionSettings> InteractionSettingsConfig::getSettings() {
   return _interactionSettings;
 }

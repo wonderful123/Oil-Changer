@@ -1,25 +1,23 @@
 #pragma once
 
+#include <cmath>
 #include <functional>
 #include <memory>
 #include <string>
 
-#include "ConfigManager.h"
 #include "Mediator/IMediator.h"
 
-class OilChangeTracker : public IColleague {
+class OilChangeTracker : public IColleague,
+                         public std::enable_shared_from_this<OilChangeTracker> {
 public:
-  OilChangeTracker(std::shared_ptr<IMediator> mediator);
-
-  static OilChangeTracker &
+  static std::shared_ptr<OilChangeTracker>
   getInstance(std::shared_ptr<IMediator> mediator = nullptr);
 
   OilChangeTracker(OilChangeTracker const &) = delete;
   void operator=(OilChangeTracker const &) = delete;
 
   void setMediator(std::shared_ptr<IMediator> mediator);
-  virtual void receiveEvent(EventType eventType,
-                            const EventData *eventData) override;
+  void receiveEvent(EventType eventType, const EventData *eventData) override;
 
   // Setters
   void setAmountFilled(double amount);
@@ -44,6 +42,8 @@ public:
   bool isEmpty() const;
 
 private:
+  OilChangeTracker(std::shared_ptr<IMediator> mediator);
+
   double _fillCapacity = 0;
   double _amountFilled = 0;
   double _amountExtracted = 0;
@@ -52,9 +52,8 @@ private:
   double _voltage = 0;         // Voltage sense
 
   std::shared_ptr<IMediator> _mediator;
-  std::shared_ptr<ConfigManager> _configManager;
 
-  void notifyMediator(EventType eventType);
+  void notifyMediator(EventType eventType, const EventData *data = nullptr);
 
   void logStatus() const;
 };

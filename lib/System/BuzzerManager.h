@@ -1,9 +1,12 @@
 #pragma once
 
 #include <memory>
+#include <functional>
 
-#include "IBuzzer.h"
 #include "Observer/IObserver.h"
+
+class InteractionSettings;
+class IBuzzer;
 
 class BuzzerManager : public IObserver { // Inherit from IObserver
 public:

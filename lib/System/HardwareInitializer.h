@@ -3,12 +3,14 @@
 #include <map>
 #include <memory>
 
-#include "ConfigManager.h"
 #include "Error.h"
-#include "HardwareFactory.h"
-#include "HardwarePinConfig.h"
-#include "InteractionSettingsConfig.h"
 #include "Logger.h"
+
+class HardwarePinConfig;
+class ConfigManager;
+class IMediator;
+class HardwareFactory;
+class HardwareComponent;
 
 class HardwareInitializer {
  public:
