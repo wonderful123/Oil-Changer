@@ -1,15 +1,14 @@
+#pragma once
+
 #include <tinyfsm.hpp>
 
 #include "Events.h"
-#include "OilChangeTracker.h"
 #include "ReadyState.h"
-#include "StateMachine.h"
 
 class StateMachine;
 
 // Event forward declarations
 class Initializing;
-class Ready;
 class Extracting;
 class Filling;
 class InterimTask;
@@ -27,6 +26,13 @@ public:
     // Handle initialization related events
     // Specific handling logic for each initialization event type
   }
+};
+
+class Extracting : public StateMachine {
+public:
+  void entry() override{ };
+
+  void react(tinyfsm::Event const &) {}
 };
 
 class InterimTask : public StateMachine {
