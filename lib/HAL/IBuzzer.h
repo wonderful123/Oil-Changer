@@ -1,7 +1,8 @@
 #pragma once
 
-#include "InteractionSettings.h"
 #include "HardwareComponent.h"
+#include "InteractionSettings.h"
+#include <functional>
 #include <memory>
 
 class IBuzzer : public HardwareComponent {
@@ -10,7 +11,8 @@ public:
 
   virtual ~IBuzzer() = default;
 
-  virtual void updateSettings(std::shared_ptr<InteractionSettings> &settings) = 0;
+  virtual void
+  updateSettings(std::shared_ptr<InteractionSettings> &settings) = 0;
   virtual void beep() = 0;
   virtual void beep(uint frequency, uint duration) = 0;
   virtual void doubleBeep() = 0;
@@ -22,6 +24,7 @@ public:
   virtual bool isBeeping() = 0;
   virtual void adjustVolume(float volume) = 0;
 
-  // Used for increment/decrement OilChangeTracker values at the same time as the rapid beep.
+  // Used for increment/decrement OilChangeTracker values at the same time as
+  // the rapid beep.
   virtual void setOnRapidBeepCallback(std::function<void()> callback) = 0;
 };
