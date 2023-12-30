@@ -15,6 +15,10 @@ void SystemFactory::initializeSystem(
   Logger::info("[SystemFactory] All system components initialized");
 }
 
+std::shared_ptr<IMediator> SystemFactory::getMediator() {
+  return _mediator;
+}
+
 std::shared_ptr<SystemController> SystemFactory::getSystemController() {
   return _systemController;
 }

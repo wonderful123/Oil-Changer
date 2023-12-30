@@ -1,5 +1,6 @@
 #include "ReadyState.h"
 
+#include "ConcreteMediator.h"
 #include "Logger.h"
 #include "States.h"
 
@@ -7,6 +8,7 @@ Ready::Ready() {
   auto &systemFactory = SystemFactory::getInstance();
   _buzzerManager = systemFactory.getSystemController()->getBuzzerManager();
   _buttonController = systemFactory.getButtonController();
+  _mediator = systemFactory.getMediator();
 }
 
 void Ready::entry() {
@@ -26,6 +28,19 @@ void Ready::exit() {
   _buzzerManager->setOnRapidBeepCallback(nullptr);
 
   StateMachine::exit();
+}
+
+void Ready::handleButtonPress(const std::string &id) {
+  if (id == "ButtonPlus") {
+    _mediator->notify("increment_fill_capacity"); // Mediator handles increment
+    Logger::info("[StateMachine: Ready] Fill capacity incremented.");
+  } else if (id == "ButtonMinus") {
+    _mediator.decrementFillCapacity(); // Mediator handles decrement
+    Logger::info("[StateMachine: Ready] Fill capacity decremented.");
+  } else if (id == "ButtonStart") {
+    Logger::info("[StateMachine: Ready] Starting oil change.");
+    transit<Extracting>();
+  }
 }
 
 void Ready::handleButtonPress(const std::string &id) {

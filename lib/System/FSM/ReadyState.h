@@ -1,6 +1,7 @@
 #include <tinyfsm.hpp>
 
 #include "Observer/IObserver.h"
+#include "Mediator/IMediator.h"
 #include "ButtonController.h"
 #include "BuzzerManager.h"
 #include "SystemFactory.h"
@@ -19,6 +20,7 @@ public:
 private:
   std::shared_ptr<ButtonController> _buttonController;
   std::shared_ptr<BuzzerManager> _buzzerManager;
+  std::shared_ptr<IMediator> _mediator;
 
   void handleButtonPress(const std::string &id);
   void setupBuzzerRapidBeepCallback();

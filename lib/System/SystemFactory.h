@@ -19,6 +19,7 @@ public:
 
   void initializeSystem(std::shared_ptr<IFileHandler> fileHandler);
 
+  std::shared_ptr<IMediator> getMediator();
   std::shared_ptr<SystemController> getSystemController();
   std::shared_ptr<HardwareManager> getHardwareManager();
   std::shared_ptr<ButtonController> getButtonController();
