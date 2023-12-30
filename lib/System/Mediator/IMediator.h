@@ -1,9 +1,11 @@
 #pragma once
 
+class IColleague;
+enum class EventType;
+class EventData;
+
 #include "Event.h"
 #include <memory>
-
-class IColleague;
 
 // IMediator Interface
 class IMediator {
@@ -11,10 +13,11 @@ public:
   virtual ~IMediator() = default;
 
   // Registers a colleague for a specific event
-  virtual void registerForEvent(IColleague *colleague, EventType eventType) = 0;
+  virtual void registerForEvent(std::shared_ptr<IColleague> colleague,
+                                EventType eventType) = 0;
 
   // Deregisters a colleague from a specific event
-  virtual void deregisterForEvent(IColleague *colleague,
+  virtual void deregisterForEvent(std::shared_ptr<IColleague> colleague,
                                   EventType eventType) = 0;
 
   // Notify the Mediator about an event from a Colleague
@@ -22,7 +25,8 @@ public:
                       const EventData *data = nullptr) = 0;
 
   // Queue an event
-  virtual void queueEvent(const IColleague *sender, EventType eventType,
+  virtual void queueEvent(std::shared_ptr<IColleague> sender,
+                          EventType eventType,
                           const EventData *data = nullptr) = 0;
 
   // Process all queued events
