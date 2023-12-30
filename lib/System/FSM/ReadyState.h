@@ -12,6 +12,7 @@ class Extracting;
 
 class Ready : public StateMachine,
               public IObserver,
+              public IColleague,
               public std::enable_shared_from_this<Ready> {
 public:
   void entry() override;
