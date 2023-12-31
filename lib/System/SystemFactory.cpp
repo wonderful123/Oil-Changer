@@ -1,7 +1,6 @@
 // SystemFactory.cpp
 #include "SystemFactory.h"
 #include "ButtonController.h"
-#include "ConcreteMediator.h"
 #include "ConfigManager.h"
 #include "HardwareManager.h"
 #include "Mediator/ConcreteMediator.h"
