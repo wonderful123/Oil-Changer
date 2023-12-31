@@ -22,13 +22,13 @@ protected:
     std::string mode = config.getOptionAs<std::string>("mode");
 
     if (mode == "INPUT") {
-      _mode = IDigitalIO::INPUT_MODE;
+      _mode = IDigitalIO::Mode::INPUT_MODE;
     } else if (mode == "OUTPUT") {
-      _mode = IDigitalIO::OUTPUT_MODE;
+      _mode = IDigitalIO::Mode::OUTPUT_MODE;
     } else {
       // Handle invalid mode
       Error(Error::DigitalIOModeOptionMissingOrInvalid);
-      _mode = IDigitalIO::INPUT_MODE; // Default to INPUT mode
+      _mode = IDigitalIO::Mode::INPUT_MODE; // Default to INPUT mode
     }
   }
 
