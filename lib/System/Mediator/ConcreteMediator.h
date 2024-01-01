@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Event.h"
 #include "IMediator.h"
 #include <algorithm>
 #include <functional>
@@ -96,5 +97,4 @@ public:
       }
     }
   }
-  
 };
