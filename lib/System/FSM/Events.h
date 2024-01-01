@@ -5,16 +5,34 @@
 
 // Base Button Press Event
 struct ButtonPressEvent : tinyfsm::Event {
-  std::string buttonId;
-  explicit ButtonPressEvent(const std::string &id) : buttonId(id) {}
+  enum class Action {
+    PRESS,
+    RELEASE
+  };
+
+  enum class Id {
+    PLUS,
+    MINUS,
+    START,
+    STOP,
+    MANUALEXTRACT,
+    MANUALFILL
+  };
+
+  Action action;
+  Id id;
 };
 
+using Action = ButtonPressEvent::Action; // Make Action available directly
+using Id = ButtonPressEvent::Id;         // Make Id available directly
+
 // Specific Button Press Events
-struct ButtonPlusPressedEvent : ButtonPressEvent {};
-struct ButtonMinusPressedEvent : ButtonPressEvent {};
-struct StartButtonPressedEvent : ButtonPressEvent {};
-struct ManualFillButtonPressedEvent : ButtonPressEvent {};
-struct ManualExtractButtonPressedEvent : ButtonPressEvent {};
+struct PlusButtonEvent : ButtonPressEvent {};
+struct MinusButtonEvent : ButtonPressEvent {};
+struct StartButtonEvent : ButtonPressEvent {};
+struct StopButtonEvent : ButtonPressEvent {};
+struct ManualFillButtonEvent : ButtonPressEvent {};
+struct ManualExtractButtonEvent : ButtonPressEvent {};
 
 // Other Event Types
 struct InitializationEvent : tinyfsm::Event {
