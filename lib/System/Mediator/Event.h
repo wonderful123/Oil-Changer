@@ -1,9 +1,10 @@
 #pragma once
 
-#include "IMediator.h"
 #include <functional>
-#include <string>
 #include <memory>
+#include <string>
+
+class IColleague;
 
 // Lower EventType value means higher priority
 enum class EventType {
@@ -19,7 +20,7 @@ enum class EventType {
 class EventData {
 public:
   std::string id; // For identifying the source, like a button ID
-  int value;
+  float value;
 };
 
 // Event Information
