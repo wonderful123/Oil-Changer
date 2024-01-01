@@ -25,7 +25,6 @@ void ButtonController::processButtonStates() {
     } else if (prevState.isPressed && !currentState.isPressed) {
       notify("button_released", id);
     }
-    // Handle other states and transitions as needed
   }
 }
 
@@ -35,11 +34,11 @@ void ButtonController::notify(const std::string &event, const std::string &id) {
   }
 }
 
-void ButtonController::attach(std::shared_ptr<IObserver> observer) {
+void ButtonController::attach(IObserver *observer) {
   _observers.push_back(observer);
 }
 
-void ButtonController::detach(std::shared_ptr<IObserver> observer) {
+void ButtonController::detach(IObserver *observer) {
   auto it = std::find(_observers.begin(), _observers.end(), observer);
   if (it != _observers.end()) {
     _observers.erase(it);
