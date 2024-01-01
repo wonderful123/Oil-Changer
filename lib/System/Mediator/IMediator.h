@@ -1,11 +1,9 @@
 #pragma once
 
-class IColleague;
-enum class EventType;
-class EventData;
-
-#include "Event.h"
 #include <memory>
+
+class IColleague;
+#include "Event.h"
 
 // IMediator Interface
 class IMediator {
@@ -52,6 +50,9 @@ public:
     _mediator->notify(this, eventType, &eventData);
   }
 
-  virtual void receiveEvent(EventType eventType,
-                            const EventData *eventData) = 0;
+  virtual void receiveEvent(EventType eventType, const EventData *eventData) {
+    // Default empty implementation
+    // Classes inheriting from IColleague are not forced to implement this
+    // method.
+  }
 };
