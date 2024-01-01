@@ -16,11 +16,11 @@ public:
   virtual void processButtonStates();
   virtual std::shared_ptr<IButton> getButtonById(const std::string &id) const;
 
-  void attach(std::shared_ptr<IObserver> observer) override;
-  void detach(std::shared_ptr<IObserver> observer) override;
+  void attach(IObserver *observer) override;
+  void detach(IObserver *observer) override;
   void notify(const std::string &event, const std::string &id) override;
 
 private:
   std::unordered_map<std::string, std::shared_ptr<IButton>> _buttons;
-  std::vector<std::shared_ptr<IObserver>> _observers;
+  std::vector<IObserver *> _observers;
 };
