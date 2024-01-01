@@ -3,8 +3,11 @@
 #include "OilChangeTracker.h" // Include the header file for the class
 
 OilChangeTracker::OilChangeTracker(std::shared_ptr<IMediator> mediator)
-    : _mediator(std::move(mediator)), _fillCapacity(0), _amountFilled(0),
-      _amountExtracted(0), _flowRateFill(0), _flowRateExtract(0), _voltage(0) {
+    : _mediator(mediator), _fillCapacity(4.0f), _amountFilled(0),
+      _amountExtracted(0), _flowRateFill(0), _flowRateExtract(0), _voltage(0) {}
+
+void OilChangeTracker::initialize(std::shared_ptr<IMediator> mediator) {
+  _mediator = mediator;
   if (_mediator) {
     _mediator->registerForEvent(shared_from_this(),
                                 EventType::OIL_CHANGE_TRACKER_UPDATE);
@@ -13,15 +16,14 @@ OilChangeTracker::OilChangeTracker(std::shared_ptr<IMediator> mediator)
 
 std::shared_ptr<OilChangeTracker>
 OilChangeTracker::getInstance(std::shared_ptr<IMediator> mediator) {
-  static std::shared_ptr<OilChangeTracker> instance =
-      std::shared_ptr<OilChangeTracker>(new OilChangeTracker(mediator));
+  static std::shared_ptr<OilChangeTracker> instance(
+      new OilChangeTracker(mediator));
+  instance->initialize(mediator);
   return instance;
 }
 
 // Define the setter methods
-void OilChangeTracker::setAmountFilled(double amount) {
-  _amountFilled = amount;
-}
+void OilChangeTracker::setAmountFilled(double amount) { _amountFilled = amount; }
 
 void OilChangeTracker::setAmountExtracted(double amount) {
   _amountExtracted = amount;
@@ -78,9 +80,9 @@ void OilChangeTracker::receiveEvent(EventType eventType,
       if (eventData->id == "fill_capacity") {
         // Check the value to determine increment or decrement
         if (eventData->value > 0) {
-          incrementFillCapacity(eventData->value);
+          incrementFillCapacity(); // ignore the value and use the default
         } else if (eventData->value < 0) {
-          decrementFillCapacity(std::abs(eventData->value));
+          decrementFillCapacity(); // ignore the value and use the default
         }
       }
     }

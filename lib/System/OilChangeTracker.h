@@ -25,8 +25,8 @@ public:
   void setFlowRateFill(double rate);
   void setFlowRateExtract(double rate);
   void setVoltage(double volt);
-  void incrementFillCapacity(double amount = 0.1f);
-  void decrementFillCapacity(double amount = 0.1f);
+  void incrementFillCapacity(double amount = 0.1);
+  void decrementFillCapacity(double amount = 0.1);
 
   // Getters
   double fillCapacity() const;
@@ -43,6 +43,8 @@ public:
 
 private:
   OilChangeTracker(std::shared_ptr<IMediator> mediator);
+
+  void initialize(std::shared_ptr<IMediator> mediator);
 
   double _fillCapacity = 0;
   double _amountFilled = 0;
