@@ -2,6 +2,7 @@
 #include "HardwareConfig.h"
 #include "IFileHandler.h"
 #include "InteractionSettingsConfig.h"
+#include "Mediator/Event.h"
 
 #include <string>
 
