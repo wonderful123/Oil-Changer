@@ -10,6 +10,7 @@ class HardwareManager;
 class OilChangeTracker;
 class SystemController;
 class ButtonController;
+class StateMachine;
 
 class SystemFactory {
 public:
@@ -21,11 +22,13 @@ public:
   void initializeSystem(std::shared_ptr<IFileHandler> fileHandler);
 
   std::shared_ptr<IMediator> getMediator();
+  std::shared_ptr<StateMachine> getStateMachine();
   std::shared_ptr<SystemController> getSystemController();
   std::shared_ptr<HardwareManager> getHardwareManager();
   std::shared_ptr<ButtonController> getButtonController();
 
 private:
+  std::shared_ptr<StateMachine> _stateMachine;
   std::shared_ptr<HardwareManager> _hardwareManager;
   std::shared_ptr<SystemController> _systemController;
   std::shared_ptr<SystemController> _buttonController;
@@ -33,6 +36,7 @@ private:
   std::shared_ptr<IMediator> _mediator;
   std::shared_ptr<OilChangeTracker> _oilChangeTracker;
 
+  void createStateMachine();
   void createConfigManager();
   void createHardwareManager();
   void createSystemController();

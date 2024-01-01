@@ -2,42 +2,33 @@
 #include "SystemFactory.h"
 #include "ButtonController.h"
 #include "ConfigManager.h"
+#include "FSM/StateMachine.h"
+#include "FSM/States.h"
 #include "HardwareManager.h"
+#include "Logger.h"
 #include "Mediator/ConcreteMediator.h"
 #include "OilChangeTracker.h"
 #include "SystemController.h"
 
-#include "Logger.h"
+FSM_INITIAL_STATE(StateMachine, Initializing);
 
 void SystemFactory::initializeSystem(
     std::shared_ptr<IFileHandler> fileHandler) {
   _fileHandler = fileHandler;
   _mediator = std::make_shared<ConcreteMediator>();
+  createStateMachine();
   createConfigManager();
   createHardwareManager();
   createSystemController();
   createOilChangeTracker();
 
   Logger::info("[SystemFactory] All system components initialized");
+  _stateMachine->dispatch(InitializationCompleteEvent());
 }
 
-std::shared_ptr<IMediator> SystemFactory::getMediator() { return _mediator; }
-
-std::shared_ptr<SystemController> SystemFactory::getSystemController() {
-  return _systemController;
-}
-
-std::shared_ptr<HardwareManager> SystemFactory::getHardwareManager() {
-  return _hardwareManager;
-}
-
-std::shared_ptr<ButtonController> SystemFactory::getButtonController() {
-  if (!_systemController) {
-    // Handle the case where _systemController isn't set up yet
-    Logger::error("[SystemFactory] SystemController is not initialized.");
-    return nullptr;
-  }
-  return _systemController->getButtonController();
+void SystemFactory::createStateMachine() {
+  //_stateMachine->start(); // Initialize the state machine
+  stateMachine::start();
 }
 
 void SystemFactory::createConfigManager() {
@@ -61,4 +52,27 @@ void SystemFactory::createSystemController() {
 void SystemFactory::createOilChangeTracker() {
   Logger::info("[SystemFactory] Creating OilChangeTracker...");
   auto _oilChangeTracker = OilChangeTracker::getInstance(_mediator);
+}
+
+std::shared_ptr<IMediator> SystemFactory::getMediator() { return _mediator; }
+
+std::shared_ptr<StateMachine> SystemFactory::getStateMachine() {
+  return _stateMachine;
+}
+
+std::shared_ptr<SystemController> SystemFactory::getSystemController() {
+  return _systemController;
+}
+
+std::shared_ptr<HardwareManager> SystemFactory::getHardwareManager() {
+  return _hardwareManager;
+}
+
+std::shared_ptr<ButtonController> SystemFactory::getButtonController() {
+  if (!_systemController) {
+    // Handle the case where _systemController isn't set up yet
+    Logger::error("[SystemFactory] SystemController is not initialized.");
+    return nullptr;
+  }
+  return _systemController->getButtonController();
 }
