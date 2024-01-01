@@ -24,7 +24,7 @@ struct ConfigLoadedEvent : InitializationEvent {};
 struct HardwareInitializedEvent : InitializationEvent {};
 struct DisplayInitializedEvent : InitializationEvent {};
 struct WebServerStartedEvent : InitializationEvent {};
-struct ReadyEvent : InitializationEvent {};
+struct InitializationCompleteEvent : InitializationEvent {};
 
 struct OilCapacityEvent : tinyfsm::Event {};  // Base event for oil capacity
 struct OilCapacityUpdatedEvent : OilCapacityEvent {};
