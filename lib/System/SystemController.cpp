@@ -9,8 +9,6 @@
 #include "BuzzerManager.h"
 #include "ConfigManager.h"
 #include "ConfigTypes.h"
-#include "FSM/StateMachine.h"
-#include "FSM/States.h"
 #include "HardwareFactory.h"
 #include "HardwareManager.h"
 #include "IButton.h"
@@ -19,15 +17,10 @@
 #include "InteractionSettingsConfig.h"
 #include "Logger.h"
 
-FSM_INITIAL_STATE(StateMachine, Ready);
-
 SystemController::SystemController(
     std::shared_ptr<IMediator> mediator,
     std::shared_ptr<HardwareManager> hardwareManager)
-    : IColleague(mediator), _mediator(mediator),
-      _hardwareManager(hardwareManager) {
-  _stateMachine.start(); // Initialize the state machine
-}
+    : _hardwareManager(hardwareManager) {}
 
 void SystemController::initializeSystemComponents() {
   if (!loadInteractionSettings()) {
@@ -68,7 +61,7 @@ void SystemController::initializeAutoRepeatHandler(
     std::shared_ptr<InteractionSettings> &interactionSettings) {
   _autoRepeatHandler = std::make_shared<AutoRepeatHandler>(_buttonController,
                                                            interactionSettings);
-  _buttonController->attach(_autoRepeatHandler);
+  _buttonController->attach(_autoRepeatHandler.get());
 }
 
 Error SystemController::initializeButtonController() {
@@ -104,40 +97,25 @@ Error SystemController::initializeBuzzerManager(
   }
 
   _buzzerManager = std::make_shared<BuzzerManager>(buzzer, interactionSettings);
-  _buttonController->attach(_buzzerManager); // Attach BuzzerManager as an
+  _buttonController->attach(_buzzerManager.get()); // Attach BuzzerManager as an
                                              // observer to ButtonController
   return Error::OK;
 }
 
-void SystemController::receiveEvent(EventType eventType,
-                                    const EventData *eventData) {
-  // Handle events communicated by the mediator
-  if (eventType == EventType::BUTTON_PRESSED) {
-    onButtonPress(eventData->id);
-  }
-  // Other event types can be handled here as needed
-}
-
-void SystemController::onButtonPress(const std::string &id) {
-  // Handle button press event
-  Logger::info("[SystemController] Button pressed: " + id);
-  ButtonPressEvent event(id);
-  _stateMachine.dispatch(event);
-}
-
-void SystemController::update(EventType eventType) {
-  // Notify the mediator about the event
-  _mediator->notify(this, eventType);
-}
-
 void SystemController::performPeriodicUpdate() {
-  _buttonController->processButtonStates();
-  _autoRepeatHandler->checkAutoRepeat();
-  _mediator->processEvents();
+  if (_buttonController) {
+    _buttonController->processButtonStates();
+  }
+  if (_autoRepeatHandler) {
+    _autoRepeatHandler->checkAutoRepeat();
+  }
+  if (_mediator) {
+    _mediator->processEvents();
+  }
 }
 
 std::shared_ptr<ButtonController> SystemController::getButtonController() {
-  return std::shared_ptr<ButtonController>();
+  return _buttonController;
 }
 
 std::shared_ptr<BuzzerManager> SystemController::getBuzzerManager() {

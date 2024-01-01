@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Error.h"
-#include "FSM/StateMachine.h"
 #include "Mediator/IMediator.h"
 
+class StateMachine;
 class ButtonController;
 class HardwareManager;
 class AutoRepeatHandler;
@@ -11,7 +11,7 @@ class BuzzerManager;
 class ConfigManager;
 class InteractionSettings;
 
-class SystemController : public IColleague {
+class SystemController {
 public:
   SystemController(std::shared_ptr<IMediator> mediator,
                    std::shared_ptr<HardwareManager> hardwareManager);
@@ -19,17 +19,13 @@ public:
   void initializeSystemComponents();
   bool loadInteractionSettings();
 
-  virtual void receiveEvent(EventType eventType,
-                            const EventData *eventData) override;
-  virtual void update(EventType eventType);
-
   void performPeriodicUpdate();
 
   std::shared_ptr<ButtonController> getButtonController();
   std::shared_ptr<BuzzerManager> getBuzzerManager();
 
 private:
-  StateMachine _stateMachine;
+  std::shared_ptr<StateMachine> _stateMachine;
   std::shared_ptr<HardwareManager> _hardwareManager;
   std::shared_ptr<ButtonController> _buttonController;
   std::shared_ptr<BuzzerManager> _buzzerManager;
@@ -42,6 +38,4 @@ private:
   Error initializeButtonController();
   Error initializeBuzzerManager(
       std::shared_ptr<InteractionSettings> &interactionSettings);
-
-  void onButtonPress(const std::string &id);
 };
