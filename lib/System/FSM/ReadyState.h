@@ -14,8 +14,7 @@ class Extracting;
 
 class Ready : public StateMachine,
               public IObserver,
-              public IColleague,
-              public std::enable_shared_from_this<Ready> {
+              public IColleague {
 public:
   Ready();
   void entry() override;
@@ -26,6 +25,7 @@ private:
   std::shared_ptr<BuzzerManager> _buzzerManager;
   std::shared_ptr<IMediator> _mediator;
 
-  void handleButtonPress(const std::string &id);
+  void handleButtonPress(const std::string &buttonId);
+  void onNotify(const std::string &event, const std::string &buttonId);
   void setupBuzzerRapidBeepCallback();
 };
