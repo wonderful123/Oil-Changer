@@ -8,7 +8,6 @@
 
 class HardwarePinConfig;
 class ConfigManager;
-class IMediator;
 class HardwareFactory;
 class HardwareComponent;
 
@@ -23,7 +22,6 @@ class HardwareInitializer {
  private:
   std::shared_ptr<ConfigManager> _configManager;
   std::shared_ptr<HardwareFactory> _hardwareFactory;
-  std::shared_ptr<IMediator> _mediator;
 
   Error initializeComponent(const HardwarePinConfig &config,
                             std::shared_ptr<HardwareComponent> &component);
