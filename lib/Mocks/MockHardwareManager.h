@@ -1,7 +1,6 @@
 #pragma once
 
 #include "HardwareManager.h"
-#include "Mediator/IMediator.h"
 #include <functional>
 #include <map>
 #include <memory>
@@ -16,12 +15,10 @@ class HardwarePinConfig;
 
 class MockHardwareManager : public HardwareManager {
 public:
-  MockHardwareManager(std::shared_ptr<IMediator> mediator,
-                      std::shared_ptr<ConfigManager> configManager,
+  MockHardwareManager(std::shared_ptr<ConfigManager> configManager,
                       std::shared_ptr<HardwareFactory> hardwareFactory,
                       std::shared_ptr<ButtonController> buttonController)
-      : HardwareManager(mediator, configManager, hardwareFactory,
-                        buttonController) {}
+      : HardwareManager(configManager, hardwareFactory, buttonController) {}
 
   // Mock the initializeHardware method
   MOCK_METHOD(void, initializeHardware, (), (override));

@@ -5,8 +5,8 @@
 
 class MockButtonController : public ButtonController {
 public:
-  explicit MockButtonController(std::shared_ptr<IMediator> mediator)
-      : ButtonController(mediator) {}
+  explicit MockButtonController()
+      : ButtonController() {}
 
   // Override virtual methods with MOCK_METHOD
   MOCK_METHOD(void, registerButton,

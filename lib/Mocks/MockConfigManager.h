@@ -5,15 +5,13 @@
 #include <memory>
 
 // Forward declarations
-class IMediator;
 class IFileHandler;
 
 class MockConfigManager : public ConfigManager {
 public:
   // Use the constructor of ConfigManager
-  MockConfigManager(std::shared_ptr<IMediator> mediator,
-                    std::shared_ptr<IFileHandler> fileHandler)
-      : ConfigManager(mediator, fileHandler) {}
+  MockConfigManager(std::shared_ptr<IFileHandler> fileHandler)
+      : ConfigManager(fileHandler) {}
 
   // Mock the methods from ConfigManager
   MOCK_METHOD(std::shared_ptr<HardwareConfig>, getHardwareConfig, (),
