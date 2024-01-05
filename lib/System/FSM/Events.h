@@ -3,53 +3,45 @@
 #include <string>
 #include <tinyfsm.hpp>
 
-// Base Button Press Event
-struct ButtonPressEvent : tinyfsm::Event {
-  enum class Action {
-    PRESS,
-    RELEASE
-  };
+enum class AutoRepeatButtonAction;
 
-  enum class Id {
-    PLUS,
-    MINUS,
-    START,
-    STOP,
-    MANUALEXTRACT,
-    MANUALFILL
-  };
-
-  Action action;
-  Id id;
+struct ButtonEvent : tinyfsm::Event {
+  ButtonEvent(std::string buttonId) : id(buttonId) {}
+  std::string id;
+};
+struct ButtonPressEvent : ButtonEvent {
+  using ButtonEvent::ButtonEvent; // Inherit constructor
 };
 
-using Action = ButtonPressEvent::Action; // Make Action available directly
-using Id = ButtonPressEvent::Id;         // Make Id available directly
+struct ButtonReleaseEvent : ButtonEvent {
+  using ButtonEvent::ButtonEvent; // Inherit constructor
+};
 
-// Specific Button Press Events
-struct PlusButtonEvent : ButtonPressEvent {};
-struct MinusButtonEvent : ButtonPressEvent {};
-struct StartButtonEvent : ButtonPressEvent {};
-struct StopButtonEvent : ButtonPressEvent {};
-struct ManualFillButtonEvent : ButtonPressEvent {};
-struct ManualExtractButtonEvent : ButtonPressEvent {};
+struct ButtonHoldEvent : ButtonEvent {
+  using ButtonEvent::ButtonEvent; // Inherit constructor
+};
 
-// Other Event Types
+struct ButtonLongHoldEvent : ButtonEvent {
+  using ButtonEvent::ButtonEvent; // Inherit constructor
+};
+
 struct InitializationEvent : tinyfsm::Event {
   virtual ~InitializationEvent() = default;
-};  // Base event for initialization events
+}; // Base event for initialization events
 struct ConfigLoadedEvent : InitializationEvent {};
 struct HardwareInitializedEvent : InitializationEvent {};
 struct DisplayInitializedEvent : InitializationEvent {};
 struct WebServerStartedEvent : InitializationEvent {};
 struct InitializationCompleteEvent : InitializationEvent {};
 
-struct OilCapacityEvent : tinyfsm::Event {};  // Base event for oil capacity
+struct StartOilChangeEvent : tinyfsm::Event {};
+
+struct OilCapacityEvent : tinyfsm::Event {}; // Base event for oil capacity
 struct OilCapacityUpdatedEvent : OilCapacityEvent {};
 
 struct OilExtractionEvent : tinyfsm::Event {
   virtual ~OilExtractionEvent() = default;
-};  // Base event for oil extraction
+}; // Base event for oil extraction
 struct OilCapacityThresholdReachedEvent : OilExtractionEvent {};
 struct ExtractLowPressureSwitchTriggeredEvent : OilExtractionEvent {};
 
@@ -59,7 +51,7 @@ struct InterimEvent : tinyfsm::Event {
 
 struct OilFillingEvent : tinyfsm::Event {
   virtual ~OilFillingEvent() = default;
-};  // Base event for oil filling
+}; // Base event for oil filling
 struct OilCapacityTargetReachedEvent : OilFillingEvent {};
 struct FillLowPressureSwitchTriggeredEvent : OilFillingEvent {};
 
