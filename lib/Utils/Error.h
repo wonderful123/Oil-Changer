@@ -49,8 +49,6 @@
              "Failed to initialize the serial hardware configuration.")      \
   ERROR_CODE(SerialInvalidUartPortNumber,                                    \
              "ESP32 Serial: Invalid UART port number for ESP32.")            \
-  ERROR_CODE(InvalidMediatorPassedToIColleague,                              \
-             "Invalid mediator passed to IColleague.")                       \
   ERROR_CODE(HardwareComponentCreationFailure,                               \
              "Failed to create a hardware component.")                       \
   ERROR_CODE(BuzzerManagerInitializationFailure,                             \
