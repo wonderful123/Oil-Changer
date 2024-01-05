@@ -77,7 +77,8 @@
 			"bitset": "cpp",
 			"codecvt": "cpp",
 			"regex": "cpp",
-			"future": "cpp"
+			"future": "cpp",
+			"*.h#codiumai_chat_diff": "cpp"
 		}
 	}
 }
