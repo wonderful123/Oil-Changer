@@ -1,26 +1,30 @@
 #pragma once
 
-#include <chrono>
+#include "IButton.h"
 #include <memory>
 #include <unordered_map>
 #include <vector>
 
-#include "Observer/ISubject.h"
+class InteractionSettings;
 
-class IButton;
+enum class ButtonId { Plus, Minus, Start, Stop, ManualExtract, ManualFill };
 
-class ButtonController : public ISubject {
+struct ButtonData {
+  std::shared_ptr<IButton> button;
+  std::string idString;
+};
+
+extern std::unordered_map<std::string, ButtonId> buttonIdMap;
+
+class ButtonController {
 public:
-  virtual void registerButton(const std::string &id,
-                              std::shared_ptr<IButton> button);
+  ButtonController(std::shared_ptr<InteractionSettings> &settings);
+  virtual void registerButton(std::shared_ptr<IButton> button);
   virtual void processButtonStates();
   virtual std::shared_ptr<IButton> getButtonById(const std::string &id) const;
 
-  void attach(IObserver *observer) override;
-  void detach(IObserver *observer) override;
-  void notify(const std::string &event, const std::string &id) override;
-
 private:
-  std::unordered_map<std::string, std::shared_ptr<IButton>> _buttons;
-  std::vector<IObserver *> _observers;
+  std::shared_ptr<InteractionSettings> _interactionSettings;
+  std::unordered_map<ButtonId, std::shared_ptr<IButton>> _buttons;
+  std::unordered_map<ButtonId, IButton::State> _previousButtonStates;
 };
