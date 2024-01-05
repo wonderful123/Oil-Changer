@@ -1,20 +1,18 @@
 #pragma once
 
 #include "Error.h"
-#include "Mediator/IMediator.h"
+#include <memory>
 
 class StateMachine;
 class ButtonController;
 class HardwareManager;
-class AutoRepeatHandler;
 class BuzzerManager;
 class ConfigManager;
 class InteractionSettings;
 
 class SystemController {
 public:
-  SystemController(std::shared_ptr<IMediator> mediator,
-                   std::shared_ptr<HardwareManager> hardwareManager);
+  SystemController(std::shared_ptr<HardwareManager> hardwareManager);
 
   void initializeSystemComponents();
   bool loadInteractionSettings();
@@ -29,13 +27,10 @@ private:
   std::shared_ptr<HardwareManager> _hardwareManager;
   std::shared_ptr<ButtonController> _buttonController;
   std::shared_ptr<BuzzerManager> _buzzerManager;
-  std::shared_ptr<IMediator> _mediator;
-  std::shared_ptr<AutoRepeatHandler> _autoRepeatHandler;
   std::shared_ptr<InteractionSettings> _interactionSettings;
 
-  void initializeAutoRepeatHandler(
+  Error initializeButtonController(
       std::shared_ptr<InteractionSettings> &interactionSettings);
-  Error initializeButtonController();
   Error initializeBuzzerManager(
       std::shared_ptr<InteractionSettings> &interactionSettings);
 };

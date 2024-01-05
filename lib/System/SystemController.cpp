@@ -4,7 +4,6 @@
 #include <memory>
 
 // Project-specific headers
-#include "AutoRepeatHandler.h"
 #include "ButtonController.h"
 #include "BuzzerManager.h"
 #include "ConfigManager.h"
@@ -18,7 +17,6 @@
 #include "Logger.h"
 
 SystemController::SystemController(
-    std::shared_ptr<IMediator> mediator,
     std::shared_ptr<HardwareManager> hardwareManager)
     : _hardwareManager(hardwareManager) {}
 
@@ -28,17 +26,18 @@ void SystemController::initializeSystemComponents() {
     return;
   }
 
-  if (initializeButtonController() != Error::OK) {
+  Logger::info("[SystemController] Creating ButtonController");
+  if (initializeButtonController(_interactionSettings) != Error::OK) {
     Logger::error("[SystemController] Failed to initialize Button Controller");
     return;
   }
 
+  Logger::info("[SystemController] Creating BuzzerManager");
   if (initializeBuzzerManager(_interactionSettings) != Error::OK) {
     Logger::error("[SystemController] Failed to initialize Buzzer Manager");
     return;
   }
 
-  initializeAutoRepeatHandler(_interactionSettings);
   Logger::info("[SystemController] System components initialized");
 }
 
@@ -57,15 +56,9 @@ bool SystemController::loadInteractionSettings() {
   return true;
 }
 
-void SystemController::initializeAutoRepeatHandler(
+Error SystemController::initializeButtonController(
     std::shared_ptr<InteractionSettings> &interactionSettings) {
-  _autoRepeatHandler = std::make_shared<AutoRepeatHandler>(_buttonController,
-                                                           interactionSettings);
-  _buttonController->attach(_autoRepeatHandler.get());
-}
-
-Error SystemController::initializeButtonController() {
-  _buttonController = std::make_shared<ButtonController>();
+  _buttonController = std::make_shared<ButtonController>(interactionSettings);
 
   // Check and log if button controller is not created
   if (!_buttonController) {
@@ -82,8 +75,8 @@ Error SystemController::initializeButtonController() {
   }
 
   // Register buttons
-  for (const auto &button : buttonComponents) {
-    _buttonController->registerButton(button->id(), button);
+  for (auto button : buttonComponents) {
+    _buttonController->registerButton(button);
   }
 
   return Error::OK;
@@ -97,20 +90,13 @@ Error SystemController::initializeBuzzerManager(
   }
 
   _buzzerManager = std::make_shared<BuzzerManager>(buzzer, interactionSettings);
-  _buttonController->attach(_buzzerManager.get()); // Attach BuzzerManager as an
-                                             // observer to ButtonController
+
   return Error::OK;
 }
 
 void SystemController::performPeriodicUpdate() {
   if (_buttonController) {
     _buttonController->processButtonStates();
-  }
-  if (_autoRepeatHandler) {
-    _autoRepeatHandler->checkAutoRepeat();
-  }
-  if (_mediator) {
-    _mediator->processEvents();
   }
 }
 
