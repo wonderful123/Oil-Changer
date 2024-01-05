@@ -2,9 +2,9 @@
 
 #include "ESP32Buzzer.h"
 
-const uint DEFAULT_PWM_CHANNEL = 0;
-const uint DEFAULT_PWM_RESOLUTION = 8;
-const uint DEFAULT_PWM_FREQUENCY = 2713;
+const unsigned int DEFAULT_PWM_CHANNEL = 0;
+const unsigned int DEFAULT_PWM_RESOLUTION = 8;
+const unsigned int DEFAULT_PWM_FREQUENCY = 2713;
 
 ESP32Buzzer::ESP32Buzzer(const HardwarePinConfig &config) : BuzzerBase(config) {
   ledcSetup(DEFAULT_PWM_CHANNEL, DEFAULT_PWM_FREQUENCY, DEFAULT_PWM_RESOLUTION);
@@ -23,7 +23,7 @@ void ESP32Buzzer::adjustVolume(float volume) {
   silenceBuzzer();
 }
 
-void ESP32Buzzer::beep(uint frequency, uint duration) {
+void ESP32Buzzer::beep(unsigned int frequency, unsigned int duration) {
   ledcWriteTone(DEFAULT_PWM_CHANNEL, frequency);
   _state.isBeeping = true;
   _beepTimer.once_ms(duration, handleBeepFinishCallback, this);
@@ -34,8 +34,8 @@ void ESP32Buzzer::handleBeepFinishCallback(ESP32Buzzer *buzzer) {
   buzzer->_state.isBeeping = false;
 }
 
-void ESP32Buzzer::doubleBeep(uint frequency, uint duration,
-                             uint pauseDuration) {
+void ESP32Buzzer::doubleBeep(unsigned int frequency, unsigned int duration,
+                             unsigned int pauseDuration) {
   _settings.doubleBeepFrequency = frequency;
   _settings.doubleBeepDuration = duration;
   _state.isDoubleBeepSecondStage =
@@ -61,7 +61,7 @@ void ESP32Buzzer::handleDoubleBeepTimerCallback(ESP32Buzzer *buzzer) {
   }
 }
 
-void ESP32Buzzer::rapidBeep(uint frequency, uint duration, uint pauseInterval) {
+void ESP32Buzzer::rapidBeep(unsigned int frequency, unsigned int duration, unsigned int pauseInterval) {
   _settings.rapidBeepFrequency = frequency;
   _settings.rapidBeepDuration = duration;
   _settings.rapidBeepPauseDuration = pauseInterval;
@@ -88,11 +88,8 @@ void ESP32Buzzer::handleRapidBeepTimerCallback(ESP32Buzzer *buzzer) {
 }
 
 void ESP32Buzzer::stop() {
-  silenceBuzzer();     // Stop the buzzer sound instantly
-  _beepTimer.detach(); // Detach the timer to stop callbacks
   _state.isBeeping = false;
   _state.isRapidBeeping = false;
-  _rapidBeepTimer.detach();
 }
 
 void ESP32Buzzer::silenceBuzzer() { ledcWriteTone(DEFAULT_PWM_CHANNEL, 0); }
