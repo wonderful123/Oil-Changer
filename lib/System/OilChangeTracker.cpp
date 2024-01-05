@@ -1,29 +1,21 @@
 // OilChangeTracker.cpp
+#include "OilChangeTracker.h"
+#include "EventManager/EventManager.h"
+#include "Logger.h"
+#include "SystemFactory.h"
 
-#include "OilChangeTracker.h" // Include the header file for the class
-
-OilChangeTracker::OilChangeTracker(std::shared_ptr<IMediator> mediator)
-    : _mediator(mediator), _fillCapacity(4.0f), _amountFilled(0),
-      _amountExtracted(0), _flowRateFill(0), _flowRateExtract(0), _voltage(0) {}
-
-void OilChangeTracker::initialize(std::shared_ptr<IMediator> mediator) {
-  _mediator = mediator;
-  if (_mediator) {
-    _mediator->registerForEvent(shared_from_this(),
-                                EventType::OIL_CHANGE_TRACKER_UPDATE);
-  }
-}
-
-std::shared_ptr<OilChangeTracker>
-OilChangeTracker::getInstance(std::shared_ptr<IMediator> mediator) {
-  static std::shared_ptr<OilChangeTracker> instance(
-      new OilChangeTracker(mediator));
-  instance->initialize(mediator);
-  return instance;
+OilChangeTracker::OilChangeTracker(std::shared_ptr<EventManager> eventManager)
+    : _fillCapacity(4.0f), _amountFilled(0), _amountExtracted(0),
+      _flowRateFill(0), _flowRateExtract(0), _voltage(0),
+      _eventManager(eventManager) {
+  _eventManager->subscribe(std::shared_ptr<IEventListener>(this),
+                           EventType::OIL_CHANGE_TRACKER_UPDATE);
 }
 
 // Define the setter methods
-void OilChangeTracker::setAmountFilled(double amount) { _amountFilled = amount; }
+void OilChangeTracker::setAmountFilled(double amount) {
+  _amountFilled = amount;
+}
 
 void OilChangeTracker::setAmountExtracted(double amount) {
   _amountExtracted = amount;
@@ -67,34 +59,25 @@ bool OilChangeTracker::isFull() const { return _amountFilled >= _fillCapacity; }
 
 bool OilChangeTracker::isEmpty() const { return _amountFilled == 0; }
 
-void OilChangeTracker::setMediator(std::shared_ptr<IMediator> mediator) {
-  _mediator = mediator;
+void OilChangeTracker::setEventManager(
+    std::shared_ptr<EventManager> eventManager) {
+  _eventManager = eventManager;
 }
 
-void OilChangeTracker::receiveEvent(EventType eventType,
-                                    const EventData *eventData) {
-  switch (eventType) {
-  case EventType::OIL_CHANGE_TRACKER_UPDATE:
-    if (eventData) {
-      // Assuming 'id' is used to specify what to update (e.g., fill capacity)
-      if (eventData->id == "fill_capacity") {
-        // Check the value to determine increment or decrement
-        if (eventData->value > 0) {
-          incrementFillCapacity(); // ignore the value and use the default
-        } else if (eventData->value < 0) {
-          decrementFillCapacity(); // ignore the value and use the default
-        }
+void OilChangeTracker::onNotify(EventType eventType,
+                                const EventData &eventData) {
+  if (eventType == EventType::OIL_CHANGE_TRACKER_UPDATE) {
+    // 'id' is used to specify what to update (e.g., fill capacity)
+    if (eventData.id == "fill_capacity") {
+      // Check the value to determine increment or decrement
+      if (eventData.value > 0) {
+        incrementFillCapacity(eventData.value);
+      } else if (eventData.value < 0) {
+        decrementFillCapacity(eventData.value);
       }
+      Logger::info("[OilChangeTracker] - Fill Capacity: " +
+                   std::to_string(_fillCapacity));
     }
-    break;
-    // Handle other events as needed
-  }
-}
-
-void OilChangeTracker::notifyMediator(EventType eventType,
-                                      const EventData *data) {
-  if (_mediator) {
-    _mediator->notify(this, eventType, data);
   }
 }
 
