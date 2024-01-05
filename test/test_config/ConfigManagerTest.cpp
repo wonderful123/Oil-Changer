@@ -1,5 +1,4 @@
 #include "ConfigManager.h"
-#include "Mediator/ConcreteMediator.h"
 #include "Mocks/MockFileHandler.h"
 #include <gtest/gtest.h>
 
