@@ -1,25 +1,27 @@
 #pragma once
 
-#include <memory>
+#include "EventManager/IEventListener.h"
 #include <functional>
-
-#include "Observer/IObserver.h"
+#include <memory>
 
 class InteractionSettings;
 class IBuzzer;
 
-class BuzzerManager : public IObserver { // Inherit from IObserver
+class BuzzerManager : public IEventListener {
 public:
   BuzzerManager(std::shared_ptr<IBuzzer> buzzer,
                 std::shared_ptr<InteractionSettings> &settings);
 
   void triggerBuzzer(int frequency, int duration);
-  void startRapidBeep();
+  void beep();
+  void rapidBeep();
+  void doubleBeep();
+  void stop();
   void updateSettings(std::shared_ptr<InteractionSettings> &settings);
-  void onNotify(const std::string &event, const std::string &buttonId)
-      override;
   void setOnRapidBeepCallback(std::function<void()> callback);
 
 private:
   std::shared_ptr<IBuzzer> _buzzer;
+
+  void onNotify(EventType eventType, const EventData &eventData) override;
 };
