@@ -62,7 +62,7 @@ Error InteractionSettingsConfig::parseCommonSettings(
   const JsonObjectConst accelerationObj = autoRepeatObj["acceleration"];
   settings.autoRepeat.acceleration.startAfterMs =
       accelerationObj["startAfterMs"];
-  settings.autoRepeat.acceleration.rateDecreaseuintervalMs =
+  settings.autoRepeat.acceleration.rateDecreaseIntervalMs =
       accelerationObj["rateDecreaseuintervalMs"];
   settings.autoRepeat.acceleration.minimumRateMs =
       accelerationObj["minimumRateMs"];
@@ -106,13 +106,13 @@ Error InteractionSettingsConfig::parseBeepSettings(
 
   InteractionSettings::BeepSettings settings;
   settings.description = beepSettings["description"].as<std::string>();
-  settings.standardFrequency = beepSettings["standardFrequency"].as<uint>();
-  settings.standardDurationMs = beepSettings["standardDurationMs"].as<uint>();
+  settings.standardFrequency = beepSettings["standardFrequency"].as<unsigned int>();
+  settings.standardDurationMs = beepSettings["standardDurationMs"].as<unsigned int>();
   settings.buzzerVolume = beepSettings["buzzerVolume"].as<float>();
-  settings.rapidBeepDuration = beepSettings["rapidBeepDuration"].as<uint>();
-  settings.rapidBeepFrequency = beepSettings["rapidBeepFrequency"].as<uint>();
+  settings.rapidBeepDuration = beepSettings["rapidBeepDuration"].as<unsigned int>();
+  settings.rapidBeepFrequency = beepSettings["rapidBeepFrequency"].as<unsigned int>();
   settings.rapidBeepPauseDuration =
-      beepSettings["rapidBeepPauseDuration"].as<uint>();
+      beepSettings["rapidBeepPauseDuration"].as<unsigned int>();
 
   const JsonObjectConst limitPattern = beepSettings["limitReachedPattern"];
   settings.limitReachedPattern.description =

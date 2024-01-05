@@ -5,14 +5,14 @@
 
 struct InteractionSettings {
   struct Acceleration {
-    uint startAfterMs;
-    uint rateDecreaseuintervalMs;
-    uint minimumRateMs;
+    unsigned int startAfterMs;
+    unsigned int rateDecreaseIntervalMs;
+    unsigned int minimumRateMs;
   };
 
   struct AutoRepeat {
-    uint initialDelayMs;
-    uint standardRateMs;
+    unsigned int initialDelayMs;
+    unsigned int standardRateMs;
     Acceleration acceleration;
   };
 
@@ -23,20 +23,20 @@ struct InteractionSettings {
 
   struct LimitReachedPattern {
     std::string description;
-    uint frequency;
-    uint durationMs;
-    uint pauseDuration;
+    unsigned int frequency;
+    unsigned int durationMs;
+    unsigned int pauseDuration;
     std::string pattern;
   };
 
   struct BeepSettings {
     std::string description;
-    uint standardFrequency;
-    uint standardDurationMs;
+    unsigned int standardFrequency;
+    unsigned int standardDurationMs;
     float buzzerVolume;
-    uint rapidBeepDuration;
-    uint rapidBeepFrequency;
-    uint rapidBeepPauseDuration;
+    unsigned int rapidBeepDuration;
+    unsigned int rapidBeepFrequency;
+    unsigned int rapidBeepPauseDuration;
     LimitReachedPattern limitReachedPattern;
   };
 
@@ -47,7 +47,7 @@ struct InteractionSettings {
   };
 
   struct CommonSettings {
-    uint debounceMs; // Common debounce setting for all buttons
+    unsigned int debounceMs; // Common debounce setting for all buttons
     AutoRepeat autoRepeat;
   };
 
