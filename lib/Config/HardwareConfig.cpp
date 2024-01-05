@@ -1,11 +1,8 @@
 #include "HardwareConfig.h"
-
-#include <ArduinoJson.h>
-
-#include <string>
-
 #include "HardwarePinConfig.h"
 #include "Logger.h"
+#include <ArduinoJson.h>
+#include <string>
 
 HardwareConfig::HardwareConfig(std::shared_ptr<IFileHandler> fileHandler)
     : BaseConfig(fileHandler) {}
