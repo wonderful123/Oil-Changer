@@ -9,7 +9,7 @@ class ESP32Button : public ButtonBase {
 public:
   explicit ESP32Button(const HardwarePinConfig &config);
 
-  void updateButtonState() override; // Update button state
+  void updateButton() override; // Update button state
 
   void setDebounceDuration(int durationMs);
 
