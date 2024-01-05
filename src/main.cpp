@@ -62,10 +62,6 @@ Error initializeSystem() {
   //   Logger::warn("[Main] Buzzer player initialization failed");
   // }
 
-  Logger::info("==== SYSTEM INITIALIZATION =====");
-  Logger::info(" Status: SUCCESSFULLY COMPLETED");
-  Logger::info("================================");
-
   return Error::OK;
 }
 
