@@ -2,11 +2,11 @@
 #include "SystemFactory.h"
 #include "ButtonController.h"
 #include "ConfigManager.h"
+#include "EventManager/EventManager.h"
 #include "FSM/StateMachine.h"
 #include "FSM/States.h"
 #include "HardwareManager.h"
 #include "Logger.h"
-#include "Mediator/ConcreteMediator.h"
 #include "OilChangeTracker.h"
 #include "SystemController.h"
 
@@ -15,25 +15,25 @@ FSM_INITIAL_STATE(StateMachine, Initializing);
 void SystemFactory::initializeSystem(
     std::shared_ptr<IFileHandler> fileHandler) {
   _fileHandler = fileHandler;
-  _mediator = std::make_shared<ConcreteMediator>();
-  createStateMachine();
+  _eventManager = std::make_shared<EventManager>();
   createConfigManager();
   createHardwareManager();
   createSystemController();
   createOilChangeTracker();
-
+  createStateMachine(_eventManager, _buzzerManager);
+  
   Logger::info("[SystemFactory] All system components initialized");
-  _stateMachine->dispatch(InitializationCompleteEvent());
+  sendFSMEvent(InitializationCompleteEvent());
 }
 
-void SystemFactory::createStateMachine() {
-  //_stateMachine->start(); // Initialize the state machine
-  stateMachine::start();
+void SystemFactory::createEventManager() {
+  Logger::info("[SystemFactory] Creating EventManager...");
+  _eventManager = std::make_shared<EventManager>();
 }
 
 void SystemFactory::createConfigManager() {
   Logger::info("[SystemFactory] Creating ConfigManager...");
-  ConfigManager::getInstance()->initialize(_mediator, _fileHandler);
+  ConfigManager::getInstance()->initialize(_fileHandler);
 }
 
 void SystemFactory::createHardwareManager() {
@@ -44,24 +44,32 @@ void SystemFactory::createHardwareManager() {
 
 void SystemFactory::createSystemController() {
   Logger::info("[SystemFactory] Creating SystemController...");
-  _systemController =
-      std::make_shared<SystemController>(_mediator, _hardwareManager);
+  _systemController = std::make_shared<SystemController>(_hardwareManager);
   _systemController->initializeSystemComponents();
+  _buzzerManager = _systemController->getBuzzerManager();
 }
 
 void SystemFactory::createOilChangeTracker() {
   Logger::info("[SystemFactory] Creating OilChangeTracker...");
-  auto _oilChangeTracker = OilChangeTracker::getInstance(_mediator);
+  _oilChangeTracker = std::make_shared<OilChangeTracker>(_eventManager);
 }
 
-std::shared_ptr<IMediator> SystemFactory::getMediator() { return _mediator; }
+void SystemFactory::createStateMachine(std::shared_ptr <EventManager> eventManager, std::shared_ptr<BuzzerManager> buzzerManager) {
+  StateMachine::setSharedResources(eventManager, buzzerManager);
+  StateMachine::start();
+  Logger::info("[SystemFactory] Created StateMachine");
+}
 
-std::shared_ptr<StateMachine> SystemFactory::getStateMachine() {
-  return _stateMachine;
+std::shared_ptr<EventManager> SystemFactory::getEventManager() {
+  return _eventManager;
 }
 
 std::shared_ptr<SystemController> SystemFactory::getSystemController() {
   return _systemController;
+}
+
+std::shared_ptr<BuzzerManager> SystemFactory::getBuzzerManager() {
+  return _buzzerManager;
 }
 
 std::shared_ptr<HardwareManager> SystemFactory::getHardwareManager() {
