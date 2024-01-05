@@ -2,8 +2,6 @@
 #include "HardwareConfig.h"
 #include "IFileHandler.h"
 #include "InteractionSettingsConfig.h"
-#include "Mediator/Event.h"
-
 #include <string>
 
 // Responsible for loading configuration data from a source (like a JSON file)
@@ -12,7 +10,7 @@
 std::mutex ConfigManager::_mutex; // Define the static mutex
 std::shared_ptr<ConfigManager> ConfigManager::_instance = nullptr;
 
-ConfigManager::ConfigManager() : IColleague(nullptr) {}
+ConfigManager::ConfigManager() {}
 
 std::shared_ptr<ConfigManager> ConfigManager::getInstance() {
   std::lock_guard<std::mutex> lock(_mutex); // Ensure thread safety
@@ -23,9 +21,7 @@ std::shared_ptr<ConfigManager> ConfigManager::getInstance() {
   return _instance;
 }
 
-void ConfigManager::initialize(std::shared_ptr<IMediator> mediator,
-                               std::shared_ptr<IFileHandler> fileHandler) {
-  _mediator = mediator;
+void ConfigManager::initialize(std::shared_ptr<IFileHandler> fileHandler) {
   _fileHandler = fileHandler;
 }
 
@@ -33,7 +29,6 @@ Error ConfigManager::loadConfig(ConfigType type) {
   std::shared_ptr<IConfig> config;
   std::string filePath =
       ConfigPaths::getPathForType(type); // Get the path using the enum
-  EventType eventType;
 
   Logger::info("[ConfigManager] Loading " + ConfigPaths::getNameForType(type));
 
@@ -47,11 +42,9 @@ Error ConfigManager::loadConfig(ConfigType type) {
   switch (type) {
   case ConfigType::HARDWARE:
     config = std::make_shared<HardwareConfig>(_fileHandler);
-    eventType = EventType::HARDWARE_CONFIG_CHANGED;
     break;
   case ConfigType::INTERACTION_SETTINGS:
     config = std::make_shared<InteractionSettingsConfig>(_fileHandler);
-    eventType = EventType::INTERACTION_SETTINGS_CHANGED;
     break;
   default:
     Logger::error("[ConfigManager] Unknown configuration type");
@@ -64,7 +57,6 @@ Error ConfigManager::loadConfig(ConfigType type) {
                  " parsed successfully");
     std::string name = ConfigPaths::getNameForType(type);
     _configs[name] = config; // Store using the ConfigType enum
-    _mediator->notify(this, eventType);
   }
 
   return error;
@@ -81,9 +73,4 @@ void ConfigManager::releaseConfig(ConfigType type) {
   if (_referenceCounts[name] > 0 && --_referenceCounts[name] == 0) {
     _configs.erase(name);
   }
-}
-
-void ConfigManager::receiveEvent(EventType eventType,
-                                 const EventData *eventData) {
-  // Implementation goes here
 }

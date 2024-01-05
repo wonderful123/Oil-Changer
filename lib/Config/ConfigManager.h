@@ -7,17 +7,15 @@
 
 #include "ConfigTypes.h"
 #include "Error.h"
-#include "Mediator/IMediator.h"
 
 // Forward declarations
 class IConfig;
 class IFileHandler;
 
-class ConfigManager : public IColleague {
+class ConfigManager {
 public:
   static std::shared_ptr<ConfigManager> getInstance();
-  void initialize(std::shared_ptr<IMediator> mediator,
-                  std::shared_ptr<IFileHandler> fileHandler);
+  void initialize(std::shared_ptr<IFileHandler> fileHandler);
 
   template <typename T> std::shared_ptr<T> getConfig(ConfigType type) {
     // Check if the configuration is already loaded
@@ -46,12 +44,9 @@ public:
 
   void releaseConfig(ConfigType type);
 
-  void receiveEvent(EventType eventType, const EventData *eventData) override;
-
 private:
   ConfigManager();
   std::shared_ptr<IFileHandler> _fileHandler;
-  std::shared_ptr<IMediator> _mediator;
   std::unordered_map<std::string, std::shared_ptr<IConfig>> _configs;
   std::unordered_map<std::string, int>
       _referenceCounts; // Reference counting for each config
