@@ -4,14 +4,14 @@
 #include "InteractionSettings.h"
 
 struct BeepSettings {
-  uint standardFrequency;
-  uint standardDurationMs;
-  uint rapidBeepFrequency;
-  uint rapidBeepDuration;
-  uint rapidBeepPauseDuration;
-  uint doubleBeepFrequency;
-  uint doubleBeepDuration;
-  uint doubleBeepPauseDuration;
+  unsigned int standardFrequency;
+  unsigned int standardDurationMs;
+  unsigned int rapidBeepFrequency;
+  unsigned int rapidBeepDuration;
+  unsigned int rapidBeepPauseDuration;
+  unsigned int doubleBeepFrequency;
+  unsigned int doubleBeepDuration;
+  unsigned int doubleBeepPauseDuration;
 };
 
 struct BuzzerState {
@@ -28,10 +28,10 @@ public:
   virtual ~BuzzerBase() = default;
 
   // These methods must be implemented by derived classes
-  virtual void beep(uint frequency, uint duration) = 0;
-  virtual void doubleBeep(uint frequency, uint duration,
-                          uint pauseDuration) = 0;
-  virtual void rapidBeep(uint frequency, uint duration, uint interval) = 0;
+  virtual void beep(unsigned int frequency, unsigned int duration) = 0;
+  virtual void doubleBeep(unsigned int frequency, unsigned int duration,
+                          unsigned int pauseDuration) = 0;
+  virtual void rapidBeep(unsigned int frequency, unsigned int duration, unsigned int interval) = 0;
   virtual void stop() = 0;
 
   void updateSettings(std::shared_ptr<InteractionSettings> &settings) override {

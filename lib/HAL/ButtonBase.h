@@ -6,35 +6,81 @@
 class ButtonBase : public IButton {
 public:
   explicit ButtonBase(const HardwarePinConfig &config)
-      : IButton(config), _isPressed(false), _wasPressed(false) {}
+      : IButton(config), _isPressed(false), _wasPressed(false), _state(State::Released),
+        _idString(config.id), _holdDurationThreshold(500),
+        _longHoldDurationThreshold(1000) {}
 
-  virtual bool isPressed() const override { return _isPressed; }
+  std::string stateToString(IButton::State state) const override {
+    std::string states[] = {"Released", "Pressed", "Held", "HeldLong"};
+    return states[static_cast<int>(state)];
+  }
 
-  virtual void update() override {
-    _wasPressed = _isPressed; // Store the previous state
-    updateButtonState();      // Reflect hardware state in _isPressed
+  virtual void updateButtonState() override {
+    updateButton();
 
-    if (_isPressed != _wasPressed) {
-      _lastPressTime = std::chrono::steady_clock::now();
+    if (_isPressed && !_wasPressed) {
+      handleButtonPress();
+      return;
+    }
+
+    if (_wasPressed) {
+      if (!_isPressed) {
+        handleButtonRelease();
+        return;
+      }
+
+      auto currentTime = std::chrono::steady_clock::now();
+      auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
+                          currentTime - _pressTime)
+                          .count();
+
+      if (duration > _longHoldDurationThreshold) {
+        handleButtonHoldLong();
+      } else if (duration > _holdDurationThreshold) {
+        handleButtonHold();
+      }
     }
   }
 
-  // Method to get the current state of the button
-  IButton::ButtonState getCurrentState() const override {
-    return IButton::ButtonState{_isPressed};
+  void adjustLastPressTimeForTesting(std::chrono::milliseconds duration) {
+    _pressTime += duration;
   }
 
-  // Method to get the previous state of the button
-  IButton::ButtonState getPreviousState() const override {
-    return IButton::ButtonState{_wasPressed};
+  void handleButtonPress() {
+    _pressTime = std::chrono::steady_clock::now();
+    _state = State::Pressed;
+    _wasPressed = true;
+  }
+
+  void handleButtonRelease() {
+    _state = State::Released;
+    _wasPressed = false;
+  }
+
+  void handleButtonHold() { _state = State::Held; }
+
+  void handleButtonHoldLong() { _state = State::HeldLong; }
+
+  IButton::State getState() const override { return _state; }
+  const std::string &idString() const override { return _idString; }
+
+  void setHoldDurationThreshold(int duration) override {
+    _holdDurationThreshold = duration;
+  }
+
+  void setLongHoldDurationThreshold(int duration) override {
+    _longHoldDurationThreshold = duration;
   }
 
 protected:
-  // Must be implemented in derived classes to update the _isPressed state
-  virtual void updateButtonState() = 0;
+  bool _isPressed;
 
-  bool _isPressed;  // Current pressed state of the Button
-  bool _wasPressed; // Previous pressed state of the Button
-  std::chrono::steady_clock::time_point
-      _lastPressTime; // Time of the last state change
+private:
+  std::string _idString;
+  State _state;
+  bool _wasPressed;
+
+  std::chrono::steady_clock::time_point _pressTime;
+  int _holdDurationThreshold;
+  int _longHoldDurationThreshold;
 };
