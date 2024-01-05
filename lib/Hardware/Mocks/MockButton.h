@@ -7,35 +7,23 @@
 #include "ButtonBase.h"
 
 class MockButton : public ButtonBase {
- public:
-  explicit MockButton(const HardwarePinConfig& config) : ButtonBase(config) {
-    setInitialized(true);  // Assuming ButtonBase has a setInitialized method
+public:
+  MockButton(const HardwarePinConfig &config) : ButtonBase(config) {
+    setInitialized(true);
+    _buttonPressed = false;
   }
 
-  // Method to simulate the button being pressed or not
-  void simulatePress(bool pressed) { _isPressed = pressed; }
+  void simulatePress(bool buttonPressed) { _buttonPressed = buttonPressed; }
 
-  MOCK_METHOD(void, updateButtonState, (), (override));
-
-  // This override allows the mock to capture settings applied to it
-  void setAutoRepeatSettings(
-      const InteractionSettings::AutoRepeat& settings) override {
-    currentSettings = settings;
-    ButtonBase::setAutoRepeatSettings(
-        settings);  // Call base class implementation
-  }
-
-  // For testing: Get the applied auto-repeat settings
-  const InteractionSettings::AutoRepeat& getAppliedSettings() const {
-    return currentSettings;
-  }
+  bool isButtonPressed() override { return _buttonPressed; }
 
   void mockAdjustLastPressTime(std::chrono::milliseconds duration) {
     adjustLastPressTimeForTesting(duration);
   }
 
- private:
+private:
   InteractionSettings::AutoRepeat currentSettings;
+  bool _buttonPressed;
 };
 
-#endif  // PLATFORM_NATIVE
+#endif // PLATFORM_NATIVE
