@@ -15,8 +15,6 @@ using ::testing::_;
 using ::testing::Invoke;
 using ::testing::Return;
 
-using ButtonPressCallback = std::function<void(const std::string &)>;
-
 /**
  * Test Cases for ButtonBase and Derived Classes
  *
@@ -38,7 +36,7 @@ using ButtonPressCallback = std::function<void(const std::string &)>;
  */
 
 class ButtonTest : public ::testing::Test {
- protected:
+protected:
   HardwarePinConfig testConfig{1, "Button1", "Button"};
   std::shared_ptr<MockButton> mockButton;
   InteractionSettings::AutoRepeat autoRepeatSettings;
@@ -56,11 +54,11 @@ class ButtonTest : public ::testing::Test {
     autoRepeatSettings.acceleration = {.startAfterMs = 2000,
                                        .rateDecreaseIntervalMs = 500,
                                        .minimumRateMs = 10};
-    autoRepeatSettings.rapidPressDebounceMs = 150;
 
     mockButton = std::make_shared<MockButton>(testConfig);
 
-    mockButton->setAutoRepeatSettings(autoRepeatSettings);
+    mockButton->setHoldDurationThreshold(500);
+    mockButton->setLongHoldDurationThreshold(1000);
   }
 };
 
@@ -80,113 +78,76 @@ TEST_F(ButtonTest, ParsesValidButtonSettings) {
   EXPECT_EQ(mockButton->type(), testConfig.type);
 };
 
-TEST_F(ButtonTest, PressedButtonChangesStateToPressed) {
+TEST_F(ButtonTest, ButtonPressAndReleaseChangesState) {
   // Simulate button press
   mockButton->simulatePress(true);
-
-  // Call update to process the press
-  mockButton->update();
-
-  // Assert: Verify that the button state is 'pressed'
-  EXPECT_TRUE(mockButton->isPressed());
-}
-
-TEST_F(ButtonTest, ButtonReleaseChangesStateAfterPressed) {
-  // Simulate button press
-  mockButton->simulatePress(true);
-  mockButton->update();
-  EXPECT_TRUE(mockButton->isPressed());
+  mockButton->updateButtonState();
+  IButton::State state = mockButton->getState();
+  EXPECT_EQ(IButton::State::Pressed, state);
 
   // Simulate button release
   mockButton->simulatePress(false);
-  mockButton->update();
-  EXPECT_FALSE(mockButton->isPressed());
+  mockButton->updateButtonState();
+  state = mockButton->getState();
+  EXPECT_EQ(IButton::State::Released, state);
 }
 
-// Press invokes callback test
-class MockCallback {
- public:
-  MOCK_METHOD(void, Call, (const std::string &), ());
-};
-
-TEST_F(ButtonTest, PressedButtonInvokesCallback) {
-  MockCallback mockCallback;
-
-  // Set expectation: The callback should be called once with any string
-  // argument
-  EXPECT_CALL(mockCallback, Call(::testing::_)).Times(1);
-
-  // Set the callback on the button
-  mockButton->setOnPressCallback(
-      [&](const std::string &id) { mockCallback.Call(id); });
-
+TEST_F(ButtonTest, HoldStateAfterDelay) {
   // Simulate button press
   mockButton->simulatePress(true);
-
-  mockButton->update();
-}
-
-// ReleaseDetection Test
-TEST_F(ButtonTest, ReleaseDetection) {
-  // Setup: Set the callback and then simulate a button press
-  bool callbackInvoked = false;
-  mockButton->setOnPressCallback(
-      [&callbackInvoked](const std::string &) { callbackInvoked = true; });
-
-  mockButton->simulatePress(true);  // Simulate the button being pressed
-  mockButton->update();             // Update to process the press
-
-  // Assert: Verify that callback is invoked on press
-  EXPECT_TRUE(callbackInvoked);
-
-  // Reset the callbackInvoked flag
-  callbackInvoked = false;
-
-  // Simulate button release and update
-  mockButton->simulatePress(false);  // Simulate the button being released
-  mockButton->update();              // Update to process the release
-
-  // Assert: Verify that no callback is invoked on release
-  EXPECT_FALSE(callbackInvoked);
-};
-
-// Test auto-repeat functionality
-TEST_F(ButtonTest, AutoRepeatAfterInitialDelay) {
-  mockButton->simulatePress(true);
-  mockButton->update();  // Process state change
+  mockButton->updateButtonState();
+  IButton::State state = mockButton->getState();
+  EXPECT_EQ(IButton::State::Pressed, state);
 
   // Simulate passage of time to just beyond the initial delay
-  SimulateTimePassage(501);  // Assuming initial delay is 500ms
-  mockButton->update();
+  SimulateTimePassage(501); // Assuming initial delay is 500ms
+  mockButton->updateButtonState();
 
-  // Check if the button is in auto-repeat mode after the initial delay
-  EXPECT_TRUE(mockButton->getCurrentState().isInAutoRepeatMode);
+  // Check if the button is in held state after the initial delay
+  state = mockButton->getState();
+  EXPECT_EQ(IButton::State::Held, state);
 
-  // Simulate time passage for the standard repeat rate
-  SimulateTimePassage(201);  // Assuming standard rate is 200ms
-  mockButton->update();      // Process state change for auto-repeat
+  // Simulate a small amount of time less than long hold duration
+  SimulateTimePassage(200);
+  mockButton->updateButtonState(); // Process state change for auto-repeat
 
-  // Confirm the button is still in auto-repeat mode
-  EXPECT_TRUE(mockButton->getCurrentState().isInAutoRepeatMode);
+  // Confirm the button is still in held state
+  state = mockButton->getState();
+  EXPECT_EQ(IButton::State::Held, state);
+
+  // Confirm button release
+  mockButton->simulatePress(false);
+  mockButton->updateButtonState();
+  state = mockButton->getState();
+  EXPECT_EQ(IButton::State::Released, state);
 };
 
-// Test to check button exits auto-repeat mode upon release
-TEST_F(ButtonTest, ExitAutoRepeatOnRelease) {
+TEST_F(ButtonTest, LongHoldStateTest) {
+  // Simulate button press
   mockButton->simulatePress(true);
-  mockButton->update();  // Process initial press
+  mockButton->updateButtonState();
+  IButton::State state = mockButton->getState();
+  EXPECT_EQ(IButton::State::Pressed, state);
 
-  // Simulate time passage just beyond the initial delay to enter auto-repeat
-  // mode
-  SimulateTimePassage(501);
-  mockButton->update();
+  // Simulate passage of time to just beyond the initial delay
+  SimulateTimePassage(501); // Assuming initial delay is 500ms
+  mockButton->updateButtonState();
 
-  // Confirm the button is in auto-repeat mode
-  EXPECT_TRUE(mockButton->getCurrentState().isInAutoRepeatMode);
+  // Check if the button is in held state after the initial delay
+  state = mockButton->getState();
+  EXPECT_EQ(IButton::State::Held, state);
 
-  // Simulate button release
+  // Simulateamount of time more than long hold duration
+  SimulateTimePassage(500);
+  mockButton->updateButtonState(); // Process state change for auto-repeat
+
+  // Confirm the button is still in held state
+  state = mockButton->getState();
+  EXPECT_EQ(IButton::State::HeldLong, state);
+
+  // Confirm button release
   mockButton->simulatePress(false);
-  mockButton->update();  // Process button release
-
-  // Check if the button exits auto-repeat mode upon release
-  EXPECT_FALSE(mockButton->getCurrentState().isInAutoRepeatMode);
+  mockButton->updateButtonState();
+  state = mockButton->getState();
+  EXPECT_EQ(IButton::State::Released, state);
 };
