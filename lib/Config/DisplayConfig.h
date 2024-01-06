@@ -1,3 +1,4 @@
+// DisplayConfig.h
 #pragma once
 
 class DisplayConfig {

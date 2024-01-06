@@ -1,3 +1,5 @@
+// BaseConfig.cpp
+
 #include "BaseConfig.h"
 #include "Error.h"
 #include "FileGuard.h"

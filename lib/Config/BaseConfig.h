@@ -1,3 +1,4 @@
+// BaseConfig.h
 #pragma once
 
 #include "Error.h"

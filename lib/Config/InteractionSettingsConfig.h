@@ -1,3 +1,4 @@
+// InteractionSettingsConfig.h
 #pragma once
 
 #include "BaseConfig.h"

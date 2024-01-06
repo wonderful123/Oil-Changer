@@ -1,3 +1,5 @@
+// InteractionSettingsConfig.cpp
+
 #include "InteractionSettingsConfig.h"
 #include "InteractionSettings.h"
 #include "Error.h"

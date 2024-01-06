@@ -1,3 +1,5 @@
+// Error.cpp
+
 #include "Error.h"
 
 // Initialize static members

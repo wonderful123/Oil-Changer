@@ -1,3 +1,6 @@
+// HardwareManager.h
+#pragma once
+
 /*
 HardwareManager Overview
 Role and Purpose
@@ -8,8 +11,6 @@ unified interface for hardware operations and ensuring a clean separation of
 concerns.
 
 */
-
-#pragma once
 
 #include "HardwareComponent.h"
 #include <map>

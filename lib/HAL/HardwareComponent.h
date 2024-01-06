@@ -1,3 +1,6 @@
+// HardwareComponent.h
+#pragma once
+
 /**
  * @file HardwareComponent.h
  * @brief Base class for hardware components in the system.
@@ -6,8 +9,6 @@
  * component classes. It provides common functionality and properties that are
  * shared across different types of hardware components.
  */
-
-#pragma once
 
 #include "HardwarePinConfig.h"
 

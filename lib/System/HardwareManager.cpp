@@ -1,3 +1,5 @@
+// HardwareManager.cpp
+
 #include "HardwareManager.h"
 
 #include "ConfigManager.h"

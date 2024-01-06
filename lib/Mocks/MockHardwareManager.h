@@ -1,3 +1,4 @@
+// MockHardwareManager.h
 #pragma once
 
 #include "HardwareManager.h"
