@@ -23,5 +23,5 @@ public:
 private:
   std::shared_ptr<IBuzzer> _buzzer;
 
-  void onNotify(EventType eventType, const EventData &eventData) override;
+  void onNotify(Event type, Parameter parameter) override;
 };

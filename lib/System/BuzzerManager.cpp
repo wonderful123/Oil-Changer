@@ -20,17 +20,17 @@ BuzzerManager::BuzzerManager(std::shared_ptr<IBuzzer> buzzer,
 
   // Subscribe to buzzer beep events
   SystemFactory::getInstance().getEventManager()->subscribe(
-      std::shared_ptr<IEventListener>(this), EventType::BUZZER_BEEP);
+      std::shared_ptr<IEventListener>(this), Event::Buzzer);
 }
 
-void BuzzerManager::onNotify(EventType eventType, const EventData &eventData) {
-  if (eventData.id == "beep") {
+void BuzzerManager::onNotify(Event type, Parameter beepType) {
+  if (beepType == Parameter::SingleBeep) {
     beep();
-  } else if (eventData.id == "double_beep") {
+  } else if (beepType == Parameter::DoubleBeep) {
     doubleBeep();
-  } else if (eventData.id == "rapid_beep") {
+  } else if (beepType == Parameter::RapidBeep) {
     rapidBeep();
-  } else if (eventData.id == "stop") {
+  } else if (beepType == Parameter::StopBeep) {
     stop();
   }
 }

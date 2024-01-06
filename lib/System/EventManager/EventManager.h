@@ -1,3 +1,4 @@
+// EventManager.h
 #pragma once
 
 #include "Event.h"
@@ -9,8 +10,7 @@
 
 class EventManager {
 public:
-  void subscribe(std::shared_ptr<IEventListener> listener,
-                 EventType eventType) {
+  void subscribe(std::shared_ptr<IEventListener> listener, Event eventType) {
     auto &eventObservers = _listeners[eventType];
     if (std::find(eventObservers.begin(), eventObservers.end(), listener) ==
         eventObservers.end()) {
@@ -19,28 +19,32 @@ public:
     }
   }
 
-  void unsubscribe(std::shared_ptr<IEventListener> listener,
-                   EventType eventType) {
+  void unsubscribe(std::shared_ptr<IEventListener> listener, Event eventType) {
     auto &eventObservers = _listeners[eventType];
     eventObservers.erase(
         std::remove(eventObservers.begin(), eventObservers.end(), listener),
         eventObservers.end());
   }
 
-  void notify(EventType eventType, EventData &eventData) {
-    if (_listeners.count(eventType) > 0) {
-      for (std::shared_ptr<IEventListener> listener : _listeners[eventType]) {
-        listener->onNotify(eventType, eventData);
-      }
-    }
+  // Notify method for events that require a value
+  void notify(Event event, Parameter parameter, float value) {
+    notifyImpl(event, parameter, value);
   }
 
-  void notify(EventType eventType) {
-    EventData eventData;          // Create a default EventData object
-    notify(eventType, eventData); // Call the existing notify method
+  // Overloaded notify method for events that don't require a value
+  void notify(Event event, Parameter parameter) {
+    notifyImpl(event, parameter, 0.0f); // Using a default value
   }
 
 private:
-  std::unordered_map<EventType, std::vector<std::shared_ptr<IEventListener>>>
+  std::unordered_map<Event, std::vector<std::shared_ptr<IEventListener>>>
       _listeners;
+
+  void notifyImpl(Event event, Parameter parameter, float value) {
+    if (_listeners.count(event) > 0) {
+      for (auto &listener : _listeners[event]) {
+        listener->onNotify(event, parameter, value);
+      }
+    }
+  }
 };

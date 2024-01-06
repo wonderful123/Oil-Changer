@@ -9,7 +9,7 @@ OilChangeTracker::OilChangeTracker(std::shared_ptr<EventManager> eventManager)
       _flowRateFill(0), _flowRateExtract(0), _voltage(0),
       _eventManager(eventManager) {
   _eventManager->subscribe(std::shared_ptr<IEventListener>(this),
-                           EventType::OIL_CHANGE_TRACKER_UPDATE);
+                           Event::OilChangeTracker);
 }
 
 // Define the setter methods
@@ -64,16 +64,15 @@ void OilChangeTracker::setEventManager(
   _eventManager = eventManager;
 }
 
-void OilChangeTracker::onNotify(EventType eventType,
-                                const EventData &eventData) {
-  if (eventType == EventType::OIL_CHANGE_TRACKER_UPDATE) {
+void OilChangeTracker::onNotify(Event event, Parameter parameter, float value) {
+  if (event == Event::OilChangeTracker) {
     // 'id' is used to specify what to update (e.g., fill capacity)
-    if (eventData.id == "fill_capacity") {
+    if (parameter == Parameter::FillCapacity) {
       // Check the value to determine increment or decrement
-      if (eventData.value > 0) {
-        incrementFillCapacity(eventData.value);
-      } else if (eventData.value < 0) {
-        decrementFillCapacity(eventData.value);
+      if (value > 0) {
+        incrementFillCapacity(value);
+      } else if (value < 0) {
+        decrementFillCapacity(value);
       }
       Logger::info("[OilChangeTracker] - Fill Capacity: " +
                    std::to_string(_fillCapacity));

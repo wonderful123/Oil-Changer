@@ -1,27 +1,24 @@
-// EventCommand.h
+// Event.h
 #pragma once
 
-#include <string>
-
-enum class EventType {
-  NOEVENT,
-  BUZZER_BEEP,
-  OIL_CHANGE_TRACKER_UPDATE,
-  MANUAL_EXTRACT_START,
-  MANUAL_EXTRACT_STOP,
-  MANUAL_FILL_START,
-  MANUAL_FILL_STOP,
-  INTERACTION_SETTINGS_CHANGED,
+enum class Event {
+  Buzzer,
+  OilChangeTracker,
+  Motor,
 };
 
-class EventData {
-public:
-  std::string id;
-  double value;
+enum class Parameter {
+  // Buzzer Parameters
+  SingleBeep,
+  RapidBeep,
+  DoubleBeep,
+  StopBeep,
 
-  // Default constructor
-  EventData() : id(""), value(0) {}
+  // OilChangeTracker Parameters
+  FillCapacity,
 
-  EventData(std::string idString, double doubleValue = 0)
-      : id(std::move(idString)), value(doubleValue){};
+  // Motor Parameters
+  MotorFill,
+  MotorExtract,
+  MotorStop,
 };

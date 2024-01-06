@@ -1,3 +1,4 @@
+// IEventListener.h
 #pragma once
 
 #include "Event.h"
@@ -6,5 +7,6 @@
 class IEventListener {
 public:
   virtual ~IEventListener() = default;
-  virtual void onNotify(EventType eventType, const EventData &eventData) = 0;
+  virtual void onNotify(Event type, Parameter parameter) {};
+  virtual void onNotify(Event type, Parameter parameter, float value) {};
 };

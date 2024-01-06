@@ -45,7 +45,7 @@ private:
   double _voltage = 0;         // Voltage sense
 
   std::shared_ptr<EventManager> _eventManager;
-  void onNotify(EventType eventType, const EventData &eventData) override;
+  void onNotify(Event event, Parameter parameter, float value) override;
 
   void logStatus() const;
 };
