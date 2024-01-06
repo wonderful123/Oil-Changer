@@ -10,10 +10,13 @@ class HardwareManager;
 class BuzzerManager;
 class ConfigManager;
 class InteractionSettings;
+class MotorController;
+class EventManager;
 
 class SystemController {
 public:
-  SystemController(std::shared_ptr<HardwareManager> hardwareManager);
+  SystemController(std::shared_ptr<HardwareManager> hardwareManager,
+                   std::shared_ptr<EventManager> eventManager);
 
   void initializeSystemComponents();
   bool loadInteractionSettings();
@@ -22,16 +25,20 @@ public:
 
   std::shared_ptr<ButtonController> getButtonController();
   std::shared_ptr<BuzzerManager> getBuzzerManager();
+  std::shared_ptr<MotorController> getMotorController();
 
 private:
   std::shared_ptr<StateMachine> _stateMachine;
   std::shared_ptr<HardwareManager> _hardwareManager;
   std::shared_ptr<ButtonController> _buttonController;
   std::shared_ptr<BuzzerManager> _buzzerManager;
+  std::shared_ptr<MotorController> _motorController;
+  std::shared_ptr<EventManager> _eventManager;
   std::shared_ptr<InteractionSettings> _interactionSettings;
 
   Error initializeButtonController(
       std::shared_ptr<InteractionSettings> &interactionSettings);
   Error initializeBuzzerManager(
       std::shared_ptr<InteractionSettings> &interactionSettings);
+  Error initializeMotorController(std::shared_ptr<EventManager> eventManager);
 };

@@ -17,10 +17,12 @@
 #include "InteractionSettings.h"
 #include "InteractionSettingsConfig.h"
 #include "Logger.h"
+#include "MotorController.h"
 
 SystemController::SystemController(
-    std::shared_ptr<HardwareManager> hardwareManager)
-    : _hardwareManager(hardwareManager) {}
+    std::shared_ptr<HardwareManager> hardwareManager,
+    std::shared_ptr<EventManager> eventManager)
+    : _hardwareManager(hardwareManager), _eventManager(eventManager) {}
 
 void SystemController::initializeSystemComponents() {
   if (!loadInteractionSettings()) {
@@ -36,6 +38,12 @@ void SystemController::initializeSystemComponents() {
 
   Logger::info("[SystemController] Creating BuzzerManager");
   if (initializeBuzzerManager(_interactionSettings) != Error::OK) {
+    Logger::error("[SystemController] Failed to initialize Buzzer Manager");
+    return;
+  }
+
+  Logger::info("[SystemController] Creating BuzzerManager");
+  if (initializeMotorController(_eventManager) != Error::OK) {
     Logger::error("[SystemController] Failed to initialize Buzzer Manager");
     return;
   }
@@ -96,9 +104,29 @@ Error SystemController::initializeBuzzerManager(
   return Error::OK;
 }
 
+Error SystemController::initializeMotorController(
+    std::shared_ptr<EventManager> eventManager) {
+  auto speedControlDAC = _hardwareManager->getComponentById<IDAC>("MotorSpeed");
+  auto motorControlFill =
+      _hardwareManager->getComponentById<IDigitalIO>("MotorControlFill");
+  auto motorControlExtract =
+      _hardwareManager->getComponentById<IDigitalIO>("MotorControlExtract");
+
+  _motorController = std::make_shared<MotorController>(eventManager);
+
+  _motorController->registerDacComponent(speedControlDAC);
+  _motorController->registerDigitalIO(motorControlFill, motorControlExtract);
+
+  return Error::OK;
+}
+
 void SystemController::performPeriodicUpdate() {
   if (_buttonController) {
     _buttonController->processButtonStates();
+  }
+
+  if (_motorController) {
+    _motorController->update(); // For motor speed ramping
   }
 }
 
