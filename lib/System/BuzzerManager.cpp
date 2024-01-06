@@ -19,8 +19,8 @@ BuzzerManager::BuzzerManager(std::shared_ptr<IBuzzer> buzzer,
   }
 
   // Subscribe to buzzer beep events
-  SystemFactory::getInstance().getEventManager()->subscribe(
-      std::shared_ptr<IEventListener>(this), Event::Buzzer);
+  SystemFactory::getInstance().getEventManager()->subscribe(shared_from_this(),
+                                                            Event::Buzzer);
 }
 
 void BuzzerManager::onNotify(Event type, Parameter beepType) {

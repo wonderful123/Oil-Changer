@@ -8,7 +8,8 @@
 class InteractionSettings;
 class IBuzzer;
 
-class BuzzerManager : public IEventListener {
+class BuzzerManager : public IEventListener,
+                      public std::enable_shared_from_this<BuzzerManager> {
 public:
   BuzzerManager(std::shared_ptr<IBuzzer> buzzer,
                 std::shared_ptr<InteractionSettings> &settings);
