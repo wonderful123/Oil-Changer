@@ -1,0 +1,9 @@
+{
+  "motorSettings": {
+    "description": "Motor settings. min/max speed is between 0 and 1. Ramping is seconds from min to max.",
+    "maxSpeed": 1,
+    "minSpeed": 0,
+    "rampingEnabled": true,
+    "rampingDurationMs": 2000
+  }
+}
