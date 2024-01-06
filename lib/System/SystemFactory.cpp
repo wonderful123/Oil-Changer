@@ -44,7 +44,7 @@ void SystemFactory::createHardwareManager() {
 
 void SystemFactory::createSystemController() {
   Logger::info("[SystemFactory] Creating SystemController...");
-  _systemController = std::make_shared<SystemController>(_hardwareManager);
+  _systemController = std::make_shared<SystemController>(_hardwareManager, _eventManager);
   _systemController->initializeSystemComponents();
   _buzzerManager = _systemController->getBuzzerManager();
 }
