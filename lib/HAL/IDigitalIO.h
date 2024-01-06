@@ -16,6 +16,8 @@
 class IDigitalIO : public HardwareComponent {
 public:
   enum Mode { INPUT_MODE, OUTPUT_MODE };
+  static const int DIGITAL_HIGH = 1;
+  static const int DIGITAL_LOW = 0;
 
   using HardwareComponent::HardwareComponent; // Inherit constructor
 
