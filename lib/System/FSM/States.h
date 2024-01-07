@@ -35,14 +35,14 @@ public:
 
 class Ready : public StateMachine {
 public:
+  void entry() { Logger::info("[State] Ready"); }
+
   void exit() { clearBuzzerRapidBeepCallback(); }
 
   void react(ButtonPressEvent const &event) {
-    Logger::debug("[StateMachine] Button pressed: " + event.id);
-    if (event.id == "ButtonStartx") {
+    if (event.id == "ButtonStart") {
       notifyBuzzer(Parameter::SingleBeep);
-      transit<Extracting>();
-    } else if (event.id == "ButtonStart") {
+    } else if (event.id == "ButtonPlus") {
       notifyBuzzer(Parameter::SingleBeep);
       notifyOilTracker(Parameter::FillCapacity, 0.1);
     } else if (event.id == "ButtonMinus") {
@@ -57,6 +57,9 @@ public:
 
   void react(ButtonHoldEvent const &event) {
     if (event.id == "ButtonStart") {
+      notifyBuzzer(Parameter::DoubleBeep);
+      transit<Extracting>();
+    } else if (event.id == "ButtonPlus") {
       setupBuzzerRapidBeepCallback(0.1);
       notifyBuzzer(Parameter::RapidBeep);
     } else if (event.id == "ButtonMinus") {
@@ -77,10 +80,10 @@ public:
   }
 
   void setupBuzzerRapidBeepCallback(float fillCapacityAdjustmentValue) {
-    _buzzerManager->setOnRapidBeepCallback(
-        [this, fillCapacityAdjustmentValue]() {
-          notifyOilTracker(Parameter::FillCapacity, fillCapacityAdjustmentValue);
-        });
+    _buzzerManager->setOnRapidBeepCallback([this,
+                                            fillCapacityAdjustmentValue]() {
+      notifyOilTracker(Parameter::FillCapacity, fillCapacityAdjustmentValue);
+    });
   }
 
   void clearBuzzerRapidBeepCallback() {
@@ -96,6 +99,8 @@ public:
   }
 };
 
+/*********************************************************************/
+
 class ExtractingManual : public StateMachine {
 public:
   void entry() override {
@@ -109,6 +114,8 @@ public:
     transit<Ready>();
   }
 };
+
+/*********************************************************************/
 
 class FillingManual : public StateMachine {
 public:
@@ -124,45 +131,131 @@ public:
   }
 };
 
+/*********************************************************************/
+
 class Extracting : public StateMachine {
 public:
-  void entry() override{};
+  void entry() override {
+    Logger::info("[State] Extracting...");
+    _eventManager->notify(Event::Motor, Parameter::MotorExtract);
+  };
 
-  void react(tinyfsm::Event const &) {}
+  void react(ButtonPressEvent const &event) {
+    if (event.id == "ButtonStop") {
+      Logger::info("[State Extracting] Motor halt");
+      _eventManager->notify(Event::Buzzer, Parameter::DoubleBeep);
+      _eventManager->notify(Event::Motor, Parameter::MotorHalt);
+    } else if (event.id == "ButtonStart") {
+      _eventManager->notify(Event::Buzzer, Parameter::SingleBeep);
+    }
+  }
+
+  void react(ButtonHoldEvent const &event) {
+    if (event.id == "ButtonStart") {
+      // ***** temporary command to move to next state.
+      _eventManager->notify(Event::Buzzer, Parameter::DoubleBeep);
+      transit<InterimTask>();
+    }
+  }
+
+  void react(ExtractLowPressureSwitchTriggeredEvent const &) {
+    _eventManager->notify(Event::Buzzer, Parameter::DoubleBeep);
+    _eventManager->notify(Event::Motor, Parameter::MotorStop);
+    transit<InterimTask>();
+  }
 };
+
+/*********************************************************************/
 
 class InterimTask : public StateMachine {
 public:
   void entry() override {
     // Display an interim task such as filter replacement
+    Logger::info("[State] Interim Event");
   }
 
-  void react(StartOilChangeEvent const &) {
+  void react(ButtonPressEvent const &event) {
     // Handle completion of interim task such as filter replacement
-    transit<Filling>();
+    if (event.id == "ButtonManualExtract") {
+      _eventManager->notify(Event::Motor, Parameter::MotorExtract);
+    } else if (event.id == "ButtonManualFill") {
+      _eventManager->notify(Event::Motor, Parameter::MotorFill);
+    } else if (event.id == "ButtonStart") {
+      _eventManager->notify(Event::Buzzer, Parameter::SingleBeep);
+    }
+  }
+
+  void react(ButtonHoldEvent const &event) {
+    if (event.id == "ButtonStart") {
+      _eventManager->notify(Event::Buzzer, Parameter::DoubleBeep);
+      transit<Filling>();
+    }
   }
 };
 
+/*********************************************************************/
+
 class Filling : public StateMachine {
 public:
-  void entry() override{
-      // Start oil filling
-      // ...
+  void entry() override {
+    Logger::info("[State] Filling...");
+    _eventManager->notify(Event::Motor, Parameter::MotorFill);
   };
 
-  void react(OilCapacityTargetReachedEvent const &) {}
+  void react(ButtonPressEvent const &event) {
+    if (event.id == "ButtonStop") {
+      Logger::info("[State Extracting] Motor halt");
+      _eventManager->notify(Event::Buzzer, Parameter::DoubleBeep);
+      _eventManager->notify(Event::Motor, Parameter::MotorHalt);
+    } else if (event.id == "ButtonStart") {
+      _eventManager->notify(Event::Buzzer, Parameter::SingleBeep);
+    }
+  }
+
+  void react(ButtonHoldEvent const &event) {
+    if (event.id == "ButtonStart") {
+      // ***** temporary command to move to next state.
+      _eventManager->notify(Event::Buzzer, Parameter::DoubleBeep);
+      transit<OilChangeComplete>();
+    }
+  }
+
+  void react(OilCapacityTargetReachedEvent const &) {
+    _eventManager->notify(Event::Motor, Parameter::MotorStop);
+    transit<OilChangeComplete>();
+  }
 
   void react(FillLowPressureSwitchTriggeredEvent const &) {
+    _eventManager->notify(Event::Motor, Parameter::MotorStop);
     transit<OilChangeComplete>();
   }
 };
 
+/*********************************************************************/
+
 class OilChangeComplete : public StateMachine {
 public:
-  void entry() override {
-    // Display "Oil change complete" message
+  void entry() override { Logger::info("[State] Oil change complete"); }
+
+  void react(ButtonPressEvent const &event) {
+    if (event.id == "ButtonStart") {
+      _eventManager->notify(Event::Buzzer, Parameter::SingleBeep);
+    } else if (event.id == "ButtonManualExtract") {
+      _eventManager->notify(Event::Motor, Parameter::MotorExtract);
+    } else if (event.id == "ButtonManualFill") {
+      _eventManager->notify(Event::Motor, Parameter::MotorFill);
+    }
+  };
+
+  void react(ButtonHoldEvent const &event) {
+    if (event.id == "ButtonStart") {
+      _eventManager->notify(Event::Buzzer, Parameter::DoubleBeep);
+      transit<Ready>();
+    }
   }
 };
+
+/*********************************************************************/
 
 class ConfigMode : public StateMachine {
 public:
