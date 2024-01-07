@@ -13,8 +13,8 @@ public:
   virtual ~IConfig() = default;
 
   // Load configuration from a JSON file
-  virtual Error load(const std::string &filename) = 0;
+  virtual Error load() = 0;
 
   // Save configuration to a JSON file
-  virtual Error save(const std::string &filename) const = 0;
+  virtual Error save() const = 0;
 };
