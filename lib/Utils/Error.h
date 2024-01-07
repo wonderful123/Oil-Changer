@@ -69,8 +69,6 @@
              "MotorSettings: Min speed must be greater than or equal to zero.")\
   ERROR_CODE(MotorSettingsValidationRampingDurationLessThanZero,               \
              "MotorSettings: Ramping duration must be greater than zero.")     \
-  ERROR_CODE(MotorSettingsNotInitialized,                                      \
-             "MotorSettings not initialized.")                                 \
   ERROR_CODE(JsonDocSizeExceededMaximum4000BytesForESP32,                      \
              "JSON document size exceeded maximum of 4000 bytes for ESP32.")   \
   ERROR_CODE(MotorSettingsConfigNotLoaded,                                     \
