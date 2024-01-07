@@ -5,9 +5,9 @@
 
 class FileGuard {
 public:
-  explicit FileGuard(IFileHandler *handler, const std::string &path)
-      : _fileHandler(handler), _isOpen(handler->open(path, "r")) {
-  } // Assuming "r" for read mode
+  explicit FileGuard(IFileHandler *handler, const std::string &path,
+                     const std::string &mode)
+      : _fileHandler(handler), _isOpen(handler->open(path, mode)) {}
 
   ~FileGuard() {
     if (_isOpen)
