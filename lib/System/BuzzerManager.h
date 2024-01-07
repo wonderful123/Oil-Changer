@@ -16,6 +16,7 @@ public:
                 std::shared_ptr<InteractionSettings> &settings,
                 std::shared_ptr<EventManager> eventManager);
 
+  void initialize();
   void triggerBuzzer(int frequency, int duration);
   void beep();
   void rapidBeep();
@@ -26,6 +27,7 @@ public:
 
 private:
   std::shared_ptr<IBuzzer> _buzzer;
+  std::shared_ptr<EventManager> _eventManager;
 
   void onNotify(Event type, Parameter parameter) override;
 };

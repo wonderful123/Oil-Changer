@@ -11,16 +11,18 @@
 BuzzerManager::BuzzerManager(std::shared_ptr<IBuzzer> buzzer,
                              std::shared_ptr<InteractionSettings> &settings,
                              std::shared_ptr<EventManager> eventManager)
-    : _buzzer(buzzer) {
+    : _buzzer(buzzer), _eventManager(eventManager) {
   if (_buzzer) {
     _buzzer->updateSettings(settings);
   } else {
     Logger::error(
         "[BuzzerManager] Buzzer component is not set or initialized.");
   }
+}
 
+void BuzzerManager::initialize() {
   // Subscribe to buzzer beep events
-  eventManager->subscribe(shared_from_this(), Event::Buzzer);
+  _eventManager->subscribe(shared_from_this(), Event::Buzzer);
 }
 
 void BuzzerManager::onNotify(Event type, Parameter beepType) {

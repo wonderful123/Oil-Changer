@@ -50,8 +50,9 @@ void SystemFactory::createSystemController() {
 }
 
 void SystemFactory::createOilChangeTracker() {
-  Logger::info("[SystemFactory] Creating OilChangeTracker...");
+  Logger::info("[SystemFactory] Creating OilChangeTracker");
   _oilChangeTracker = std::make_shared<OilChangeTracker>(_eventManager);
+  _oilChangeTracker->initialize();
 }
 
 void SystemFactory::createStateMachine(std::shared_ptr <EventManager> eventManager, std::shared_ptr<BuzzerManager> buzzerManager) {

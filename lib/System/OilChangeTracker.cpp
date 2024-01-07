@@ -7,9 +7,10 @@
 OilChangeTracker::OilChangeTracker(std::shared_ptr<EventManager> eventManager)
     : _fillCapacity(4.0f), _amountFilled(0), _amountExtracted(0),
       _flowRateFill(0), _flowRateExtract(0), _voltage(0),
-      _eventManager(eventManager) {
-  _eventManager->subscribe(std::shared_ptr<IEventListener>(this),
-                           Event::OilChangeTracker);
+      _eventManager(eventManager) {}
+
+void OilChangeTracker::initialize() {
+  _eventManager->subscribe(shared_from_this(), Event::OilChangeTracker);
 }
 
 // Define the setter methods
@@ -58,11 +59,6 @@ double OilChangeTracker::remainingCapacity() const {
 bool OilChangeTracker::isFull() const { return _amountFilled >= _fillCapacity; }
 
 bool OilChangeTracker::isEmpty() const { return _amountFilled == 0; }
-
-void OilChangeTracker::setEventManager(
-    std::shared_ptr<EventManager> eventManager) {
-  _eventManager = eventManager;
-}
 
 void OilChangeTracker::onNotify(Event event, Parameter parameter, float value) {
   if (event == Event::OilChangeTracker) {

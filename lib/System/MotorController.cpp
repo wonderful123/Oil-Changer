@@ -6,14 +6,21 @@
 MotorController::MotorController(std::shared_ptr<EventManager> eventManager)
     : _eventManager(eventManager),
       _rampState(0.0f, 0.0f, std::chrono::steady_clock::now(),
-                 std::chrono::milliseconds(0), false) {
-  // Subscribe to Motor events
-  _eventManager->subscribe(shared_from_this(), Event::Motor);
-}
+                 std::chrono::milliseconds(0), false) {}
 
 MotorController::~MotorController() {
   // Unsubscribe from Motor events
   _eventManager->unsubscribe(shared_from_this(), Event::Motor);
+}
+
+void MotorController::initialize(std::shared_ptr<IDAC> dac,
+                                 std::shared_ptr<IDigitalIO> fill,
+                                 std::shared_ptr<IDigitalIO> extract) {
+  // Subscribe to Motor events
+  _eventManager->subscribe(shared_from_this(), Event::Motor);
+
+  registerDacComponent(dac);
+  registerDigitalIO(fill, extract);
 }
 
 void MotorController::onNotify(Event type, Parameter parameter, float value) {

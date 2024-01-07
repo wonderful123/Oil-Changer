@@ -30,12 +30,6 @@ void SystemController::initializeSystemComponents() {
     return;
   }
 
-  Logger::info("[SystemController] Creating EventManager");
-  if (initializeMotorController(_eventManager) != Error::OK) {
-    Logger::error("[SystemController] Failed to initialize Event Manager");
-    return;
-  }
-
   Logger::info("[SystemController] Creating ButtonController");
   if (initializeButtonController(_interactionSettings) != Error::OK) {
     Logger::error("[SystemController] Failed to initialize Button Controller");
@@ -46,6 +40,12 @@ void SystemController::initializeSystemComponents() {
   if (initializeBuzzerManager(_interactionSettings, _eventManager) !=
       Error::OK) {
     Logger::error("[SystemController] Failed to initialize Buzzer Manager");
+    return;
+  }
+
+  Logger::info("[SystemController] Creating MotorController");
+  if (initializeMotorController(_eventManager) != Error::OK) {
+    Logger::error("[SystemController] Failed to initialize Motor Controller");
     return;
   }
 
@@ -96,12 +96,16 @@ Error SystemController::initializeButtonController(
 Error SystemController::initializeBuzzerManager(
     std::shared_ptr<InteractionSettings> &interactionSettings,
     std::shared_ptr<EventManager> eventManager) {
+  if (!eventManager)
+    Logger::info("FUCKER");
   auto buzzer = _hardwareManager->getComponentById<IBuzzer>("Buzzer");
   if (!buzzer) {
     return Error::HardwareConfigBuzzerInitError;
   }
 
-  _buzzerManager = std::make_shared<BuzzerManager>(buzzer, interactionSettings, eventManager);
+  _buzzerManager = std::make_shared<BuzzerManager>(buzzer, interactionSettings,
+                                                   eventManager);
+  _buzzerManager->initialize();
 
   return Error::OK;
 }
@@ -115,9 +119,7 @@ Error SystemController::initializeMotorController(
       _hardwareManager->getComponentById<IDigitalIO>("MotorControlExtract");
 
   _motorController = std::make_shared<MotorController>(eventManager);
-
-  _motorController->registerDacComponent(speedControlDAC);
-  _motorController->registerDigitalIO(motorControlFill, motorControlExtract);
+  _motorController->initialize(speedControlDAC, motorControlFill, motorControlExtract);
 
   return Error::OK;
 }

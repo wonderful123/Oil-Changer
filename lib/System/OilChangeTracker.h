@@ -9,11 +9,11 @@
 #include "EventManager/EventManager.h"
 #include "EventManager/IEventListener.h"
 
-class OilChangeTracker : public IEventListener {
+class OilChangeTracker : public IEventListener,
+                         public std::enable_shared_from_this<OilChangeTracker> {
 public:
   OilChangeTracker(std::shared_ptr<EventManager> eventManager);
-
-  void setEventManager(std::shared_ptr<EventManager> eventManager);
+  void initialize();
 
   // Setters
   void setAmountFilled(double amount);

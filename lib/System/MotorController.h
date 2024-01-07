@@ -5,12 +5,16 @@
 #include "IDAC.h"
 #include "IDigitalIO.h"
 #include <chrono>
+#include <memory>
 
 class MotorController : public IEventListener,
                         public std::enable_shared_from_this<MotorController> {
 public:
   MotorController(std::shared_ptr<EventManager> eventManager);
   virtual ~MotorController() override;
+
+  void initialize(std::shared_ptr<IDAC> dac, std::shared_ptr<IDigitalIO> fill,
+                  std::shared_ptr<IDigitalIO> extract);
 
   // Implement onNotify from IEventListener
   virtual void onNotify(Event type, Parameter parameter, float value) override;
@@ -29,9 +33,6 @@ public:
 
   // Set the motor speed as a fraction (0 to 1) of the maximum speed
   void setMotorSpeed(float fraction);
-
-  // Ramp the motor speed from the current speed to a target speed over a period
-  void rampMotorSpeed(float targetFraction, std::chrono::milliseconds duration);
 
   // Method to initiate ramping
   void startRamp(float targetFraction, std::chrono::milliseconds duration);
