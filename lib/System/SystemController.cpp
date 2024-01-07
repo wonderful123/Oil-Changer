@@ -18,6 +18,7 @@
 #include "InteractionSettingsConfig.h"
 #include "Logger.h"
 #include "MotorController.h"
+#include "MotorSettingsConfig.h"
 
 SystemController::SystemController(
     std::shared_ptr<ConfigManager> configManager,
@@ -113,13 +114,24 @@ Error SystemController::initializeBuzzerManager(
 
 Error SystemController::initializeMotorController(
     std::shared_ptr<EventManager> eventManager) {
+  // Get settings config for motor controller
+  auto motorSettingsConfig =
+      _configManager->getConfig<MotorSettingsConfig>(ConfigType::MOTOR);
+  if (!motorSettingsConfig) {
+    Logger::error("[SystemController] Motor settings config not found");
+    return Error(Error::MotorSettingsConfigNotLoaded);
+  }
+
+  auto motorSettings = motorSettingsConfig->getSettings();
+
   auto speedControlDAC = _hardwareManager->getComponentById<IDAC>("MotorSpeed");
   auto motorControlFill =
       _hardwareManager->getComponentById<IDigitalIO>("MotorControlFill");
   auto motorControlExtract =
       _hardwareManager->getComponentById<IDigitalIO>("MotorControlExtract");
 
-  _motorController = std::make_shared<MotorController>(eventManager);
+  _motorController =
+      std::make_shared<MotorController>(eventManager, motorSettings);
   _motorController->initialize(speedControlDAC, motorControlFill,
                                motorControlExtract);
 
