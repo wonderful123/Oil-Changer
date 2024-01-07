@@ -15,12 +15,13 @@ ESP32DAC::ESP32DAC(const HardwarePinConfig &config) : DACBase(config) {
   }
 }
 
-void ESP32DAC::applyValue(int value) {
-  // Apply the value to the DAC, ensuring it's within the valid range
-  int clampedValue = std::max(0, std::min(value, 255));
-  dacWrite(_pinNumber, clampedValue);
+// value is between 0 and 1
+void ESP32DAC::applyValue(float value) {
+  // Convert the value to a 8-bit unsigned integer between 0 and 255
+  uint8_t convertedValue = static_cast<uint8_t>(value * 255);
+  dacWrite(_pinNumber, convertedValue);
   Logger::debug("[ESP32DAC] DAC applyValue: Pin " + std::to_string(_pinNumber) +
-                ", Value " + std::to_string(clampedValue));
+                ", Value " + std::to_string(convertedValue));
 }
 
 #endif // PLATFORM_ESP32

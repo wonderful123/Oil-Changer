@@ -11,7 +11,8 @@ public:
   explicit ESP32DAC(const HardwarePinConfig &config);
 
 protected:
-  void applyValue(int value) override;
+  // value is between 0 and 1
+  void applyValue(float value) override;
 };
 
 #endif // PLATFORM_ESP32

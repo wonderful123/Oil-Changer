@@ -11,28 +11,33 @@
  */
 class DACBase : public IDAC {
 public:
-  explicit DACBase(const HardwarePinConfig &config) : IDAC(config), _value(0) {}
+  explicit DACBase(const HardwarePinConfig &config) : IDAC(config) {
+    setValue(0);
+  }
 
   // Set the output value of the DAC
-  void setValue(int value) override {
+  void setValue(float value) override {
+    // Clamp value between 0 and 1
+    if (value < 0) {
+      value = 0;
+    } else if (value > 1) {
+      value = 1;
+    }
     _value = value;
     applyValue(_value);
   }
 
   // Get the current output value of the DAC
-  int getValue() const override { return _value; }
+  float getValue() const override { return _value; }
 
 protected:
   /**
    * @brief Apply the specified value to the DAC output.
    *
-   * This method should be implemented in derived classes to
-   * apply the value to the actual hardware.
-   *
-   * @param value The value to be applied.
+   * @param value The value to be applied between 0 and 1
    */
-  virtual void applyValue(int value) = 0;
+  virtual void applyValue(float value) = 0;
 
 private:
-  int _value; // Current value of the DAC
+  float _value; // Current value of the DAC
 };

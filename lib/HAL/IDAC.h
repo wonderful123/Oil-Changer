@@ -19,10 +19,9 @@ public:
   /**
    * @brief Set the output value of the DAC.
    *
-   * @param value The value to be set (range and scale may be hardware
-   * specific).
+   * @param value The value to be set between 0 and 1
    */
-  virtual void setValue(int value) = 0;
+  virtual void setValue(float value) = 0;
 
   /**
    * @brief Get the current output value of the DAC.
