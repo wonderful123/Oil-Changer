@@ -26,7 +26,6 @@ public:
 
   std::shared_ptr<ButtonController> getButtonController();
   std::shared_ptr<BuzzerManager> getBuzzerManager();
-  std::shared_ptr<MotorController> getMotorController();
 
 private:
   std::shared_ptr<ConfigManager> _configManager;
