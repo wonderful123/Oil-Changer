@@ -73,6 +73,8 @@
              "MotorSettings not initialized.")                                 \
   ERROR_CODE(JsonDocSizeExceededMaximum4000BytesForESP32,                      \
              "JSON document size exceeded maximum of 4000 bytes for ESP32.")   \
+  ERROR_CODE(MotorSettingsConfigNotLoaded,                                     \
+             "MotorSettings config not loaded.")                               \
 
 #undef ERROR_CODE
 
