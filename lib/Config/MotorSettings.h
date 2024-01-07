@@ -8,5 +8,6 @@ struct MotorSettings {
   float maxSpeed;
   float minSpeed;
   bool rampingEnabled;
-  int rampingDurationMs;
+  int rampingOnDurationMs;
+  int rampingOffDurationMs;
 };
