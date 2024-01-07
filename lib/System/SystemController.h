@@ -15,7 +15,8 @@ class EventManager;
 
 class SystemController {
 public:
-  SystemController(std::shared_ptr<HardwareManager> hardwareManager,
+  SystemController(std::shared_ptr<ConfigManager> configManager,
+                   std::shared_ptr<HardwareManager> hardwareManager,
                    std::shared_ptr<EventManager> eventManager);
 
   void initializeSystemComponents();
@@ -28,6 +29,7 @@ public:
   std::shared_ptr<MotorController> getMotorController();
 
 private:
+  std::shared_ptr<ConfigManager> _configManager;
   std::shared_ptr<StateMachine> _stateMachine;
   std::shared_ptr<HardwareManager> _hardwareManager;
   std::shared_ptr<ButtonController> _buttonController;

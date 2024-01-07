@@ -1,4 +1,3 @@
-// ConfigManager.h
 #pragma once
 
 #include <memory>
@@ -15,11 +14,9 @@ class IFileHandler;
 
 class ConfigManager {
 public:
-  static std::shared_ptr<ConfigManager> getInstance();
-  void initialize(std::shared_ptr<IFileHandler> fileHandler);
+  ConfigManager(std::shared_ptr<IFileHandler> fileHandler);
 
   template <typename T> std::shared_ptr<T> getConfig(ConfigType type) {
-    // Check if the configuration is already loaded
     std::lock_guard<std::mutex> lock(_mutex); // Ensure thread safety
     if (!isConfigLoaded(type)) {
       Error loadError = loadConfig(type);
@@ -30,7 +27,6 @@ public:
       }
     }
 
-    // Attempt to cast the configuration to the requested type
     std::string name = ConfigPaths::getNameForType(type);
     auto config = std::static_pointer_cast<T>(_configs[name]);
     if (config) {
@@ -46,18 +42,12 @@ public:
   void releaseConfig(ConfigType type);
 
 private:
-  ConfigManager();
   std::shared_ptr<IFileHandler> _fileHandler;
   std::unordered_map<std::string, std::shared_ptr<IConfig>> _configs;
   std::unordered_map<std::string, int>
-      _referenceCounts; // Reference counting for each config
-  static std::shared_ptr<ConfigManager> _instance;
-  static std::mutex _mutex; // Mutex for thread safety
+      _referenceCounts;      // Reference counting for each config
+  mutable std::mutex _mutex; // Mutex for thread safety
 
   Error loadConfig(ConfigType type);
   bool isConfigLoaded(ConfigType type) const;
-  ConfigManager(const ConfigManager &) =
-      delete; // Singleton: delete copy constructor
-  ConfigManager &operator=(const ConfigManager &) =
-      delete; // Singleton: delete copy assignment
 };

@@ -1,5 +1,4 @@
 // ConfigManager.cpp
-
 #include "ConfigManager.h"
 #include "HardwareConfig.h"
 #include "IFileHandler.h"
@@ -7,26 +6,8 @@
 #include "MotorSettingsConfig.h"
 #include <string>
 
-// Responsible for loading configuration data from a source (like a JSON file)
-// and passing it to the appropriate managers
-
-std::mutex ConfigManager::_mutex; // Define the static mutex
-std::shared_ptr<ConfigManager> ConfigManager::_instance = nullptr;
-
-ConfigManager::ConfigManager() {}
-
-std::shared_ptr<ConfigManager> ConfigManager::getInstance() {
-  std::lock_guard<std::mutex> lock(_mutex); // Ensure thread safety
-  if (!_instance) {
-    _instance = std::shared_ptr<ConfigManager>(
-        new ConfigManager()); // Create the Singleton instance
-  }
-  return _instance;
-}
-
-void ConfigManager::initialize(std::shared_ptr<IFileHandler> fileHandler) {
-  _fileHandler = fileHandler;
-}
+ConfigManager::ConfigManager(std::shared_ptr<IFileHandler> fileHandler)
+    : _fileHandler(fileHandler) {}
 
 Error ConfigManager::loadConfig(ConfigType type) {
   std::shared_ptr<IConfig> config;

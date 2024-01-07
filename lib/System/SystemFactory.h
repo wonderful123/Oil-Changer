@@ -26,10 +26,12 @@ public:
   std::shared_ptr<HardwareManager> getHardwareManager();
   std::shared_ptr<ButtonController> getButtonController();
   std::shared_ptr<BuzzerManager> getBuzzerManager();
+  std::shared_ptr<ConfigManager> getConfigManager();
 
 private:
   std::shared_ptr<HardwareManager> _hardwareManager;
   std::shared_ptr<SystemController> _systemController;
+  std::shared_ptr<ConfigManager> _configManager;
   std::shared_ptr<BuzzerManager> _buzzerManager;
   std::shared_ptr<ButtonController> _buttonController;
   std::shared_ptr<IFileHandler> _fileHandler;

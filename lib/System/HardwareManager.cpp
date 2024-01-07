@@ -8,9 +8,12 @@
 #include "HardwareFactory.h"
 #include "HardwareInitializer.h"
 
+HardwareManager::HardwareManager(std::shared_ptr<ConfigManager> configManager)
+    : _configManager(configManager) {}
+
 Error HardwareManager::initialize() {
-  HardwareInitializer initializer(ConfigManager::getInstance(),
-                                  HardwareFactory::getHardwareFactory());
+  auto hardwareFactory = HardwareFactory::getHardwareFactory();
+  HardwareInitializer initializer(_configManager, hardwareFactory);
 
   Error initError = initializer.initialize(_components);
   if (initError) {

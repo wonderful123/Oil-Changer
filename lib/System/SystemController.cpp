@@ -20,9 +20,11 @@
 #include "MotorController.h"
 
 SystemController::SystemController(
+    std::shared_ptr<ConfigManager> configManager,
     std::shared_ptr<HardwareManager> hardwareManager,
     std::shared_ptr<EventManager> eventManager)
-    : _hardwareManager(hardwareManager), _eventManager(eventManager) {}
+    : _configManager(configManager), _hardwareManager(hardwareManager),
+      _eventManager(eventManager) {}
 
 void SystemController::initializeSystemComponents() {
   if (!loadInteractionSettings()) {
@@ -53,9 +55,8 @@ void SystemController::initializeSystemComponents() {
 }
 
 bool SystemController::loadInteractionSettings() {
-  auto configManager = ConfigManager::getInstance();
   auto interactionSettingsConfig =
-      configManager->getConfig<InteractionSettingsConfig>(
+      _configManager->getConfig<InteractionSettingsConfig>(
           ConfigType::INTERACTION_SETTINGS);
 
   if (!interactionSettingsConfig) {
@@ -119,7 +120,8 @@ Error SystemController::initializeMotorController(
       _hardwareManager->getComponentById<IDigitalIO>("MotorControlExtract");
 
   _motorController = std::make_shared<MotorController>(eventManager);
-  _motorController->initialize(speedControlDAC, motorControlFill, motorControlExtract);
+  _motorController->initialize(speedControlDAC, motorControlFill,
+                               motorControlExtract);
 
   return Error::OK;
 }

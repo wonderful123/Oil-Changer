@@ -33,18 +33,18 @@ void SystemFactory::createEventManager() {
 
 void SystemFactory::createConfigManager() {
   Logger::info("[SystemFactory] Creating ConfigManager...");
-  ConfigManager::getInstance()->initialize(_fileHandler);
+  _configManager = std::make_shared<ConfigManager>(_fileHandler);
 }
 
 void SystemFactory::createHardwareManager() {
   Logger::info("[SystemFactory] Creating HardwareManager...");
-  _hardwareManager = std::make_shared<HardwareManager>();
+  _hardwareManager = std::make_shared<HardwareManager>(_configManager);
   _hardwareManager->initialize();
 }
 
 void SystemFactory::createSystemController() {
   Logger::info("[SystemFactory] Creating SystemController...");
-  _systemController = std::make_shared<SystemController>(_hardwareManager, _eventManager);
+  _systemController = std::make_shared<SystemController>(_configManager, _hardwareManager, _eventManager);
   _systemController->initializeSystemComponents();
   _buzzerManager = _systemController->getBuzzerManager();
 }
@@ -59,6 +59,10 @@ void SystemFactory::createStateMachine(std::shared_ptr <EventManager> eventManag
   StateMachine::setSharedResources(eventManager, buzzerManager);
   StateMachine::start();
   Logger::info("[SystemFactory] Created StateMachine");
+}
+
+std::shared_ptr<ConfigManager> SystemFactory::getConfigManager() {
+  return _configManager;
 }
 
 std::shared_ptr<EventManager> SystemFactory::getEventManager() {
