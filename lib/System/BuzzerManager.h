@@ -7,12 +7,14 @@
 
 class InteractionSettings;
 class IBuzzer;
+class EventManager;
 
 class BuzzerManager : public IEventListener,
                       public std::enable_shared_from_this<BuzzerManager> {
 public:
   BuzzerManager(std::shared_ptr<IBuzzer> buzzer,
-                std::shared_ptr<InteractionSettings> &settings);
+                std::shared_ptr<InteractionSettings> &settings,
+                std::shared_ptr<EventManager> eventManager);
 
   void triggerBuzzer(int frequency, int duration);
   void beep();

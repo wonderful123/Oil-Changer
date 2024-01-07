@@ -30,6 +30,12 @@ void SystemController::initializeSystemComponents() {
     return;
   }
 
+  Logger::info("[SystemController] Creating EventManager");
+  if (initializeMotorController(_eventManager) != Error::OK) {
+    Logger::error("[SystemController] Failed to initialize Event Manager");
+    return;
+  }
+
   Logger::info("[SystemController] Creating ButtonController");
   if (initializeButtonController(_interactionSettings) != Error::OK) {
     Logger::error("[SystemController] Failed to initialize Button Controller");
@@ -37,13 +43,8 @@ void SystemController::initializeSystemComponents() {
   }
 
   Logger::info("[SystemController] Creating BuzzerManager");
-  if (initializeBuzzerManager(_interactionSettings) != Error::OK) {
-    Logger::error("[SystemController] Failed to initialize Buzzer Manager");
-    return;
-  }
-
-  Logger::info("[SystemController] Creating BuzzerManager");
-  if (initializeMotorController(_eventManager) != Error::OK) {
+  if (initializeBuzzerManager(_interactionSettings, _eventManager) !=
+      Error::OK) {
     Logger::error("[SystemController] Failed to initialize Buzzer Manager");
     return;
   }
@@ -93,13 +94,14 @@ Error SystemController::initializeButtonController(
 }
 
 Error SystemController::initializeBuzzerManager(
-    std::shared_ptr<InteractionSettings> &interactionSettings) {
+    std::shared_ptr<InteractionSettings> &interactionSettings,
+    std::shared_ptr<EventManager> eventManager) {
   auto buzzer = _hardwareManager->getComponentById<IBuzzer>("Buzzer");
   if (!buzzer) {
     return Error::HardwareConfigBuzzerInitError;
   }
 
-  _buzzerManager = std::make_shared<BuzzerManager>(buzzer, interactionSettings);
+  _buzzerManager = std::make_shared<BuzzerManager>(buzzer, interactionSettings, eventManager);
 
   return Error::OK;
 }

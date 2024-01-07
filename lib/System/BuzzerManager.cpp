@@ -9,7 +9,8 @@
 // Kept because it may be used.
 
 BuzzerManager::BuzzerManager(std::shared_ptr<IBuzzer> buzzer,
-                             std::shared_ptr<InteractionSettings> &settings)
+                             std::shared_ptr<InteractionSettings> &settings,
+                             std::shared_ptr<EventManager> eventManager)
     : _buzzer(buzzer) {
   if (_buzzer) {
     _buzzer->updateSettings(settings);
@@ -19,8 +20,7 @@ BuzzerManager::BuzzerManager(std::shared_ptr<IBuzzer> buzzer,
   }
 
   // Subscribe to buzzer beep events
-  SystemFactory::getInstance().getEventManager()->subscribe(shared_from_this(),
-                                                            Event::Buzzer);
+  eventManager->subscribe(shared_from_this(), Event::Buzzer);
 }
 
 void BuzzerManager::onNotify(Event type, Parameter beepType) {

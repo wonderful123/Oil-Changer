@@ -39,6 +39,7 @@ private:
   Error initializeButtonController(
       std::shared_ptr<InteractionSettings> &interactionSettings);
   Error initializeBuzzerManager(
-      std::shared_ptr<InteractionSettings> &interactionSettings);
+      std::shared_ptr<InteractionSettings> &interactionSettings,
+      std::shared_ptr<EventManager> eventManager);
   Error initializeMotorController(std::shared_ptr<EventManager> eventManager);
 };
