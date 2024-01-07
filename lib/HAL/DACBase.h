@@ -11,9 +11,7 @@
  */
 class DACBase : public IDAC {
 public:
-  explicit DACBase(const HardwarePinConfig &config) : IDAC(config) {
-    setValue(0);
-  }
+  explicit DACBase(const HardwarePinConfig &config) : IDAC(config), _value(0) {}
 
   // Set the output value of the DAC
   void setValue(float value) override {
