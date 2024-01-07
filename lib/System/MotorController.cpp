@@ -77,7 +77,8 @@ void MotorController::activateFill() {
   }
 }
 
-void MotorController::activateFill() {
+void MotorController::activateExtract() {
+  Logger::info("[MotorController] Extract");
   if (_fill) {
     _fill->write(IDigitalIO::DIGITAL_LOW); // Ensure extract is off
   }
@@ -94,6 +95,7 @@ void MotorController::activateFill() {
 }
 
 void MotorController::stopMotor() {
+  Logger::info("[MotorController] Stop");
   if (_settings.rampingEnabled) {
     startRamp(0.0, std::chrono::milliseconds(
                        _settings.rampingOffDurationMs)); // Ramp down to 0
