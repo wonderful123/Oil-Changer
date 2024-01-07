@@ -15,19 +15,21 @@ class IFileHandler;
 
 class BaseConfig : public IConfig {
 public:
-  explicit BaseConfig(std::shared_ptr<IFileHandler> fileHandler);
+  explicit BaseConfig(std::shared_ptr<IFileHandler> fileHandler,
+                      const std::string &filename);
 
   virtual ~BaseConfig() = default;
 
-  Error load(const std::string &filename) override;
-  virtual Error save(const std::string &filename) const override {
-    return Error(Error::OK);
-  };
+  Error load() override;
+  virtual Error save() const override { return Error(Error::OK); };
 
 protected:
   virtual Error parseJson(const DynamicJsonDocument &doc) = 0;
+  // filenameParameter is optional. If none given then the filename set in the
+  // constructor is used.
   Error writeJsonToFile(const DynamicJsonDocument &doc,
-                        const std::string &filename) const;
+                        const std::string &filenameParameter = "") const;
 
   std::shared_ptr<IFileHandler> _fileHandler;
+  std::string _filename;
 };
