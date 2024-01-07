@@ -28,5 +28,5 @@ public:
    *
    * @return Current DAC value.
    */
-  virtual int getValue() const = 0;
+  virtual float getValue() const = 0;
 };
