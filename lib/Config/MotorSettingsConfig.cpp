@@ -21,7 +21,8 @@ Error MotorSettingsConfig::parseJson(const DynamicJsonDocument &doc) {
   settings.maxSpeed = motorSettings["maxSpeed"].as<float>();
   settings.minSpeed = motorSettings["minSpeed"].as<float>();
   settings.rampingEnabled = motorSettings["rampingEnabled"].as<bool>();
-  settings.rampingDurationMs = motorSettings["rampingDurationMs"].as<int>();
+  settings.rampingOnDurationMs = motorSettings["rampingOnDurationMs"].as<int>();
+  settings.rampingOffDurationMs = motorSettings["rampingOffDurationMs"].as<int>();
 
   Error err = motorSettingsValidation(settings);
 
@@ -47,7 +48,7 @@ Error MotorSettingsConfig::motorSettingsValidation(
     return Error(Error::MotorSettingsValidationMinSpeedLessThanOrEqualToZero);
   }
 
-  if (settings.rampingDurationMs < 0) {
+  if (settings.rampingOnDurationMs < 0 || settings.rampingOffDurationMs < 0) {
     return Error(Error::MotorSettingsValidationRampingDurationLessThanZero);
   }
 
@@ -68,7 +69,8 @@ Error MotorSettingsConfig::save() const {
   jsonSettings["maxSpeed"] = _settings->maxSpeed;
   jsonSettings["minSpeed"] = _settings->minSpeed;
   jsonSettings["rampingEnabled"] = _settings->rampingEnabled;
-  jsonSettings["rampingDurationMs"] = _settings->rampingDurationMs;
+  jsonSettings["rampingOnDurationMs"] = _settings->rampingOnDurationMs;
+  jsonSettings["rampingOffDurationMs"] = _settings->rampingOffDurationMs;
 
   return writeJsonToFile(jsonSettings);
 }
