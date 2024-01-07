@@ -55,7 +55,7 @@ private:
   static std::mutex _mutex; // Mutex for thread safety
 
   Error loadConfig(ConfigType type);
-  bool isConfigLoaded(ConfigType type);
+  bool isConfigLoaded(ConfigType type) const;
   ConfigManager(const ConfigManager &) =
       delete; // Singleton: delete copy constructor
   ConfigManager &operator=(const ConfigManager &) =
