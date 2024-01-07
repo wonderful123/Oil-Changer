@@ -6,8 +6,9 @@
 #include <ArduinoJson.h>
 #include <string>
 
-HardwareConfig::HardwareConfig(std::shared_ptr<IFileHandler> fileHandler)
-    : BaseConfig(fileHandler) {}
+HardwareConfig::HardwareConfig(std::shared_ptr<IFileHandler> fileHandler,
+                               const std::string &filename)
+    : BaseConfig(fileHandler, filename) {}
 
 const std::vector<HardwarePinConfig> &
 HardwareConfig::getHardwarePinConfigs() const {

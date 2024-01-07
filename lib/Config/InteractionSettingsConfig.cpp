@@ -1,15 +1,15 @@
 // InteractionSettingsConfig.cpp
 
 #include "InteractionSettingsConfig.h"
-#include "InteractionSettings.h"
 #include "Error.h"
+#include "InteractionSettings.h"
 
 InteractionSettingsConfig::InteractionSettingsConfig(
-    std::shared_ptr<IFileHandler> fileHandler)
-    : BaseConfig(fileHandler),
+    std::shared_ptr<IFileHandler> fileHandler, const std::string &filename)
+    : BaseConfig(fileHandler, filename), _filename(filename),
       _interactionSettings(std::make_shared<InteractionSettings>()) {}
 
-Error InteractionSettingsConfig::save(const std::string &filename) const {
+Error InteractionSettingsConfig::save() const {
   // TODO: Implement this function
   return Error(Error::OK);
 }
@@ -108,11 +108,15 @@ Error InteractionSettingsConfig::parseBeepSettings(
 
   InteractionSettings::BeepSettings settings;
   settings.description = beepSettings["description"].as<std::string>();
-  settings.standardFrequency = beepSettings["standardFrequency"].as<unsigned int>();
-  settings.standardDurationMs = beepSettings["standardDurationMs"].as<unsigned int>();
+  settings.standardFrequency =
+      beepSettings["standardFrequency"].as<unsigned int>();
+  settings.standardDurationMs =
+      beepSettings["standardDurationMs"].as<unsigned int>();
   settings.buzzerVolume = beepSettings["buzzerVolume"].as<float>();
-  settings.rapidBeepDuration = beepSettings["rapidBeepDuration"].as<unsigned int>();
-  settings.rapidBeepFrequency = beepSettings["rapidBeepFrequency"].as<unsigned int>();
+  settings.rapidBeepDuration =
+      beepSettings["rapidBeepDuration"].as<unsigned int>();
+  settings.rapidBeepFrequency =
+      beepSettings["rapidBeepFrequency"].as<unsigned int>();
   settings.rapidBeepPauseDuration =
       beepSettings["rapidBeepPauseDuration"].as<unsigned int>();
 

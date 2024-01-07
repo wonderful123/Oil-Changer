@@ -14,7 +14,8 @@ class IFileHandler;
 
 class HardwareConfig : public BaseConfig {
 public:
-  explicit HardwareConfig(std::shared_ptr<IFileHandler> fileHandler);
+  explicit HardwareConfig(std::shared_ptr<IFileHandler> fileHandler,
+                          const std::string &filename);
 
   // Method to get the hardware configurations
   const std::vector<HardwarePinConfig> &getHardwarePinConfigs() const;

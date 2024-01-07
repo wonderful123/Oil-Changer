@@ -2,15 +2,17 @@
 #pragma once
 
 #include "BaseConfig.h"
+#include <string>
 
 class InteractionSettings;
 class Error;
 
 class InteractionSettingsConfig : public BaseConfig {
 public:
-  explicit InteractionSettingsConfig(std::shared_ptr<IFileHandler> fileHandler);
+  explicit InteractionSettingsConfig(std::shared_ptr<IFileHandler> fileHandler,
+                                     const std::string &filename);
 
-  Error save(const std::string &filename) const override;
+  Error save() const override;
 
   std::shared_ptr<InteractionSettings> getSettings();
 
@@ -27,4 +29,5 @@ protected:
 
 private:
   std::shared_ptr<InteractionSettings> _interactionSettings;
+  std::string _filename;
 };
