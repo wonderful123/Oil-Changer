@@ -20,7 +20,7 @@ public:
 
   virtual ~BaseConfig() = default;
 
-  Error load() override;
+  virtual Error load() override;
   virtual Error save() const override { return Error(Error::OK); };
 
 protected:
