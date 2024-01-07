@@ -20,5 +20,6 @@ enum class Parameter {
   // Motor Parameters
   MotorFill,
   MotorExtract,
-  MotorStop,
+  MotorStop, // stop motor with ramping if enabled
+  MotorHalt, // stop motor right away
 };
