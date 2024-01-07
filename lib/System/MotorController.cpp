@@ -3,10 +3,13 @@
 #include "Error.h"
 #include "EventManager/EventManager.h"
 
-MotorController::MotorController(std::shared_ptr<EventManager> eventManager)
+MotorController::MotorController(std::shared_ptr<EventManager> eventManager,
+                                 MotorSettings &motorSettings)
     : _eventManager(eventManager),
       _rampState(0.0f, 0.0f, std::chrono::steady_clock::now(),
-                 std::chrono::milliseconds(0), false) {}
+                 std::chrono::milliseconds(0), false) {
+  updateMotorSettings(motorSettings);
+}
 
 MotorController::~MotorController() {
   // Unsubscribe from Motor events
@@ -27,18 +30,25 @@ void MotorController::onNotify(Event type, Parameter parameter, float value) {
   if (type == Event::Motor) {
     switch (parameter) {
     case Parameter::MotorFill:
-      activateFill(true);
+      activateFill();
       break;
     case Parameter::MotorExtract:
-      activateExtract(true);
+      activateExtract();
       break;
     case Parameter::MotorStop:
       stopMotor();
+      break;
+    case Parameter::MotorHalt:
+      haltMotor();
       break;
     default:
       break;
     }
   }
+}
+
+void MotorController::updateMotorSettings(MotorSettings &motorSettings) {
+  _settings = motorSettings;
 }
 
 void MotorController::registerDacComponent(std::shared_ptr<IDAC> dac) {
@@ -51,26 +61,49 @@ void MotorController::registerDigitalIO(std::shared_ptr<IDigitalIO> fill,
   _extract = std::move(extract);
 }
 
-void MotorController::activateFill(bool enabled) {
-  if (enabled && _extract) {
+void MotorController::activateFill() {
+  if (_extract) {
     _extract->write(IDigitalIO::DIGITAL_LOW); // Ensure extract is off
   }
+
   if (_fill) {
-    _fill->write(enabled ? IDigitalIO::DIGITAL_HIGH : IDigitalIO::DIGITAL_LOW);
+    if (_settings.rampingEnabled) {
+      startRamp(_settings.maxSpeed,
+                std::chrono::milliseconds(
+                    _settings.rampingOnDurationMs)); // Ramp up to max speed
+    } else {
+      _fill->write(IDigitalIO::DIGITAL_HIGH);
+    }
   }
 }
 
-void MotorController::activateExtract(bool enabled) {
-  if (enabled && _fill) {
-    _fill->write(IDigitalIO::DIGITAL_LOW); // Ensure fill is off
+void MotorController::activateFill() {
+  if (_fill) {
+    _fill->write(IDigitalIO::DIGITAL_LOW); // Ensure extract is off
   }
+
   if (_extract) {
-    _extract->write(enabled ? IDigitalIO::DIGITAL_HIGH
-                            : IDigitalIO::DIGITAL_LOW);
+    if (_settings.rampingEnabled) {
+      startRamp(_settings.maxSpeed,
+                std::chrono::milliseconds(
+                    _settings.rampingOnDurationMs)); // Ramp up to max speed
+    } else {
+      _extract->write(IDigitalIO::DIGITAL_HIGH);
+    }
   }
 }
 
 void MotorController::stopMotor() {
+  if (_settings.rampingEnabled) {
+    startRamp(0.0, std::chrono::milliseconds(
+                       _settings.rampingOffDurationMs)); // Ramp down to 0
+  } else {
+    haltMotor();
+  }
+}
+
+// Stop right away and ignore any ramping if enabled
+void MotorController::haltMotor() {
   if (_fill) {
     _fill->write(IDigitalIO::DIGITAL_LOW);
   }
@@ -82,21 +115,27 @@ void MotorController::stopMotor() {
   }
 }
 
-void MotorController::setMaxSpeed(float maxSpeed) { _maxSpeed = maxSpeed; }
+void MotorController::setMaxSpeed(float maxSpeed) {
+  _settings.maxSpeed = maxSpeed;
+}
 
 // Get the maximum speed of the motor
-float MotorController::getMaxSpeed() const { return _maxSpeed; }
+float MotorController::getMaxSpeed() const { return _settings.maxSpeed; }
 
 // Set the motor speed as a fraction (0 to 1) of the maximum speed
 void MotorController::setMotorSpeed(float fraction) {
-  if (fraction < 0.0f || fraction > 1.0f) {
-    // Handle invalid input
-    return;
+  // Clamp speed between 0 and 1
+  if (fraction < 0) {
+    fraction = 0;
+  } else if (fraction > 1) {
+    fraction = 1;
   }
-
   _currentFraction = fraction;
+
+  // Convert as fraction of max speed
+  float convertedValue = _settings.maxSpeed * fraction;
   if (_dacComponent) {
-    _dacComponent->setValue(static_cast<int>(_maxSpeed * fraction));
+    _dacComponent->setValue(convertedValue);
   }
 }
 

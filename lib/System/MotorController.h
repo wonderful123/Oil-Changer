@@ -4,13 +4,15 @@
 #include "EventManager/EventManager.h"
 #include "IDAC.h"
 #include "IDigitalIO.h"
+#include "MotorSettings.h"
 #include <chrono>
 #include <memory>
 
 class MotorController : public IEventListener,
                         public std::enable_shared_from_this<MotorController> {
 public:
-  MotorController(std::shared_ptr<EventManager> eventManager);
+  MotorController(std::shared_ptr<EventManager> eventManager,
+                  MotorSettings &motorSettings);
   virtual ~MotorController() override;
 
   void initialize(std::shared_ptr<IDAC> dac, std::shared_ptr<IDigitalIO> fill,
@@ -19,11 +21,16 @@ public:
   // Implement onNotify from IEventListener
   virtual void onNotify(Event type, Parameter parameter, float value) override;
 
+  void updateMotorSettings(MotorSettings &motorSettings);
+
   // Method to register DAC component
   void registerDacComponent(std::shared_ptr<IDAC> dac);
   // Method to register digital IO components
   void registerDigitalIO(std::shared_ptr<IDigitalIO> fill,
                          std::shared_ptr<IDigitalIO> extract);
+
+  // Stops motor straight away and ignores any ramping
+  void haltMotor();
 
   // Set the maximum speed for the motor
   void setMaxSpeed(float maxSpeed);
@@ -46,7 +53,8 @@ private:
   std::shared_ptr<IDigitalIO> _fill;    // Digital IO for fill component
   std::shared_ptr<IDigitalIO> _extract; // Digital IO for extract component
 
-  float _maxSpeed;        // Maximum speed of the motor
+  MotorSettings _settings;
+
   float _currentFraction; // Current speed as a fraction of the maximum speed
 
   struct RampState {
@@ -67,7 +75,7 @@ private:
   } _rampState;
 
   // Helper methods to handle motor control
-  void activateFill(bool enabled);
-  void activateExtract(bool enabled);
+  void activateFill();
+  void activateExtract();
   void stopMotor();
 };
