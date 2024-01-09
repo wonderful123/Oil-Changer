@@ -65,18 +65,19 @@
              "MotorSettings: Missing 'motorSettings' key")                     \
   ERROR_CODE(MotorSettingsValidationMaxSpeedLessThanMinSpeed,                  \
              "MotorSettings: Max speed must be greater than min speed.")       \
-  ERROR_CODE(MotorSettingsValidationMinSpeedLessThanOrEqualToZero,             \
-             "MotorSettings: Min speed must be greater than or equal to zero.")\
+  ERROR_CODE(                                                                  \
+      MotorSettingsValidationMinSpeedLessThanZero,                             \
+      "MotorSettings: Min speed must be greater than or equal to zero.")       \
   ERROR_CODE(MotorSettingsValidationRampingDurationLessThanZero,               \
              "MotorSettings: Ramping duration must be greater than zero.")     \
   ERROR_CODE(JsonDocSizeExceededMaximum4000BytesForESP32,                      \
              "JSON document size exceeded maximum of 4000 bytes for ESP32.")   \
-  ERROR_CODE(MotorSettingsConfigNotLoaded,                                     \
-             "MotorSettings config not loaded.")                               \
+  ERROR_CODE(HardwareDisplayCreationFailure,                                   \
+             "Failed to create a hardware display.")                           \
 
 #undef ERROR_CODE
 
-    class Error {
+class Error {
 public:
   enum Code {
 #define ERROR_CODE(code, message) code,
@@ -94,14 +95,14 @@ public:
 
   Error() : _code(OK) {}
 
- Error(Code c) : _code(c) {
+  Error(Code c) : _code(c) {
     if (_code != OK) {
       notifyLogger();
     }
   }
 
   // Method to get the last error code (for testing)
-  static Code getLastErrorCode();
+  static Code getLastErrorCode ();
 
   // Method to reset the last error code (for testing)
   static void resetLastError();
