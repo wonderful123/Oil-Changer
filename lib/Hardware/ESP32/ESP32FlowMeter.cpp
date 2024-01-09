@@ -4,24 +4,36 @@
 
 #include "ESP32FlowMeter.h"
 #include "Logger.h"
+#include <Arduino.h>
 #include <iostream>
-ESP32FlowMeter::ESP32FlowMeter(const HardwarePinConfig &config)
-    : FlowMeterBase(config), _pulseCount(0) {
+#include <map>
 
-  pcnt_unit_t pcntUnit;
-  std::string configPcnt = config.getOptionAs<std::string>("pcntUnit");
-  if (configPcnt == "PCNT_UNIT_0")
-    pcntUnit = PCNT_UNIT_0;
-  else if (configPcnt == "PCNT_UNIT_1")
-    pcntUnit = PCNT_UNIT_1;
-  else if (configPcnt == "PCNT_UNIT_2")
-    pcntUnit = PCNT_UNIT_2;
-  else if (configPcnt == "PCNT_UNIT_3")
-    pcntUnit = PCNT_UNIT_3;
-  else {
-    Error(Error::FlowMeterInitErrorNoPCNTUnitSpecified);
-    setInitialized(true);
+ESP32FlowMeter::ESP32FlowMeter(const HardwarePinConfig &config)
+    : FlowMeterBase(config), _lastUpdateTime(millis()) {
+  _minUpdateIntervalMs = config.getOptionAs<int>("minUpdateIntervalMs");
+  if (!initPcnt(config)) {
+    Logger::error("Failed to initialize PCNT");
   }
+  setInitialized(true);
+}
+
+ESP32FlowMeter::~ESP32FlowMeter() {
+  pcnt_counter_pause(_pcntUnit);
+  pcnt_counter_clear(_pcntUnit);
+}
+
+Error ESP32FlowMeter::initPcnt(const HardwarePinConfig &config) {
+  static const std::map<std::string, pcnt_unit_t> pcntUnitMap = {
+      {"PCNT_UNIT_0", PCNT_UNIT_0},
+      {"PCNT_UNIT_1", PCNT_UNIT_1},
+      {"PCNT_UNIT_2", PCNT_UNIT_2},
+      {"PCNT_UNIT_3", PCNT_UNIT_3}};
+
+  auto it = pcntUnitMap.find(config.getOptionAs<std::string>("pcntUnit"));
+  if (it == pcntUnitMap.end()) {
+    return Error(Error::FlowMeterInitErrorNoPCNTUnitSpecified);
+  }
+  _pcntUnit = it->second;
 
   pcnt_config_t pcntConfig = {
       .pulse_gpio_num = config.pinNumber,
@@ -32,34 +44,53 @@ ESP32FlowMeter::ESP32FlowMeter(const HardwarePinConfig &config)
       .neg_mode = PCNT_COUNT_DIS, // Keep the counter value on the negative edge
       .counter_h_lim = 10000,
       .counter_l_lim = 0,
-      .unit = pcntUnit,
+      .unit = _pcntUnit,
       .channel = PCNT_CHANNEL_0,
   };
 
   pcnt_unit_config(&pcntConfig);
-  pcnt_counter_pause(pcntUnit);
-  pcnt_counter_clear(pcntUnit);
-  pcnt_counter_resume(pcntUnit);
+
+  // Set the filter value (in APB_CLK cycles)
+  uint16_t filterVal = config.getOptionAs<int>("pcntFilterValue");
+  pcnt_set_filter_value(_pcntUnit, filterVal);
+  bool enableFilter = config.getOptionAs<bool>("enableFilter");
+  if (enableFilter) {
+    pcnt_filter_enable(_pcntUnit);
+  } else {
+    pcnt_filter_disable(_pcntUnit);
+  }
+
+  resetPcntCounter();
+  return Error(Error::OK);
 }
 
-ESP32FlowMeter::~ESP32FlowMeter() {
-  pcnt_counter_pause(_pcntUnit);
-  pcnt_counter_clear(_pcntUnit);
-}
-
-double ESP32FlowMeter::getFlowRate() const {
-  // Implement flow rate calculation based on _pulseCount
-  auto count = getPulseCount();
-  // Use 'count' for flow rate calculation
-  return flowRate; // Calculated value
-}
-
-void ESP32FlowMeter::reset() {
+void ESP32FlowMeter::resetPcntCounter() {
   pcnt_counter_pause(_pcntUnit);
   pcnt_counter_clear(_pcntUnit);
   pcnt_counter_resume(_pcntUnit);
-  FlowMeterBase::reset(); // Call base class reset to reset flowRate and other
-                          // properties
+}
+
+void ESP32FlowMeter::update() {
+  auto currentTime = millis();
+  auto timeElapsed = currentTime - _lastUpdateTime;
+
+  if (timeElapsed >= _minUpdateIntervalMs) {
+    int16_t count = getPulseCount();
+    double pulsesPerSecond = count / (timeElapsed / 1000.0);
+    _flowRate = pulsesPerSecond / _pulsesPerLiter;
+
+    _totalVolume += count / _pulsesPerLiter;
+
+    pcnt_counter_clear(_pcntUnit); // Reset the hardware pulse counter
+    _lastUpdateTime = currentTime;
+  }
+}
+
+void ESP32FlowMeter::reset() {
+  resetPcntCounter();
+  FlowMeterBase::reset(); // Call base class reset to reset
+                          // flowRate and other properties
+  _lastUpdateTime = millis();
 }
 
 int16_t ESP32FlowMeter::getPulseCount() const {
