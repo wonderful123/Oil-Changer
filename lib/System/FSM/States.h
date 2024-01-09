@@ -44,7 +44,6 @@ public:
   void react(ButtonPressEvent const &event) {
     if (event.id == "ButtonStart") {
       notifyBuzzer(Parameter::SingleBeep);
-      _eventManager->notify(Event::Display, Parameter::DisplayMessage, "FUCK");
     } else if (event.id == "ButtonPlus") {
       notifyBuzzer(Parameter::SingleBeep);
       notifyOilTracker(Parameter::FillCapacity, 0.1);
