@@ -2,18 +2,17 @@
 #pragma once
 
 #include "IDisplay.h"
+#include <string>
 
 class DisplayBase : public IDisplay {
- public:
-  virtual ~DisplayBase() {}
+public:
+  explicit DisplayBase(const std::string &displayId) : _id(displayId) {};
+  ;
+  virtual ~DisplayBase() = default;
 
-  virtual void displayData(const std::string &data) = 0;
+  virtual void displayMessage(const std::string &data) = 0;
+  std::string getId() const override { return _id; }
 
-  std::string getId() const override { return id; }
-
- protected:
-  DisplayBase(const std::string &displayId) : id(displayId) {}
-
- private:
-  std::string id;
+private:
+  std::string _id; // Unique identifier for the display.
 };
