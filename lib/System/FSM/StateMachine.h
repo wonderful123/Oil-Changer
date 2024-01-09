@@ -31,7 +31,6 @@ public:
 
   virtual void react(StartOilChangeEvent const &) {}
 
-  virtual void react(OilCapacityEvent const &) {}
   virtual void react(OilExtractionEvent const &) {}
   virtual void react(OilFillingEvent const &) {}
   virtual void react(ConfigurationModeEvent const &) {}
