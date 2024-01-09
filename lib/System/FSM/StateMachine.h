@@ -26,6 +26,8 @@ public:
   virtual void react(ButtonHoldEvent const &) {}
   virtual void react(ButtonLongHoldEvent const &) {}
 
+  virtual void react(PressureSwitchEvent const &) {}
+
   virtual void react(InitializationEvent const &) {}
   virtual void react(InitializationCompleteEvent const &) {}
 
