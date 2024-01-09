@@ -4,10 +4,12 @@
 #include <string>
 
 class IDisplay {
- public:
-  virtual ~IDisplay() {}
+public:
+  virtual ~IDisplay() = default;
 
-  // Display data on the screen
-  virtual void displayData(const std::string &data) = 0;
+  // Display a message on the screen.
+  virtual void displayMessage(const std::string &data) = 0;
+
+  // Get the unique identifier of the display.
   virtual std::string getId() const = 0;
 };
