@@ -32,6 +32,11 @@ public:
     notifyImpl(event, parameter, value);
   }
 
+  // Notify method for events that require a std::string
+  void notify(Event event, Parameter parameter, std::string const &message) {
+    notifyImpl(event, parameter, message);
+  }
+
   // Overloaded notify method for events that don't require a value
   void notify(Event event, Parameter parameter) {
     notifyImpl(event, parameter);
@@ -57,6 +62,16 @@ private:
           // Call the version with value
           listener->onNotify(event, parameter, value);
         }
+      }
+    }
+  }
+
+  // Overload of notifyImpl to handle std::string values
+  void notifyImpl(Event event, Parameter parameter,
+                  const std::string &message) {
+    if (_listeners.count(event) > 0) {
+      for (auto &listener : _listeners[event]) {
+        listener->onNotify(event, parameter, message);
       }
     }
   }
