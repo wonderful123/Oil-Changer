@@ -1,33 +1,20 @@
 // HardwareManager.h
 #pragma once
 
-/*
-HardwareManager Overview
-Role and Purpose
-The HardwareManager serves as the centralized hub for managing all
-hardware-related interactions in the Oil Change Machine. Its primary role is to
-abstract the hardware layer from the higher-level system logic, providing a
-unified interface for hardware operations and ensuring a clean separation of
-concerns.
-
-*/
-
+#include "Error.h"
 #include "HardwareComponent.h"
 #include <map>
 #include <memory>
-#include <typeindex>
-#include <typeinfo>
-#include <vector>
 
+class IDisplay;
 class ConfigManager;
-class HardwarePinConfig;
-class Error;
+class HardwareInitializer;
 
 class HardwareManager {
 public:
   HardwareManager(std::shared_ptr<ConfigManager> configManager);
-  virtual Error initialize();
-  virtual bool isComponentInitialized(const std::string &componentId) const;
+  Error initialize();
+  std::map<std::string, std::shared_ptr<IDisplay>> getDisplays();
 
   template <typename T>
   std::shared_ptr<T> getComponentById(const std::string &id) const {
@@ -54,6 +41,7 @@ public:
 
 private:
   std::shared_ptr<ConfigManager> _configManager;
-  // Unified map to hold all types of components by id
+  std::shared_ptr<HardwareInitializer> _initializer;
   std::map<std::string, std::shared_ptr<HardwareComponent>> _components;
+  std::map<std::string, std::shared_ptr<IDisplay>> _displays;
 };
