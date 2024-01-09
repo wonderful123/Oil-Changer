@@ -1,11 +1,10 @@
 // DisplayConfig.h
 #pragma once
 
-class DisplayConfig {
-public:
-  std::string id;
-  std::string interfaceId;
+#include <string>
 
-  DisplayConfig(const std::string &id, const std::string &interfaceId)
-      : id(id), interfaceId(interfaceId) {}
+struct DisplayConfig {
+  std::string id;
+  std::string interfaceType;
+  std::string interfaceId;
 };
