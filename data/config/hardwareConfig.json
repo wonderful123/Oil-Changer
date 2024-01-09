@@ -5,20 +5,34 @@
       "type": "Buzzer",
       "pinNumber": 12
     }, {
+      "id": "VoltageSense",
+      "type": "ADC",
+      "pinNumber": 13,
+      "options": {
+        "resolution": 4096,
+        "attenuation": 3,
+        "resistor1": 68000,
+        "resistor2": 10000
+      }
+    }, {
       "id": "FlowMeterFill",
       "type": "FlowMeter",
       "pinNumber": 14,
       "options": {
+        "pulsesPerLiter": 1000,
+        "minUpdateIntervalMs": 100,
         "pcntUnit": "PCNT_UNIT_0",
         "pulseMultiplier": 100,
-        "filterValue": 10,
-        "filterEnabled": true
+        "pcntFilterValue": 10,
+        "pcntFilterEnabled": true
       }
     }, {
       "id": "FlowMeterExtract",
       "type": "FlowMeter",
       "pinNumber": 15,
       "options": {
+        "pulsesPerLiter": 1000,
+        "minUpdateIntervalMs": 100,
         "pcntUnit": "PCNT_UNIT_1",
         "pulseMultiplier": 100,
         "filterValue": 10,
@@ -42,7 +56,9 @@
       "pinNumber": 33,
       "options": {
         "resolution": 4096,
-        "attenuation": 3
+        "attenuation": 3,
+        "resistor1": 56000,
+        "thermistorResistance": 50000
       }
     }, {
       "id": "MotorSpeed",
@@ -92,12 +108,25 @@
         "uartPort": 1,
         "baud": 115200
       }
+    }, {
+      "id": "Serial1",
+      "type": "Serial",
+      "pins": {
+        "TXD": 1,
+        "RXD": 3
+      },
+      "options": {
+        "uartPort": 0,
+        "baud": 115200
+      }
     }],
     "Displays": [{
       "id": "Display1",
+      "type": "Serial",
       "interfaceId": "Serial2"
     }, {
       "id": "Display2",
+      "type": "Serial",
       "interfaceId": "Serial2"
     }]
   }
