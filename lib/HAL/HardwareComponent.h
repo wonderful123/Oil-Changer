@@ -42,10 +42,10 @@ public:
 protected:
   void setInitialized(bool state) { _initialized = state; }
 
-  unsigned int _pinNumber; // GPIO pin number (single-pin components)
+  unsigned int _pinNumber; // GPIO pin number for single-pin components.
   std::unordered_map<std::string, int>
-      _pins; // Pin numbers for multi-pin components
-  std::string _id;
-  std::string _type;
-  bool _initialized;
+      _pins;         // Pin numbers for multi-pin components.
+  std::string _id;   // Unique identifier for the component.
+  std::string _type; // Type of hardware component, e.g., "ADC", "PWM".
+  bool _initialized; // Initialization status of the component.
 };
