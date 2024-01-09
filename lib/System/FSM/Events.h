@@ -4,6 +4,7 @@
 #include <string>
 #include <tinyfsm.hpp>
 
+// Forward declarations
 enum class AutoRepeatButtonAction;
 
 struct ButtonEvent : tinyfsm::Event {
@@ -26,6 +27,15 @@ struct ButtonLongHoldEvent : ButtonEvent {
   using ButtonEvent::ButtonEvent; // Inherit constructor
 };
 
+enum PressureSwitch { Fill, Extract };
+
+struct PressureSwitchEvent : tinyfsm::Event {
+  PressureSwitchEvent(PressureSwitch pressureSwitch, int switchState)
+      : pressureSwitch(pressureSwitch), switchState(switchState) {}
+  PressureSwitch pressureSwitch;
+  int switchState;
+};
+
 struct InitializationEvent : tinyfsm::Event {
   virtual ~InitializationEvent() = default;
 }; // Base event for initialization events
@@ -37,14 +47,9 @@ struct InitializationCompleteEvent : InitializationEvent {};
 
 struct StartOilChangeEvent : tinyfsm::Event {};
 
-struct OilCapacityEvent : tinyfsm::Event {}; // Base event for oil capacity
-struct OilCapacityUpdatedEvent : OilCapacityEvent {};
-
 struct OilExtractionEvent : tinyfsm::Event {
   virtual ~OilExtractionEvent() = default;
 }; // Base event for oil extraction
-struct OilCapacityThresholdReachedEvent : OilExtractionEvent {};
-struct ExtractLowPressureSwitchTriggeredEvent : OilExtractionEvent {};
 
 struct InterimEvent : tinyfsm::Event {
   virtual ~InterimEvent() = default;
@@ -53,8 +58,7 @@ struct InterimEvent : tinyfsm::Event {
 struct OilFillingEvent : tinyfsm::Event {
   virtual ~OilFillingEvent() = default;
 }; // Base event for oil filling
-struct OilCapacityTargetReachedEvent : OilFillingEvent {};
-struct FillLowPressureSwitchTriggeredEvent : OilFillingEvent {};
+struct OilFillTargetReachedEvent : OilFillingEvent {};
 
 // Configuration Mode Events
 struct ConfigurationModeEvent : tinyfsm::Event {
