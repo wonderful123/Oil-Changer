@@ -7,9 +7,10 @@
 #include "FSM/StateMachine.h"
 #include "FSM/States.h"
 #include "HardwareManager.h"
+#include "IADC.h"
 #include "IBuzzer.h"
 #include "IDAC.h"
-#include "IDigitalIO.h"
+#include "IFlowMeter.h"
 #include "InteractionSettings.h"
 #include "InteractionSettingsConfig.h"
 #include "Logger.h"
@@ -31,6 +32,7 @@ void SystemFactory::initializeSystem(
   _fileHandler = std::move(fileHandler);
   createEventManager();
   createConfigManager();
+  createOilChangeTracker();
   createHardwareManager();
   createDisplayManager();
   loadInteractionSettings();
@@ -40,7 +42,6 @@ void SystemFactory::initializeSystem(
   createSystemController();
   createBuzzerManager();
   createStateMachine();
-  createOilChangeTracker();
 
   Logger::info("[SystemFactory] All system components initialized");
   sendFSMEvent(InitializationCompleteEvent());
@@ -64,8 +65,8 @@ void SystemFactory::createHardwareManager() {
 
 void SystemFactory::createSystemController() {
   Logger::info("[SystemFactory] Creating SystemController...");
-  _systemController =
-      std::make_shared<SystemController>(_buttonController, _motorController);
+  _systemController = std::make_shared<SystemController>(
+      _buttonController, _motorController, _sensorManager, _displayManager);
 }
 
 void SystemFactory::createOilChangeTracker() {
