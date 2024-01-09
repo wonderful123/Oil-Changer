@@ -33,6 +33,7 @@ Error ConfigManager::loadConfig(ConfigType type) {
     break;
   case ConfigType::MOTOR:
     config = std::make_shared<MotorSettingsConfig>(_fileHandler, filePath);
+    break;
   default:
     Logger::error("[ConfigManager] Unknown configuration type");
     return Error(Error::ConfigTypeNotRecognized);
