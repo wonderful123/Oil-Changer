@@ -5,6 +5,7 @@
 
 #include <memory>
 
+#include "DisplayConfig.h"
 #include "ESP32/ESP32ADC.h"
 #include "ESP32/ESP32Button.h"
 #include "ESP32/ESP32Buzzer.h"
@@ -20,55 +21,56 @@
 #include "HardwareFactory.h"
 
 class ESP32HardwareFactory : public HardwareFactory {
- public:
-  virtual std::shared_ptr<IADC> createADC(
-      const HardwarePinConfig &config) override {
-    return std::shared_ptr<IADC>(new ESP32ADC(config));
+public:
+  virtual std::shared_ptr<IADC>
+  createADC(const HardwarePinConfig &config) override {
+    return std::make_shared<ESP32ADC>(config);
   }
-  virtual std::shared_ptr<IButton> createButton(
-      const HardwarePinConfig &config) override {
-    return std::shared_ptr<IButton>(new ESP32Button(config));
+  virtual std::shared_ptr<IButton>
+  createButton(const HardwarePinConfig &config) override {
+    return std::make_shared<ESP32Button>(config);
   }
-  virtual std::shared_ptr<IDAC> createDAC(
-      const HardwarePinConfig &config) override {
-    return std::shared_ptr<IDAC>(new ESP32DAC(config));
+  virtual std::shared_ptr<IDAC>
+  createDAC(const HardwarePinConfig &config) override {
+    return std::make_shared<ESP32DAC>(config);
   }
-  virtual std::shared_ptr<IDigitalIO> createDigitalIO(
-      const HardwarePinConfig &config) override {
-    return std::shared_ptr<IDigitalIO>(new ESP32DigitalIO(config));
+  virtual std::shared_ptr<IDigitalIO>
+  createDigitalIO(const HardwarePinConfig &config) override {
+    return std::make_shared<ESP32DigitalIO>(config);
   }
-  virtual std::shared_ptr<IFlowMeter> createFlowMeter(
-      const HardwarePinConfig &config) override {
-    return std::shared_ptr<IFlowMeter>(new ESP32FlowMeter(config));
+  virtual std::shared_ptr<IFlowMeter>
+  createFlowMeter(const HardwarePinConfig &config) override {
+    return std::make_shared<ESP32FlowMeter>(config);
   }
-  virtual std::shared_ptr<IPWM> createPWM(
-      const HardwarePinConfig &config) override {
-    return std::shared_ptr<IPWM>(new ESP32PWM(config));
+  virtual std::shared_ptr<IPWM>
+  createPWM(const HardwarePinConfig &config) override {
+    return std::make_shared<ESP32PWM>(config);
   }
-  virtual std::shared_ptr<IBuzzer> createBuzzer(
-      const HardwarePinConfig &config) override {
-    return std::shared_ptr<IBuzzer>(new ESP32Buzzer(config));
+  virtual std::shared_ptr<IBuzzer>
+  createBuzzer(const HardwarePinConfig &config) override {
+    return std::make_shared<ESP32Buzzer>(config);
   }
-  virtual std::shared_ptr<ISPI> createSPI(
-      const HardwarePinConfig &config) override {
-    return std::shared_ptr<ISPI>(new ESP32SPI(config));
+  virtual std::shared_ptr<ISPI>
+  createSPI(const HardwarePinConfig &config) override {
+    return std::make_shared<ESP32SPI>(config);
   }
-  virtual std::shared_ptr<II2C> createI2C(
-      const HardwarePinConfig &config) override {
-    return std::shared_ptr<II2C>(new ESP32I2C(config));
+  virtual std::shared_ptr<II2C>
+  createI2C(const HardwarePinConfig &config) override {
+    return std::make_shared<ESP32I2C>(config);
   }
-  virtual std::shared_ptr<ISerial> createSerial(
-      const HardwarePinConfig &config) override {
-    return std::shared_ptr<ISerial>(new ESP32Serial(config));
+  virtual std::shared_ptr<ISerial>
+  createSerial(const HardwarePinConfig &config) override {
+    return std::make_shared<ESP32Serial>(config);
   }
   virtual std::shared_ptr<IFileHandler> createFileHandler() override {
-    return std::shared_ptr<IFileHandler>(new ESP32FileHandler());
+    return std::make_shared<ESP32FileHandler>();
   }
-  std::shared_ptr<IDisplay> createDisplay(
-      const std::string &displayId, ICommunicationInterface &commInterface,
-      const HardwarePinConfig &config) override {
-    return std::make_shared<ESP32SerialDisplay>(displayId, commInterface,
-                                                config);
+  virtual std::shared_ptr<IDisplay>
+  createDisplay(const DisplayConfig &config,
+                std::shared_ptr<ICommunicationInterface> commInterface) {
+    std::shared_ptr<ISerial> serial =
+        std::static_pointer_cast<ISerial>(commInterface);
+    return std::make_shared<ESP32SerialDisplay>(serial, config.id);
   }
 };
 
