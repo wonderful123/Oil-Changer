@@ -6,23 +6,30 @@
 class FlowMeterBase : public IFlowMeter {
 public:
   explicit FlowMeterBase(const HardwarePinConfig &config)
-      : IFlowMeter(config), totalVolume(0.0), flowRate(0.0) {}
+      : IFlowMeter(config), _totalVolume(0.0), _flowRate(0.0) {
+    _pulsesPerLiter = config.getOptionAs<double>("pulsesPerLiter");
+  }
 
   virtual ~FlowMeterBase() override = default;
 
+  // Set calibration factor (pulses per liter)
+  virtual void setCalibration(double pulsesPerLiter) override {
+    _pulsesPerLiter = pulsesPerLiter;
+  }
+
   virtual double getFlowRate() const override {
-    // Implement flow rate calculation
-    return flowRate;
+    return _flowRate;
   }
 
   virtual double getTotalVolume() const override {
     // Implement total volume calculation
-    return totalVolume;
+    return _totalVolume;
   }
 
-  virtual void reset() override { totalVolume = 0.0; }
+  virtual void reset() override { _totalVolume = 0.0; }
 
 protected:
-  double totalVolume; // Total volume that has passed through the flow meter
-  double flowRate;    // Current flow rate
+  double _totalVolume;    // Total volume that has passed through the flow meter
+  double _flowRate;       // Current flow rate
+  double _pulsesPerLiter; // Pulses per unit volume (e.g., per liter)
 };
