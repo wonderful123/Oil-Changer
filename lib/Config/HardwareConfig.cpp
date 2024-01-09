@@ -104,13 +104,15 @@ HardwarePinConfig HardwareConfig::parseMultiPin(const JsonObjectConst &obj,
 
 Error HardwareConfig::parseDisplays(const JsonArrayConst &displayArray) {
   for (JsonObjectConst obj : displayArray) {
-    std::string id = obj["id"].as<std::string>();
-    std::string interfaceId = obj["interfaceId"].as<std::string>();
+    DisplayConfig config;
+    config.id = obj["id"].as<std::string>();
+    config.interfaceType = obj["interfaceType"].as<std::string>();
+    config.interfaceId = obj["interfaceId"].as<std::string>();
 
-    Logger::info("[HardwareConfig] Parsed: Display (" + id +
-                 " with Interface: " + interfaceId + ")");
+    Logger::info("[HardwareConfig] Parsed: Display (" + config.id +
+                 " with Interface: " + config.interfaceId + ")");
 
-    _displayConfigs.push_back(DisplayConfig(id, interfaceId));
+    _displayConfigs.push_back(config);
   }
 
   return Error(Error::OK);
