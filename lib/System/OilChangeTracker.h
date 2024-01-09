@@ -12,41 +12,61 @@
 class OilChangeTracker : public IEventListener,
                          public std::enable_shared_from_this<OilChangeTracker> {
 public:
+  struct TrackerData {
+    double fillCapacity;
+    double amountFilled;
+    double amountExtracted;
+    double fillFlowRate;
+    double extractFlowRate;
+    double voltage;
+    double oilTemperature;
+    int fillLPSState;
+    int extractLPSState;
+  };
+
   OilChangeTracker(std::shared_ptr<EventManager> eventManager);
   void initialize();
 
+  TrackerData getCurrentData() const; // For display manager
+
+  void reset();
+
   // Setters
-  void setAmountFilled(double amount);
-  void setAmountExtracted(double amount);
-  void setFlowRateFill(double rate);
-  void setFlowRateExtract(double rate);
-  void setVoltage(double volt);
+  void incrementAmountFilled(double amount);
+  void incrementAmountExtracted(double amount);
+  void resetAmountFilled();
+  void resetAmountExtracted();
+  void setFillFlowRate(double rate);
+  void setExtractFlowRate(double rate);
   void incrementFillCapacity(double amount = 0.1);
   void decrementFillCapacity(double amount = 0.1);
+  void setFillLPSState(int state);
+  void setExtractLPSState(int state);
+  void setVoltage(double volt);
+  void setOilTemperature(double temperature);
 
   // Getters
   double fillCapacity() const;
   double amountFilled() const;
   double amountExtracted() const;
-  double flowRateFill() const;
-  double flowRateExtract() const;
+  double fillFlowRate() const;
+  double extractFlowRate() const;
   double voltage() const;
-
-  // Additional functionality
-  double remainingCapacity() const;
-  bool isFull() const;
-  bool isEmpty() const;
+  double oilTemperature() const;
+  int fillLPSState() const;
+  int extractLPSState() const;
 
 private:
   double _fillCapacity = 0;
   double _amountFilled = 0;
   double _amountExtracted = 0;
-  double _flowRateFill = 0;    // Current flow rate for filling
-  double _flowRateExtract = 0; // Current flow rate for extraction
+  double _fillFlowRate = 0;    // Current flow rate for filling
+  double _extractFlowRate = 0; // Current flow rate for extraction
   double _voltage = 0;         // Voltage sense
+  double _oilTemperature = 0;
+  int _fillLPSState = 0; // Current state of the Low Pressure Switch
+  int _extractLPSState = 0;
 
   std::shared_ptr<EventManager> _eventManager;
   void onNotify(Event event, Parameter parameter, float value) override;
-
-  void logStatus() const;
 };
