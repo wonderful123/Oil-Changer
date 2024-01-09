@@ -1,12 +1,18 @@
 // ICommunicationInterface.h
 #pragma once
 
+#include "HardwareComponent.h"
+#include "HardwarePinConfig.h"
 #include <string>
 
-class ICommunicationInterface {
- public:
+class ICommunicationInterface : public HardwareComponent {
+public:
+  explicit ICommunicationInterface(const HardwarePinConfig &config)
+      : HardwareComponent(config) {}
+
   virtual ~ICommunicationInterface() = default;
 
-  virtual void send(const std::string &message) = 0;
-  virtual std::string receive() = 0;  // Depending on your needs
+  // Common communication interface methods
+  virtual void begin() = 0;
+  virtual void end() = 0;
 };
