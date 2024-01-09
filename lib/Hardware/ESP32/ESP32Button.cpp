@@ -10,6 +10,8 @@ ESP32Button::ESP32Button(const HardwarePinConfig &config) : ButtonBase(config) {
   _debouncer = Bounce();
   _debouncer.interval(50); // Debounce interval
   _debouncer.attach(config.pinNumber);
+
+  setInitialized(true);
 }
 
 void ESP32Button::updateButton() {
