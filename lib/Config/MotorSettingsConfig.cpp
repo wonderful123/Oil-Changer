@@ -24,7 +24,6 @@ Error MotorSettingsConfig::parseJson(const DynamicJsonDocument &doc) {
       motorSettings["rampingOffDurationMs"].as<int>();
 
   Error err = motorSettingsValidation(settings);
-
   if (err) {
     return err;
   }
@@ -43,8 +42,8 @@ Error MotorSettingsConfig::motorSettingsValidation(
     return Error(Error::MotorSettingsValidationMaxSpeedLessThanMinSpeed);
   }
 
-  if (settings.minSpeed <= 0) {
-    return Error(Error::MotorSettingsValidationMinSpeedLessThanOrEqualToZero);
+  if (settings.minSpeed < 0) {
+    return Error(Error::MotorSettingsValidationMinSpeedLessThanZero);
   }
 
   if (settings.rampingOnDurationMs < 0 || settings.rampingOffDurationMs < 0) {
