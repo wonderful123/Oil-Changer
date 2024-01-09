@@ -22,8 +22,8 @@
 #include "MockHardwareFactory.h"
 #endif
 
-std::shared_ptr<HardwareComponent> HardwareFactory::createComponent(
-    const HardwarePinConfig &config) {
+std::shared_ptr<HardwareComponent>
+HardwareFactory::createComponent(const HardwarePinConfig &config) {
   std::shared_ptr<HardwareComponent> hardwareComponent;
 
   if (config.type == "ADC") {
