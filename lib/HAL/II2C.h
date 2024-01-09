@@ -5,12 +5,14 @@
 #include <cstdint>
 
 #include "HardwareComponent.h"
+#include "ICommunicationInterface.h"
 
 class HardwarePinConfig;
 
-class II2C : public HardwareComponent {
- public:
-  explicit II2C(const HardwarePinConfig &config) : HardwareComponent(config) {}
+class II2C : public ICommunicationInterface {
+public:
+  explicit II2C(const HardwarePinConfig &config)
+      : ICommunicationInterface(config) {}
 
   virtual ~II2C() = default;
 
