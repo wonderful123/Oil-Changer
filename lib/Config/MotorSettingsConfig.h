@@ -1,4 +1,4 @@
-// MotorSettingsParser.h
+// MotorSettingsConfig.h
 #pragma once
 
 #include "BaseConfig.h"
