@@ -11,45 +11,57 @@ class OilChangeTracker;
 class SystemController;
 class ButtonController;
 class BuzzerManager;
+class DisplayManager;
+class InteractionSettings;
+class MotorController;
+class SensorManager;
 
 class SystemFactory {
 public:
-  static SystemFactory &getInstance() {
-    static SystemFactory instance;
-    return instance;
-  }
+  static SystemFactory &getInstance();
 
   void initializeSystem(std::shared_ptr<IFileHandler> fileHandler);
 
-  std::shared_ptr<EventManager> getEventManager();
-  std::shared_ptr<SystemController> getSystemController();
-  std::shared_ptr<HardwareManager> getHardwareManager();
-  std::shared_ptr<ButtonController> getButtonController();
-  std::shared_ptr<BuzzerManager> getBuzzerManager();
-  std::shared_ptr<ConfigManager> getConfigManager();
+  std::shared_ptr<EventManager> getEventManager() const;
+  std::shared_ptr<SystemController> getSystemController() const;
+  std::shared_ptr<HardwareManager> getHardwareManager() const;
+  std::shared_ptr<ButtonController> getButtonController() const;
+  std::shared_ptr<BuzzerManager> getBuzzerManager() const;
+  std::shared_ptr<ConfigManager> getConfigManager() const;
+  std::shared_ptr<DisplayManager> getDisplayManager() const;
+  std::shared_ptr<SensorManager> getSensorManager() const;
 
 private:
-  std::shared_ptr<HardwareManager> _hardwareManager;
-  std::shared_ptr<SystemController> _systemController;
-  std::shared_ptr<ConfigManager> _configManager;
-  std::shared_ptr<BuzzerManager> _buzzerManager;
-  std::shared_ptr<ButtonController> _buttonController;
-  std::shared_ptr<IFileHandler> _fileHandler;
-  std::shared_ptr<EventManager> _eventManager;
-  std::shared_ptr<OilChangeTracker> _oilChangeTracker;
+  SystemFactory() {}
 
   void createEventManager();
-  void createStateMachine(std::shared_ptr<EventManager> eventManager,
-                          std::shared_ptr<BuzzerManager> buzzerManager);
+  void createStateMachine();
   void createConfigManager();
   void createHardwareManager();
   void createSystemController();
   void createOilChangeTracker();
+  void createDisplayManager();
+  void createButtonController();
+  void createBuzzerManager();
+  void createMotorController();
+  void createSensorManager();
 
-  // Private Constructor
-  SystemFactory() {}
+  bool loadInteractionSettings();
 
-  // Delete copy constructor and assignment operator to prevent copies
-  SystemFactory(SystemFactory const &) = delete;            // Copy construct
-  SystemFactory &operator=(SystemFactory const &) = delete; // Copy assign
+  std::shared_ptr<HardwareManager> _hardwareManager;
+  std::shared_ptr<SystemController> _systemController;
+  std::shared_ptr<ConfigManager> _configManager;
+  std::shared_ptr<IFileHandler> _fileHandler;
+  std::shared_ptr<EventManager> _eventManager;
+  std::shared_ptr<OilChangeTracker> _oilChangeTracker;
+  std::shared_ptr<DisplayManager> _displayManager;
+  std::shared_ptr<ButtonController> _buttonController;
+  std::shared_ptr<BuzzerManager> _buzzerManager;
+  std::shared_ptr<MotorController> _motorController;
+  std::shared_ptr<InteractionSettings> _interactionSettings;
+  std::shared_ptr<SensorManager> _sensorManager;
+
+  // Non-copyable
+  SystemFactory(const SystemFactory &) = delete;
+  SystemFactory &operator=(const SystemFactory &) = delete;
 };
