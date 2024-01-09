@@ -35,13 +35,16 @@ public:
 
 class Ready : public StateMachine {
 public:
-  void entry() { Logger::info("[State] Ready"); }
+  void entry() { Logger::info("[State] Ready");
+    _eventManager->notify(Event::OilChangeTracker, Parameter::Reset);
+  }
 
   void exit() { clearBuzzerRapidBeepCallback(); }
 
   void react(ButtonPressEvent const &event) {
     if (event.id == "ButtonStart") {
       notifyBuzzer(Parameter::SingleBeep);
+      _eventManager->notify(Event::Display, Parameter::DisplayMessage, "FUCK");
     } else if (event.id == "ButtonPlus") {
       notifyBuzzer(Parameter::SingleBeep);
       notifyOilTracker(Parameter::FillCapacity, 0.1);
@@ -101,6 +104,7 @@ public:
 
 /*********************************************************************/
 
+// TODO: Should this be allowed while LPS is enabled?
 class ExtractingManual : public StateMachine {
 public:
   void entry() override {
@@ -116,7 +120,7 @@ public:
 };
 
 /*********************************************************************/
-
+// TODO: Should this be allowed while LPS is enabled?
 class FillingManual : public StateMachine {
 public:
   void entry() override {
@@ -158,10 +162,12 @@ public:
     }
   }
 
-  void react(ExtractLowPressureSwitchTriggeredEvent const &) {
-    _eventManager->notify(Event::Buzzer, Parameter::DoubleBeep);
-    _eventManager->notify(Event::Motor, Parameter::MotorStop);
-    transit<InterimTask>();
+  void react(PressureSwitchEvent const &event) {
+    if (event.pressureSwitch == PressureSwitch::Extract && event.switchState == 0) {
+      _eventManager->notify(Event::Buzzer, Parameter::DoubleBeep);
+      _eventManager->notify(Event::Motor, Parameter::MotorHalt);
+      transit<InterimTask>();
+    }
   }
 };
 
@@ -220,14 +226,18 @@ public:
     }
   }
 
-  void react(OilCapacityTargetReachedEvent const &) {
+  void react(OilFillTargetReachedEvent const &) {
+    _eventManager->notify(Event::Buzzer, Parameter::DoubleBeep);
     _eventManager->notify(Event::Motor, Parameter::MotorStop);
     transit<OilChangeComplete>();
   }
 
-  void react(FillLowPressureSwitchTriggeredEvent const &) {
-    _eventManager->notify(Event::Motor, Parameter::MotorStop);
-    transit<OilChangeComplete>();
+  void react(PressureSwitchEvent const &event) {
+    if (event.pressureSwitch == PressureSwitch::Fill && event.switchState == 1) {
+      _eventManager->notify(Event::Buzzer, Parameter::DoubleBeep);
+      _eventManager->notify(Event::Motor, Parameter::MotorStop);
+      transit<OilChangeComplete>();
+    }
   }
 };
 
