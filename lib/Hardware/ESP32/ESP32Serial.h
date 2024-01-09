@@ -11,14 +11,14 @@ class HardwarePinConfig;  // Ensure this is defined appropriately
 
 class ESP32Serial : public ISerial {
  public:
-  explicit ESP32Serial(const HardwarePinConfig &config);
+   explicit ESP32Serial(const HardwarePinConfig &config);
 
-  void begin(unsigned long baudrate) override;
-  void end() override;
-  void write(const std::string &message) override;
-  int read() override;
-  int available() override;
-  void flush() override;
+   void begin() override;
+   void end() override;
+   void write(const std::string &message) override;
+   int read() override;
+   int available() override;
+   void flush() override;
 
  private:
   HardwareSerial _serial;

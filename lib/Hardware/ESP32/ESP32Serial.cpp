@@ -9,11 +9,8 @@
 #include "Error.h"
 
 ESP32Serial::ESP32Serial(const HardwarePinConfig &config)
-    : ISerial(config),  // Pass config to the ISerial constructor
-      _serial(determineUartPort(config)),
-      _rxPin(-1),
-      _txPin(-1),
-      _uartPort(0),
+    : ISerial(config), // Pass config to the ISerial constructor
+      _serial(determineUartPort(config)), _rxPin(-1), _txPin(-1), _uartPort(0),
       _baudRate(9600) {
   // Extract RX and TX pins from the configuration
   auto rxIt = config.pins.find("RXD");
@@ -31,18 +28,16 @@ ESP32Serial::ESP32Serial(const HardwarePinConfig &config)
   if (baudIt != config.options.end()) {
     std::istringstream ss(baudIt->second);
     if (!(ss >> _baudRate)) {
-      _baudRate = 9600;  // Default to 9600 if conversion fails
+      _baudRate = 9600; // Default to 9600 if conversion fails
     }
   }
 
   // Initialize the Serial with extracted configurations
   initializeSerial();
+  setInitialized(true);
 }
 
-void ESP32Serial::begin(unsigned long baudrate) {
-  _baudRate = baudrate;
-  initializeSerial();
-}
+void ESP32Serial::begin() { initializeSerial(); }
 
 void ESP32Serial::initializeSerial() {
   if (_rxPin != -1 && _txPin != -1) {
@@ -66,7 +61,7 @@ int ESP32Serial::available() { return _serial.available(); }
 void ESP32Serial::flush() { _serial.flush(); }
 
 int ESP32Serial::determineUartPort(const HardwarePinConfig &config) {
-  int uartPort = 0;  // Default to UART0
+  int uartPort = 0; // Default to UART0
   auto portIt = config.options.find("uartPort");
   if (portIt != config.options.end()) {
     char *end;
@@ -80,4 +75,4 @@ int ESP32Serial::determineUartPort(const HardwarePinConfig &config) {
   return uartPort;
 }
 
-#endif  // PLATFORM_ESP32
+#endif // PLATFORM_ESP32
