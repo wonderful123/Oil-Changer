@@ -2,6 +2,10 @@
 	"folders": [
 		{
 			"path": "."
+		},
+		{
+			"name": "ESP32-S3-4.3inch Display",
+			"path": "../ESP32-S3-4.3inch Display"
 		}
 	],
 	"settings": {
