@@ -21,7 +21,9 @@ ESP32SerialDisplay::~ESP32SerialDisplay() {
 }
 
 void ESP32SerialDisplay::displayMessage(const std::string &data) {
-  _serial->write(data); // Send messages over UART via the ISerial interface.
+  std::string formattedMessage = "<" + _displayId + ";" + data + ">";
+  _serial->write(
+      formattedMessage); // Send message over UART via ISerial interface.
 }
 
 std::string ESP32SerialDisplay::getId() const { return _displayId; }
