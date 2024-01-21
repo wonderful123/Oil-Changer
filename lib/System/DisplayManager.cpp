@@ -59,8 +59,7 @@ void DisplayManager::update() {
     std::string message = formatDisplayMessage(currentData);
     // Update displays
     if (_primaryDisplay) {
-      //_primaryDisplay->displayMessage(message);
-      _primaryDisplay->displayMessage("<Display1;" + message + ">");
+      _primaryDisplay->displayMessage(message);
     }
     _lastData = currentData;
     _lastUpdate = now;
