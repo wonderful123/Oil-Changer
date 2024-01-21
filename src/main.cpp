@@ -39,7 +39,6 @@ void initializeLogger() {
   Serial.begin(115200);
   while (!Serial)
     ; // Wait for Serial port to connect
-
   Logger::setLogCallback(serialLogCallback);
   Logger::info(R"(
    ___  _ _  ___ _                           
@@ -94,10 +93,6 @@ Error initializeBuzzerPlayer() {
 void serialLogCallback(Logger::Level level, const std::string &message) {
   if (!Serial)
     return;
-
-  const char *levelStr[] = {"DEBUG", "INFO", "WARN", "ERROR", "LOG"};
-  Serial.print('[');
-  Serial.print(levelStr[static_cast<int>(level)]);
-  Serial.print("] ");
   Serial.println(message.c_str());
+  Serial.flush();
 }
