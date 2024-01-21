@@ -73,6 +73,7 @@ void ButtonController::processButtonStates() {
 
     // Check for state change
     if (previousState != currentState) {
+      // Logger::info("[ButtonController Debug] State change: " +  idString + " currentState: " + stateToString(currentState));
       switch (currentState) {
       case IButton::State::Pressed:
         sendFSMEvent(ButtonPressEvent(idString));
