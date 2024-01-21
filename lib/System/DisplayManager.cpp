@@ -59,17 +59,21 @@ void DisplayManager::update() {
     std::string message = formatDisplayMessage(currentData);
     // Update displays
     if (_primaryDisplay) {
-      _primaryDisplay->displayMessage(message);
+      //_primaryDisplay->displayMessage(message);
+      _primaryDisplay->displayMessage("<Display1;" + message + ">");
     }
     _lastData = currentData;
     _lastUpdate = now;
   }
 }
 
-std::string DisplayManager::formatDisplayMessage(const OilChangeTracker::TrackerData &data) {
+std::string DisplayManager::formatDisplayMessage(
+    const OilChangeTracker::TrackerData &data) {
   std::stringstream ss;
   ss << std::fixed
      << std::setprecision(2); // Set fixed floating point with 2 decimal places
+
+  // Append data
   ss << "FillCap:" << data.fillCapacity << ";"
      << "AmtFilled:" << data.amountFilled << ";"
      << "AmtExtracted:" << data.amountExtracted << ";"
@@ -79,7 +83,22 @@ std::string DisplayManager::formatDisplayMessage(const OilChangeTracker::Tracker
      << "Temp:" << data.oilTemperature << ";"
      << "FillLPS:" << convertLPSState(data.fillLPSState) << ";"
      << "ExtractLPS:" << convertLPSState(data.extractLPSState);
+
+  // Calculate checksum
+  unsigned int checksum = calculateChecksum(ss.str());
+
+  // Append checksum and end marker
+  ss << ";" << checksum;
+
   return ss.str();
+}
+
+unsigned int DisplayManager::calculateChecksum(const std::string &message) {
+  unsigned int sum = 0;
+  for (char c : message) {
+    sum += static_cast<unsigned int>(c);
+  }
+  return sum % 256; // Assuming a byte-size checksum
 }
 
 std::string DisplayManager::convertLPSState(int state) {

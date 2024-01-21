@@ -38,5 +38,6 @@ private:
       500}; // Update interval in milliseconds
 
   std::string formatDisplayMessage(const OilChangeTracker::TrackerData &data);
+  unsigned int calculateChecksum(const std::string &message);
   std::string convertLPSState(int state);
 };
