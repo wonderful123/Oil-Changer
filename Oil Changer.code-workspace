@@ -81,7 +81,9 @@
 			"codecvt": "cpp",
 			"regex": "cpp",
 			"future": "cpp",
-			"*.h#codiumai_chat_diff": "cpp"
+			"*.h#codiumai_chat_diff": "cpp",
+			"*.cppx": "cpp",
+			"netfwd": "cpp"
 		}
 	}
 }
