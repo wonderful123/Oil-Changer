@@ -4,6 +4,7 @@
 #include "BuzzerManager.h"
 #include "EventManager/EventManager.h"
 #include "Events.h"
+#include "Logger.h"
 #include "StateMachine.h"
 #include "SystemController.h"
 #include "SystemFactory.h"
@@ -35,7 +36,8 @@ public:
 
 class Ready : public StateMachine {
 public:
-  void entry() { Logger::info("[State] Ready");
+  void entry() {
+    Logger::info("[State] Ready");
     _eventManager->notify(Event::OilChangeTracker, Parameter::Reset);
   }
 
@@ -162,7 +164,8 @@ public:
   }
 
   void react(PressureSwitchEvent const &event) {
-    if (event.pressureSwitch == PressureSwitch::Extract && event.switchState == 0) {
+    if (event.pressureSwitch == PressureSwitch::Extract &&
+        event.switchState == 0) {
       _eventManager->notify(Event::Buzzer, Parameter::DoubleBeep);
       _eventManager->notify(Event::Motor, Parameter::MotorHalt);
       transit<InterimTask>();
@@ -232,7 +235,8 @@ public:
   }
 
   void react(PressureSwitchEvent const &event) {
-    if (event.pressureSwitch == PressureSwitch::Fill && event.switchState == 1) {
+    if (event.pressureSwitch == PressureSwitch::Fill &&
+        event.switchState == 1) {
       _eventManager->notify(Event::Buzzer, Parameter::DoubleBeep);
       _eventManager->notify(Event::Motor, Parameter::MotorStop);
       transit<OilChangeComplete>();
