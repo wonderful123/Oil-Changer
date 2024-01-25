@@ -6,7 +6,7 @@
 #include "SystemFactory.h"
 
 OilChangeTracker::OilChangeTracker(std::shared_ptr<EventManager> eventManager)
-    : _fillCapacity(4.0f), _amountFilled(0), _amountExtracted(0),
+    : _fillCapacity(5.0f), _amountFilled(0), _amountExtracted(0),
       _fillFlowRate(0), _extractFlowRate(0), _voltage(0),
       _eventManager(eventManager) {}
 
