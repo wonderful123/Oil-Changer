@@ -11,8 +11,8 @@
 ESP32FlowMeter::ESP32FlowMeter(const HardwarePinConfig &config)
     : FlowMeterBase(config), _lastUpdateTime(millis()) {
   _minUpdateIntervalMs = config.getOptionAs<int>("minUpdateIntervalMs");
-  if (!initPcnt(config)) {
-    Logger::error("Failed to initialize PCNT");
+  if (initPcnt(config) != Error::OK) {
+    Logger::error("[ESP32FlowMeter] Failed to initialize PCNT unit correctly");
   }
   setInitialized(true);
 }
@@ -31,6 +31,7 @@ Error ESP32FlowMeter::initPcnt(const HardwarePinConfig &config) {
 
   auto it = pcntUnitMap.find(config.getOptionAs<std::string>("pcntUnit"));
   if (it == pcntUnitMap.end()) {
+    Logger::error("[ESP32FlowMeter] Invalid PCNT unit specified");
     return Error(Error::FlowMeterInitErrorNoPCNTUnitSpecified);
   }
   _pcntUnit = it->second;
@@ -52,8 +53,8 @@ Error ESP32FlowMeter::initPcnt(const HardwarePinConfig &config) {
 
   // Set the filter value (in APB_CLK cycles)
   uint16_t filterVal = config.getOptionAs<int>("pcntFilterValue");
-  pcnt_set_filter_value(_pcntUnit, filterVal);
-  bool enableFilter = config.getOptionAs<bool>("enableFilter");
+  pcnt_set_filter_value(_pcntUnit, config.getOptionAs<int>("pcntFilterValue"));
+  bool enableFilter = config.getOptionAs<bool>("pcntFilterEnabled");
   if (enableFilter) {
     pcnt_filter_enable(_pcntUnit);
   } else {
@@ -61,6 +62,7 @@ Error ESP32FlowMeter::initPcnt(const HardwarePinConfig &config) {
   }
 
   resetPcntCounter();
+
   return Error(Error::OK);
 }
 
