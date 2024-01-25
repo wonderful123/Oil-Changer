@@ -13,6 +13,6 @@ public:
   virtual void displayMessage(const std::string &data) = 0;
   std::string getId() const override { return _id; }
 
-private:
+protected:
   std::string _id; // Unique identifier for the display.
 };
