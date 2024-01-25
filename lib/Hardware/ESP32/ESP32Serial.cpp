@@ -41,6 +41,11 @@ void ESP32Serial::begin() { initializeSerial(); }
 
 void ESP32Serial::initializeSerial() {
   if (_rxPin != -1 && _txPin != -1) {
+    Logger::info(
+        "[ESP32Serial] [" + _id + "] Initializing serial port: " + std::to_string(_uartPort) +
+        " on RXD: " + std::to_string(_rxPin) +
+        " and TXD: " + std::to_string(_txPin) +
+        " with baud rate: " + std::to_string(_baudRate));
     _serial.begin(_baudRate, SERIAL_8N1, _rxPin, _txPin);
   } else {
     // Handle error if pins are not set
