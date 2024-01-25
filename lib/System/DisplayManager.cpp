@@ -86,8 +86,8 @@ std::string DisplayManager::formatDisplayMessage(
   // Calculate checksum
   unsigned int checksum = calculateChecksum(ss.str());
 
-  // Append checksum and end marker
-  ss << ";" << checksum;
+  // Append checksum
+  ss << ";CKS:" << checksum;
 
   return ss.str();
 }
