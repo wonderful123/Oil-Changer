@@ -29,18 +29,43 @@ void SensorManager::update() {
 }
 
 void SensorManager::readVoltageSensor() {
-  // TODO: implement with the voltage divider values
   int voltageSensorADCValue = _voltageSensor->read();
-  int adcResolution = _voltageSensor->resolution();
-  double voltage = voltageSensorADCValue * (3.3 / adcResolution);
-  _oilChangeTracker->setVoltage(voltage);
+  int adcResolution =
+      _voltageSensor->resolution(); // Assuming it's 4096 for 12-bit ADC
+  double Vout = voltageSensorADCValue * (3.3 / adcResolution);
+
+  // Values for R1 and R2 in the voltage divider
+  double R1 = 68000; // 68k ohm
+  double R2 = 10000; // 10k ohm
+
+  // Calculate Vin (actual voltage before the divider)
+  double Vin = Vout * ((R1 + R2) / R2);
+
+  _oilChangeTracker->setVoltage(Vin);
 }
 
 void SensorManager::readOilTemperatureSensor() {
-  // TODO: implement with the voltage divider values
   int temperatureSensorADCValue = _oilTemperatureSensor->read();
-  double temperature = 100.0;
-  _oilChangeTracker->setOilTemperature(temperature);
+  double Vin = 3.3;                                // Supply voltage
+  double R1 = 56000; // Resistance of known resistor in voltage divider
+  double R0 = 50000; // Resistance of thermistor at reference temperature (25°C)
+  double T0 = 298.15; // Reference temperature in Kelvin (25°C)
+  double B = 3950;    // Beta coefficient of the thermistor
+
+  // Calculate Vout from ADC value
+  double Vout = (double)temperatureSensorADCValue *
+                (Vin / _oilTemperatureSensor->resolution());
+
+  // Calculate thermistor resistance
+  double R2 = (Vout * R1) / (Vin - Vout);
+
+  // Calculate temperature in Kelvin
+  double temperatureK = 1 / (1 / T0 + (1 / B) * log(R2 / R0));
+
+  // Convert temperature to Celsius
+  double temperatureC = temperatureK - 273.15;
+
+  _oilChangeTracker->setOilTemperature(temperatureC);
 }
 
 void SensorManager::readFillPressureSwitch() {
