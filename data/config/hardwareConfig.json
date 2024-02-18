@@ -7,7 +7,7 @@
     }, {
       "id": "VoltageSense",
       "type": "ADC",
-      "pinNumber": 13,
+      "pinNumber": 35,
       "options": {
         "resolution": 4096,
         "attenuation": 3,
@@ -17,7 +17,7 @@
     }, {
       "id": "FlowMeterFill",
       "type": "FlowMeter",
-      "pinNumber": 14,
+      "pinNumber": 15,
       "options": {
         "pulsesPerLiter": 1000,
         "minUpdateIntervalMs": 100,
@@ -29,7 +29,7 @@
     }, {
       "id": "FlowMeterExtract",
       "type": "FlowMeter",
-      "pinNumber": 15,
+      "pinNumber": 14,
       "options": {
         "pulsesPerLiter": 1000,
         "minUpdateIntervalMs": 100,
@@ -41,11 +41,11 @@
     }, {
       "id": "ButtonPlus",
       "type": "Button",
-      "pinNumber": 34
+      "pinNumber": 15
     }, {
       "id": "ButtonManualFill",
       "type": "Button",
-      "pinNumber": 35
+      "pinNumber": 13
     }, {
       "id": "ButtonStart",
       "type": "Button",
@@ -94,7 +94,7 @@
     }, {
       "id": "LPSFill",
       "type": "DigitalIO",
-      "pinNumber": 2,
+      "pinNumber": 34,
       "mode": "Input"
     }],
     "multiPin": [{
@@ -123,7 +123,7 @@
     "Displays": [{
       "id": "Display1",
       "type": "Serial",
-      "interfaceId": "Serial2"
+      "interfaceId": "Serial1"
     }, {
       "id": "Display2",
       "type": "Serial",
