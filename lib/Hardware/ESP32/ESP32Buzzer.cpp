@@ -63,7 +63,8 @@ void ESP32Buzzer::handleDoubleBeepTimerCallback(ESP32Buzzer *buzzer) {
   }
 }
 
-void ESP32Buzzer::rapidBeep(unsigned int frequency, unsigned int duration, unsigned int pauseInterval) {
+void ESP32Buzzer::rapidBeep(unsigned int frequency, unsigned int duration,
+                            unsigned int pauseInterval) {
   _settings.rapidBeepFrequency = frequency;
   _settings.rapidBeepDuration = duration;
   _settings.rapidBeepPauseDuration = pauseInterval;
