@@ -1,12 +1,7 @@
 // Event.h
 #pragma once
 
-enum class Event {
-  Buzzer,
-  OilChangeTracker,
-  Motor,
-  Display
-};
+enum class Event { Buzzer, OilChangeTracker, Motor, Display, State };
 
 enum class Parameter {
   // Buzzer Parameters
@@ -27,5 +22,14 @@ enum class Parameter {
 
   // Display Parameters
   DisplayMessage,
-  SecondaryDisplayMessage
+  SecondaryDisplayMessage,
+
+  // Current FSM states
+  Initializing,
+  Ready,
+  ManualFill,
+  ManualExtract,
+  Extracting,
+  InterimTask,
+  Filling
 };

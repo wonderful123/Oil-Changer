@@ -23,6 +23,8 @@ class OilChangeComplete;
 
 class Initializing : public StateMachine {
 public:
+  void entry() { _eventManager->notify(Event::State, Parameter::Initializing); }
+  
   void react(InitializationEvent const &event) override {}
 
   void react(InitializationCompleteEvent const &) {
@@ -39,6 +41,7 @@ public:
   void entry() {
     Logger::info("[State] Ready");
     _eventManager->notify(Event::OilChangeTracker, Parameter::Reset);
+    _eventManager->notify(Event::State, Parameter::Ready);
   }
 
   void exit() { clearBuzzerRapidBeepCallback(); }
@@ -47,14 +50,18 @@ public:
     if (event.id == "ButtonStart") {
       notifyBuzzer(Parameter::SingleBeep);
     } else if (event.id == "ButtonPlus") {
+      Logger::info("[State] ButtonPlus");
       notifyBuzzer(Parameter::SingleBeep);
       notifyOilTracker(Parameter::FillCapacity, 0.1);
     } else if (event.id == "ButtonMinus") {
+      Logger::info("[State] ButtonMinus");
       notifyBuzzer(Parameter::SingleBeep);
       notifyOilTracker(Parameter::FillCapacity, -0.1);
     } else if (event.id == "ButtonManualExtract") {
+      Logger::info("[State] ButtonManualExtract");
       transit<ExtractingManual>();
     } else if (event.id == "ButtonManualFill") {
+      Logger::info("[State] ButtonManualFill");
       transit<FillingManual>();
     }
   }
@@ -111,6 +118,7 @@ public:
   void entry() override {
     Logger::debug("[StateMachine] Manual extraction started");
     _eventManager->notify(Event::Motor, Parameter::MotorExtract);
+    _eventManager->notify(Event::State, Parameter::ManualExtract);
   }
 
   void react(ButtonReleaseEvent const &) {
@@ -127,6 +135,7 @@ public:
   void entry() override {
     Logger::debug("[StateMachine] Manual fill started");
     _eventManager->notify(Event::Motor, Parameter::MotorFill);
+    _eventManager->notify(Event::State, Parameter::ManualFill);
   }
 
   void react(ButtonReleaseEvent const &) {
@@ -143,6 +152,7 @@ public:
   void entry() override {
     Logger::info("[State] Extracting...");
     _eventManager->notify(Event::Motor, Parameter::MotorExtract);
+    _eventManager->notify(Event::State, Parameter::Extracting);
   };
 
   void react(ButtonPressEvent const &event) {
@@ -180,6 +190,7 @@ public:
   void entry() override {
     // Display an interim task such as filter replacement
     Logger::info("[State] Interim Event");
+    _eventManager->notify(Event::State, Parameter::InterimTask);
   }
 
   void react(ButtonPressEvent const &event) {
@@ -208,6 +219,7 @@ public:
   void entry() override {
     Logger::info("[State] Filling...");
     _eventManager->notify(Event::Motor, Parameter::MotorFill);
+    _eventManager->notify(Event::State, Parameter::Filling);
   };
 
   void react(ButtonPressEvent const &event) {
@@ -248,7 +260,10 @@ public:
 
 class OilChangeComplete : public StateMachine {
 public:
-  void entry() override { Logger::info("[State] Oil change complete"); }
+  void entry() override {
+    Logger::info("[State] Oil change complete");
+    _eventManager->notify(Event::State, Parameter::Complete);
+  }
 
   void react(ButtonPressEvent const &event) {
     if (event.id == "ButtonStart") {
