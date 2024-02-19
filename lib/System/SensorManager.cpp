@@ -1,12 +1,16 @@
 // SensorManager.cpp
 #include "SensorManager.h"
+#include "EventManager/IEventListener.h"
 #include "FSM/StateMachine.h"
 #include "IADC.h"
 #include "IDigitalIO.h"
 #include "IFlowMeter.h"
 #include "OilChangeTracker.h"
 
-SensorManager::SensorManager() {}
+SensorManager::SensorManager(std::shared_ptr<EventManager> eventManager) {
+  eventManager->subscribe(shared_from_this(), Event::System);
+}
+
 SensorManager::~SensorManager() {}
 
 void SensorManager::initialize(SensorManagerComponents components) {
@@ -28,6 +32,17 @@ void SensorManager::update() {
   readVoltageSensor();
 }
 
+void SensorManager::onNotify(Event event, Parameter parameter, float value) {
+  if (event == Event::System && parameter == Parameter::Reset) {
+    resetFlowMetersVolume();
+  }
+}
+
+void SensorManager::resetFlowMetersVolume() {
+  _fillFlowMeter->reset();
+  _extractFlowMeter->reset();
+}
+
 void SensorManager::readVoltageSensor() {
   int voltageSensorADCValue = _voltageSensor->read();
   int adcResolution =
@@ -46,7 +61,7 @@ void SensorManager::readVoltageSensor() {
 
 void SensorManager::readOilTemperatureSensor() {
   int temperatureSensorADCValue = _oilTemperatureSensor->read();
-  double Vin = 3.3;                                // Supply voltage
+  double Vin = 3.3;  // Supply voltage
   double R1 = 56000; // Resistance of known resistor in voltage divider
   double R0 = 50000; // Resistance of thermistor at reference temperature (25°C)
   double T0 = 298.15; // Reference temperature in Kelvin (25°C)
@@ -88,11 +103,11 @@ void SensorManager::readExtractPressureSwitch() {
 void SensorManager::readFillFlowMeter() {
   _fillFlowMeter->update();
   _oilChangeTracker->setFillFlowRate(_fillFlowMeter->getFlowRate());
-  _oilChangeTracker->incrementAmountFilled(_fillFlowMeter->getTotalVolume());
+  _oilChangeTracker->setAmountFilled(_fillFlowMeter->getTotalVolume());
 }
 
 void SensorManager::readExtractFlowMeter() {
   _extractFlowMeter->update();
   _oilChangeTracker->setFillFlowRate(_extractFlowMeter->getFlowRate());
-  _oilChangeTracker->incrementAmountFilled(_extractFlowMeter->getTotalVolume());
+  _oilChangeTracker->setAmountFilled(_extractFlowMeter->getTotalVolume());
 }

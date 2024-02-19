@@ -1,6 +1,8 @@
 // SensorManager.h
 #pragma once
 
+#include "EventManager/EventManager.h"
+#include "EventManager/IEventListener.h"
 #include <memory>
 
 class IADC;
@@ -18,9 +20,10 @@ struct SensorManagerComponents {
   std::shared_ptr<IFlowMeter> extractFlowMeter;
 };
 
-class SensorManager {
+class SensorManager : public IEventListener,
+                      public std::enable_shared_from_this<OilChangeTracker> {
 public:
-  SensorManager();
+  SensorManager(std::shared_ptr<EventManager> eventManager);
   ~SensorManager();
 
   void initialize(SensorManagerComponents components);
@@ -28,7 +31,11 @@ public:
   // Update sensor readings (call in main loop)
   void update();
 
+  void resetFlowMetersVolume();
+
 private:
+  void onNotify(Event event, Parameter parameter, float value) override;
+
   // Private methods to read individual sensors
   void readVoltageSensor();
   void readOilTemperatureSensor();
