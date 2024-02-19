@@ -4,7 +4,7 @@
 #include <string>
 #include <unordered_map>
 
-enum class Event { Buzzer, OilChangeTracker, Motor, Display, State };
+enum class Event { Buzzer, OilChangeTracker, Motor, Display, State, System };
 
 enum class Parameter {
   // Buzzer Parameters
@@ -34,12 +34,16 @@ enum class Parameter {
   ManualExtract,
   Extracting,
   InterimTask,
-  Filling
+  Filling,
+  Complete,
+
+  // System parameters
+  Reset
 };
 
 namespace EventUtils {
 // Utility function for mapping Parameter to string
-std::string parameterToString(Parameter parameter) {
+inline std::string parameterToString(Parameter parameter) {
   static const std::unordered_map<Parameter, std::string> parameterStrings = {
       {Parameter::Initializing, "Initializing"},
       {Parameter::Ready, "Ready"},
@@ -48,6 +52,7 @@ std::string parameterToString(Parameter parameter) {
       {Parameter::Extracting, "Extracting"},
       {Parameter::InterimTask, "InterimTask"},
       {Parameter::Filling, "Filling"},
+      {Parameter::Complete, "Complete"}
       // Add other Parameter to string mappings here...
   };
 
