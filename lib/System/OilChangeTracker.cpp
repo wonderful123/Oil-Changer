@@ -12,23 +12,23 @@ OilChangeTracker::OilChangeTracker(std::shared_ptr<EventManager> eventManager)
 
 void OilChangeTracker::initialize() {
   _eventManager->subscribe(shared_from_this(), Event::OilChangeTracker);
+  _eventManager->subscribe(shared_from_this(), Event::System);
+  _eventManager->subscribe(shared_from_this(), Event::State);
 }
 
 void OilChangeTracker::onNotify(Event event, Parameter parameter, float value) {
   if (event == Event::OilChangeTracker) {
-    // 'id' is used to specify what to update (e.g., fill capacity)
     if (parameter == Parameter::FillCapacity) {
-      // Check the value to determine increment or decrement
-      if (value > 0) {
-        incrementFillCapacity(value);
-      } else if (value < 0) {
-        decrementFillCapacity(value);
-      }
-      Logger::info("[OilChangeTracker] - Fill Capacity: " +
-                   std::to_string(_fillCapacity));
-    } else if (parameter == Parameter::Reset) {
-      reset();
+      incrementFillCapacity(value);
     }
+  }
+
+  if (event == Event::System && parameter == Parameter::Reset) {
+    reset();
+  }
+
+  if (event == Event::State) {
+    setCurrentState(parameter);
   }
 }
 
@@ -43,6 +43,8 @@ OilChangeTracker::TrackerData OilChangeTracker::getCurrentData() const {
   data.oilTemperature = _oilTemperature;
   data.fillLPSState = _fillLPSState;
   data.extractLPSState = _extractLPSState;
+  data.currentState = _currentState;
+
   return data;
 }
 
@@ -67,6 +69,14 @@ void OilChangeTracker::incrementAmountExtracted(double amount) {
 void OilChangeTracker::resetAmountFilled() { _amountFilled = 0; }
 
 void OilChangeTracker::resetAmountExtracted() { _amountExtracted = 0; }
+
+void OilChangeTracker::setAmountFilled(double amount) {
+  _amountFilled = amount;
+}
+
+void OilChangeTracker::setAmountExtracted(double amount) {
+  _amountExtracted = amount;
+}
 
 void OilChangeTracker::setFillFlowRate(double rate) { _fillFlowRate = rate; }
 
@@ -96,10 +106,18 @@ void OilChangeTracker::setExtractLPSState(int state) {
 
 void OilChangeTracker::incrementFillCapacity(double amount) {
   _fillCapacity += amount;
+
+  if (_fillCapacity < 0) {
+    _fillCapacity = 0;
+  }
 }
 
-void OilChangeTracker::decrementFillCapacity(double amount) {
-  _fillCapacity -= amount;
+void OilChangeTracker::setCurrentState(const std::string &state) {
+  _currentState = state;
+}
+
+void OilChangeTracker::setCurrentState(Parameter parameter) {
+  _currentState = EventUtils::parameterToString(parameter);
 }
 
 // Define the getter methods

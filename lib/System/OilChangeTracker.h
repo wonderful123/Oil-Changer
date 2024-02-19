@@ -22,6 +22,7 @@ public:
     double oilTemperature;
     int fillLPSState;
     int extractLPSState;
+    std::string currentState;
   };
 
   OilChangeTracker(std::shared_ptr<EventManager> eventManager);
@@ -36,14 +37,17 @@ public:
   void incrementAmountExtracted(double amount);
   void resetAmountFilled();
   void resetAmountExtracted();
+  void setAmountFilled(double amount);
+  void setAmountExtracted(double amount);
   void setFillFlowRate(double rate);
   void setExtractFlowRate(double rate);
   void incrementFillCapacity(double amount = 0.1);
-  void decrementFillCapacity(double amount = 0.1);
   void setFillLPSState(int state);
   void setExtractLPSState(int state);
   void setVoltage(double volt);
   void setOilTemperature(double temperature);
+  void setCurrentState(const std::string &state);
+  void setCurrentState(Parameter parameter);
 
   // Getters
   double fillCapacity() const;
@@ -66,6 +70,7 @@ private:
   double _oilTemperature = 0;
   int _fillLPSState = 0; // Current state of the Low Pressure Switch
   int _extractLPSState = 0;
+  std::string _currentState;
 
   std::shared_ptr<EventManager> _eventManager;
   void onNotify(Event event, Parameter parameter, float value) override;
