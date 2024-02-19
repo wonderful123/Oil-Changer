@@ -1,6 +1,7 @@
 // DisplayManager.cpp
 #include "DisplayManager.h"
 #include "Logger.h"
+#include <cmath>
 #include <iomanip> // for std::setprecision
 #include <sstream>
 
@@ -52,44 +53,106 @@ void DisplayManager::onNotify(Event type, Parameter parameter,
 }
 
 void DisplayManager::update() {
+  auto currentData = _oilChangeTracker->getCurrentData();
   auto now = std::chrono::steady_clock::now();
-  if (now - _lastUpdate >=
-      std::chrono::milliseconds(500)) { // Update every 500ms
-    auto currentData = _oilChangeTracker->getCurrentData();
-    std::string message = formatDisplayMessage(currentData);
-    // Update displays
-    if (_primaryDisplay) {
-      _primaryDisplay->displayMessage(message);
+  std::stringstream updateMessage;
+  updateMessage << std::fixed << std::setprecision(2);
+
+  // Evaluate each change for significance, except fillCapacity which triggers
+  // an immediate update
+  bool dataChanged = false;
+
+  // Immediate update for fillCapacity
+  if (_lastData.fillCapacity != currentData.fillCapacity) {
+    updateMessage << "FillCap:" << currentData.fillCapacity << ";";
+    dataChanged = true;
+    _lastData.fillCapacity =
+        currentData.fillCapacity; // Update this immediately to prevent
+                                  // duplicate messages
+  }
+
+  if (dataChanged || now - _lastUpdate >= _updateInterval) {
+    // Check other fields for significant changes
+    dataChanged |=
+        appendChange(updateMessage, "AmtFilled", _lastData.amountFilled,
+                     currentData.amountFilled);
+    dataChanged |=
+        appendChange(updateMessage, "AmtExtracted", _lastData.amountExtracted,
+                     currentData.amountExtracted);
+    dataChanged |=
+        appendChange(updateMessage, "FillFlow", _lastData.fillFlowRate,
+                     currentData.fillFlowRate);
+    dataChanged |=
+        appendChange(updateMessage, "ExtractFlow", _lastData.extractFlowRate,
+                     currentData.extractFlowRate);
+    dataChanged |= appendChange(updateMessage, "Voltage", _lastData.voltage,
+                                currentData.voltage);
+    dataChanged |=
+        appendChange(updateMessage, "OilTemp", _lastData.oilTemperature,
+                     currentData.oilTemperature);
+    dataChanged |=
+        appendStateChange(updateMessage, "FillLPS", _lastData.fillLPSState,
+                          currentData.fillLPSState);
+    dataChanged |= appendStateChange(updateMessage, "ExtractLPS",
+                                     _lastData.extractLPSState,
+                                     currentData.extractLPSState);
+    if (_lastData.currentState != currentData.currentState) {
+      // If there's a state change, append it directly
+      updateMessage << "State:" << currentData.currentState << ";";
+      dataChanged = true; // Mark that there's a significant change
     }
-    _lastData = currentData;
-    _lastUpdate = now;
+  }
+
+  // Only send the update if there's been a significant change or if it's
+  // specifically for fillCapacity
+  if (dataChanged) {
+    // Finalize the update message
+    std::string messageToSend = updateMessage.str();
+    if (!messageToSend.empty()) {
+      messageToSend +=
+          "CKS:" + std::to_string(calculateChecksum(messageToSend));
+      if (_primaryDisplay) {
+        _primaryDisplay->displayMessage(messageToSend);
+      }
+      _lastData = currentData; // Update the last known state for all fields
+      _lastUpdate = now;       // Reset the update timer
+    }
   }
 }
 
-std::string DisplayManager::formatDisplayMessage(
-    const OilChangeTracker::TrackerData &data) {
-  std::stringstream ss;
-  ss << std::fixed
-     << std::setprecision(2); // Set fixed floating point with 2 decimal places
+bool DisplayManager::appendChange(std::stringstream &ss, const std::string &key,
+                                  double oldValue, double newValue,
+                                  bool forceImmediate) {
+  bool significantChange =
+      forceImmediate || std::fabs(oldValue - newValue) > CHANGE_THRESHOLD;
+  if (significantChange) {
+    ss << key << ":" << newValue << ";";
+    return true;
+  }
+  return false;
+}
 
-  // Append data
-  ss << "FillCap:" << data.fillCapacity << ";"
-     << "AmtFilled:" << data.amountFilled << ";"
-     << "AmtExtracted:" << data.amountExtracted << ";"
-     << "FillRate:" << data.fillFlowRate << ";"
-     << "ExtractRate:" << data.extractFlowRate << ";"
-     << "Voltage:" << data.voltage << ";"
-     << "Temp:" << data.oilTemperature << ";"
-     << "FillLPS:" << convertLPSState(data.fillLPSState) << ";"
-     << "ExtractLPS:" << convertLPSState(data.extractLPSState);
+bool DisplayManager::appendChange(std::stringstream &ss, const std::string &key,
+                                  const std::string &oldValue,
+                                  const std::string &newValue,
+                                  bool forceImmediate) {
+  if (forceImmediate || oldValue != newValue) {
+    ss << key << ":" << newValue << ";";
+    return true;
+  }
+  return false;
+}
 
-  // Calculate checksum
-  unsigned int checksum = calculateChecksum(ss.str());
-
-  // Append checksum
-  ss << ";CKS:" << checksum;
-
-  return ss.str();
+// Special handling for state conversion to string, assuming it's an integer
+// type
+bool DisplayManager::appendStateChange(std::stringstream &ss,
+                                       const std::string &key, int oldValue,
+                                       int newValue) {
+  if (oldValue != newValue) {
+    ss << key << ":" << convertLPSState(newValue) << ";";
+    return true;
+  }
+  return false;
 }
 
 unsigned int DisplayManager::calculateChecksum(const std::string &message) {
@@ -102,4 +165,9 @@ unsigned int DisplayManager::calculateChecksum(const std::string &message) {
 
 std::string DisplayManager::convertLPSState(int state) {
   return state == 0 ? "low" : "high";
+}
+
+bool DisplayManager::hasSignificantChange(double oldValue, double newValue,
+                                          double threshold) {
+  return std::fabs(oldValue - newValue) > threshold;
 }
