@@ -23,7 +23,7 @@
         "minUpdateIntervalMs": 100,
         "pcntUnit": "PCNT_UNIT_0",
         "pulseMultiplier": 100,
-        "pcntFilterValue": 10,
+        "pcntFilterValue": 800,
         "pcntFilterEnabled": true
       }
     }, {
@@ -35,8 +35,8 @@
         "minUpdateIntervalMs": 100,
         "pcntUnit": "PCNT_UNIT_1",
         "pulseMultiplier": 100,
-        "filterValue": 10,
-        "filterEnabled": true
+        "pcntFilterValue": 800,
+        "pcntFilterEnabled": true
       }
     }, {
       "id": "ButtonPlus",
