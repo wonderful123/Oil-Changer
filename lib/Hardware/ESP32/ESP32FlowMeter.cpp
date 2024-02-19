@@ -53,7 +53,7 @@ Error ESP32FlowMeter::initPcnt(const HardwarePinConfig &config) {
 
   // Set the filter value (in APB_CLK cycles)
   uint16_t filterVal = config.getOptionAs<int>("pcntFilterValue");
-  pcnt_set_filter_value(_pcntUnit, config.getOptionAs<int>("pcntFilterValue"));
+  pcnt_set_filter_value(_pcntUnit, filterVal);
   bool enableFilter = config.getOptionAs<bool>("pcntFilterEnabled");
   if (enableFilter) {
     pcnt_filter_enable(_pcntUnit);
