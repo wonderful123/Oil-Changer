@@ -1,6 +1,9 @@
 // Event.h
 #pragma once
 
+#include <string>
+#include <unordered_map>
+
 enum class Event { Buzzer, OilChangeTracker, Motor, Display, State };
 
 enum class Parameter {
@@ -33,3 +36,26 @@ enum class Parameter {
   InterimTask,
   Filling
 };
+
+namespace EventUtils {
+// Utility function for mapping Parameter to string
+std::string parameterToString(Parameter parameter) {
+  static const std::unordered_map<Parameter, std::string> parameterStrings = {
+      {Parameter::Initializing, "Initializing"},
+      {Parameter::Ready, "Ready"},
+      {Parameter::ManualFill, "ManualFill"},
+      {Parameter::ManualExtract, "ManualExtract"},
+      {Parameter::Extracting, "Extracting"},
+      {Parameter::InterimTask, "InterimTask"},
+      {Parameter::Filling, "Filling"},
+      // Add other Parameter to string mappings here...
+  };
+
+  auto it = parameterStrings.find(parameter);
+  if (it != parameterStrings.end()) {
+    return it->second;
+  } else {
+    return "Unknown Parameter";
+  }
+}
+} // namespace EventUtils
