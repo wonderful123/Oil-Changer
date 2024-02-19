@@ -24,7 +24,7 @@ class OilChangeComplete;
 class Initializing : public StateMachine {
 public:
   void entry() { _eventManager->notify(Event::State, Parameter::Initializing); }
-  
+
   void react(InitializationEvent const &event) override {}
 
   void react(InitializationCompleteEvent const &) {
@@ -84,11 +84,7 @@ public:
     notifyBuzzer(Parameter::StopBeep);
   }
 
-  void react(StartOilChangeEvent const &event) {
-    Logger::info(
-        "[StateMachine] Transition: Starting oil change extraction...");
-    transit<Extracting>();
-  }
+  void react(StartOilChangeEvent const &event) { transit<Extracting>(); }
 
   void setupBuzzerRapidBeepCallback(float fillCapacityAdjustmentValue) {
     _buzzerManager->setOnRapidBeepCallback([this,
