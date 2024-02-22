@@ -11,6 +11,7 @@ class IFlowMeter;
 class OilChangeTracker;
 
 struct SensorManagerComponents {
+  std::shared_ptr<EventManager> eventManager;
   std::shared_ptr<OilChangeTracker> oilChangeTracker;
   std::shared_ptr<IADC> voltageSensor;
   std::shared_ptr<IADC> oilTemperatureSensor;
@@ -21,9 +22,9 @@ struct SensorManagerComponents {
 };
 
 class SensorManager : public IEventListener,
-                      public std::enable_shared_from_this<OilChangeTracker> {
+                      public std::enable_shared_from_this<SensorManager> {
 public:
-  SensorManager(std::shared_ptr<EventManager> eventManager);
+  SensorManager();
   ~SensorManager();
 
   void initialize(SensorManagerComponents components);
@@ -34,7 +35,7 @@ public:
   void resetFlowMetersVolume();
 
 private:
-  void onNotify(Event event, Parameter parameter, float value) override;
+  void onNotify(Event event, Parameter parameter) override;
 
   // Private methods to read individual sensors
   void readVoltageSensor();
@@ -44,6 +45,7 @@ private:
   void readFillFlowMeter();
   void readExtractFlowMeter();
 
+  std::shared_ptr<EventManager> _eventManager;
   std::shared_ptr<OilChangeTracker> _oilChangeTracker;
   std::shared_ptr<IADC> _voltageSensor;
   std::shared_ptr<IADC> _oilTemperatureSensor;

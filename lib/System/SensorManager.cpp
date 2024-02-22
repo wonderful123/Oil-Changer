@@ -5,15 +5,16 @@
 #include "IADC.h"
 #include "IDigitalIO.h"
 #include "IFlowMeter.h"
+#include "Logger.h"
 #include "OilChangeTracker.h"
 
-SensorManager::SensorManager(std::shared_ptr<EventManager> eventManager) {
-  eventManager->subscribe(shared_from_this(), Event::System);
-}
+SensorManager::SensorManager()
+    : _fillPressureSwitchState(-1), _extractPressureSwitchState(-1) {}
 
 SensorManager::~SensorManager() {}
 
 void SensorManager::initialize(SensorManagerComponents components) {
+  _eventManager = components.eventManager;
   _oilChangeTracker = components.oilChangeTracker;
   _oilTemperatureSensor = components.oilTemperatureSensor;
   _voltageSensor = components.voltageSensor;
@@ -21,6 +22,8 @@ void SensorManager::initialize(SensorManagerComponents components) {
   _extractPressureSwitch = components.extractPressureSwitch;
   _fillFlowMeter = components.fillFlowMeter;
   _extractFlowMeter = components.extractFlowMeter;
+
+  _eventManager->subscribe(shared_from_this(), Event::System);
 }
 
 void SensorManager::update() {
@@ -32,7 +35,7 @@ void SensorManager::update() {
   readVoltageSensor();
 }
 
-void SensorManager::onNotify(Event event, Parameter parameter, float value) {
+void SensorManager::onNotify(Event event, Parameter parameter) {
   if (event == Event::System && parameter == Parameter::Reset) {
     resetFlowMetersVolume();
   }
@@ -87,7 +90,6 @@ void SensorManager::readFillPressureSwitch() {
   int newSwitchState = _fillPressureSwitch->read();
   if (newSwitchState != _fillPressureSwitchState) {
     _fillPressureSwitchState = newSwitchState;
-    _oilChangeTracker->setFillLPSState(newSwitchState);
     sendFSMEvent(PressureSwitchEvent(PressureSwitch::Fill, newSwitchState));
   }
 }
