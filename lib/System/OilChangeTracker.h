@@ -74,4 +74,5 @@ private:
 
   std::shared_ptr<EventManager> _eventManager;
   void onNotify(Event event, Parameter parameter, float value) override;
+  void onNotify(Event event, Parameter parameter) override;
 };

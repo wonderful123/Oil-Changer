@@ -6,7 +6,7 @@
 #include "SystemFactory.h"
 
 OilChangeTracker::OilChangeTracker(std::shared_ptr<EventManager> eventManager)
-    : _fillCapacity(5.0f), _amountFilled(0), _amountExtracted(0),
+    : _fillCapacity(4.0f), _amountFilled(0), _amountExtracted(0),
       _fillFlowRate(0), _extractFlowRate(0), _voltage(0),
       _eventManager(eventManager) {}
 
@@ -22,7 +22,9 @@ void OilChangeTracker::onNotify(Event event, Parameter parameter, float value) {
       incrementFillCapacity(value);
     }
   }
+}
 
+void OilChangeTracker::onNotify(Event event, Parameter parameter) {
   if (event == Event::System && parameter == Parameter::Reset) {
     reset();
   }
@@ -118,6 +120,7 @@ void OilChangeTracker::setCurrentState(const std::string &state) {
 
 void OilChangeTracker::setCurrentState(Parameter parameter) {
   _currentState = EventUtils::parameterToString(parameter);
+  Logger::info("[OilChangeTracker] Current state: " + _currentState);
 }
 
 // Define the getter methods
