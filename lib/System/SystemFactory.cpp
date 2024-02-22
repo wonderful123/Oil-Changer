@@ -150,6 +150,7 @@ void SystemFactory::createMotorController() {
 void SystemFactory::createSensorManager() {
   Logger::info("[SystemFactory] Creating SensorManager");
   SensorManagerComponents components;
+  components.eventManager = _eventManager;
   components.oilChangeTracker = _oilChangeTracker;
   components.voltageSensor =
       _hardwareManager->getComponentById<IADC>("VoltageSense");
@@ -208,4 +209,8 @@ std::shared_ptr<ButtonController> SystemFactory::getButtonController() const {
 
 std::shared_ptr<DisplayManager> SystemFactory::getDisplayManager() const {
   return _displayManager;
+}
+
+std::shared_ptr<SensorManager> SystemFactory::getSensorManager() const {
+  return _sensorManager;
 }
