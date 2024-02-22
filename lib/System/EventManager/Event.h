@@ -36,9 +36,7 @@ enum class Parameter {
   InterimTask,
   Filling,
   Complete,
-
-  // System parameters
-  Reset
+  Diagnostics,
 };
 
 namespace EventUtils {
@@ -52,7 +50,8 @@ inline std::string parameterToString(Parameter parameter) {
       {Parameter::Extracting, "Extracting"},
       {Parameter::InterimTask, "InterimTask"},
       {Parameter::Filling, "Filling"},
-      {Parameter::Complete, "Complete"}
+      {Parameter::Complete, "Complete"},
+      {Parameter::Diagnostics, "Diagnostics"}
       // Add other Parameter to string mappings here...
   };
 

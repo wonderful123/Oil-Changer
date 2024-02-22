@@ -2,6 +2,7 @@
 #pragma once
 
 #include "BuzzerManager.h"
+#include "DiagnosticsState.h"
 #include "EventManager/EventManager.h"
 #include "Events.h"
 #include "Logger.h"
@@ -50,18 +51,14 @@ public:
     if (event.id == "ButtonStart") {
       notifyBuzzer(Parameter::SingleBeep);
     } else if (event.id == "ButtonPlus") {
-      Logger::info("[State] ButtonPlus");
       notifyBuzzer(Parameter::SingleBeep);
       notifyOilTracker(Parameter::FillCapacity, 0.1);
     } else if (event.id == "ButtonMinus") {
-      Logger::info("[State] ButtonMinus");
       notifyBuzzer(Parameter::SingleBeep);
       notifyOilTracker(Parameter::FillCapacity, -0.1);
     } else if (event.id == "ButtonManualExtract") {
-      Logger::info("[State] ButtonManualExtract");
       transit<ExtractingManual>();
     } else if (event.id == "ButtonManualFill") {
-      Logger::info("[State] ButtonManualFill");
       transit<FillingManual>();
     }
   }
@@ -76,6 +73,9 @@ public:
     } else if (event.id == "ButtonMinus") {
       setupBuzzerRapidBeepCallback(-0.1);
       notifyBuzzer(Parameter::RapidBeep);
+    } else if (event.id == "ButtonStop") {
+      notifyBuzzer(Parameter::DoubleBeep);
+      transit<Diagnostics>();
     }
   }
 
@@ -112,13 +112,13 @@ public:
 class ExtractingManual : public StateMachine {
 public:
   void entry() override {
-    Logger::debug("[StateMachine] Manual extraction started");
+    Logger::info("[StateMachine] Manual extraction started");
     _eventManager->notify(Event::Motor, Parameter::MotorExtract);
     _eventManager->notify(Event::State, Parameter::ManualExtract);
   }
 
   void react(ButtonReleaseEvent const &) {
-    Logger::debug("[StateMachine] Manual extraction stopped");
+    Logger::info("[StateMachine] Manual extraction stopped");
     _eventManager->notify(Event::Motor, Parameter::MotorExtract);
     transit<Ready>();
   }
@@ -129,13 +129,13 @@ public:
 class FillingManual : public StateMachine {
 public:
   void entry() override {
-    Logger::debug("[StateMachine] Manual fill started");
+    Logger::info("[StateMachine] Manual fill started");
     _eventManager->notify(Event::Motor, Parameter::MotorFill);
     _eventManager->notify(Event::State, Parameter::ManualFill);
   }
 
   void react(ButtonReleaseEvent const &) {
-    Logger::debug("[StateMachine] Manual fill stopped");
+    Logger::info("[StateMachine] Manual fill stopped");
     _eventManager->notify(Event::Motor, Parameter::MotorStop);
     transit<Ready>();
   }
