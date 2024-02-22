@@ -71,6 +71,13 @@ void DisplayManager::update() {
                                   // duplicate messages
   }
 
+  // Immediate update for state changes
+  if (_lastData.currentState != currentData.currentState) {
+    updateMessage << "State:" << currentData.currentState << ";";
+    dataChanged = true;
+    _lastData.currentState = currentData.currentState;
+  }
+
   if (dataChanged || now - _lastUpdate >= _updateInterval) {
     // Check other fields for significant changes
     dataChanged |=
@@ -96,11 +103,6 @@ void DisplayManager::update() {
     dataChanged |= appendStateChange(updateMessage, "ExtractLPS",
                                      _lastData.extractLPSState,
                                      currentData.extractLPSState);
-    if (_lastData.currentState != currentData.currentState) {
-      // If there's a state change, append it directly
-      updateMessage << "State:" << currentData.currentState << ";";
-      dataChanged = true; // Mark that there's a significant change
-    }
   }
 
   // Only send the update if there's been a significant change or if it's
