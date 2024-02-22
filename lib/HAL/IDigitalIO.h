@@ -2,6 +2,7 @@
 #pragma once
 
 #include "HardwareComponent.h"
+#include "HardwarePinConfig.h"
 
 /**
  * @class IDigitalIO
@@ -15,13 +16,13 @@
  */
 class IDigitalIO : public HardwareComponent {
 public:
-  enum Mode { INPUT_MODE, OUTPUT_MODE };
+  IDigitalIO(const HardwarePinConfig &config) : HardwareComponent(config) {}
+  virtual ~IDigitalIO() = default;
+
+  enum class Mode { MODE_INPUT, MODE_OUTPUT, MODE_PULLUP, MODE_PULLDOWN };
+
   static const int DIGITAL_HIGH = 1;
   static const int DIGITAL_LOW = 0;
-
-  using HardwareComponent::HardwareComponent; // Inherit constructor
-
-  virtual ~IDigitalIO() = default;
 
   /**
    * @brief Read the value of the digital input pin.
@@ -52,6 +53,15 @@ public:
    * @return int Current pin mode.
    */
   virtual Mode getMode() const = 0;
+
+  /**
+   * @brief Set the pin mode.
+   *
+   * This method sets the pin mode to INPUT, OUTPUT, PULLUP, or PULLDOWN
+   * depending on the provided value.
+   *
+   */
+  virtual void setMode(Mode mode) = 0;
 
 protected:
   Mode _mode;

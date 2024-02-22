@@ -11,6 +11,7 @@ public:
   virtual ~ESP32DigitalIO() = default;
   virtual int read() const override;
   virtual void write(int value) override;
+  virtual void setMode(Mode mode) override;
 };
 
 #endif // PLATFORM_ESP32

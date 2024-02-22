@@ -17,19 +17,24 @@ public:
   virtual void write(int value) override = 0;
 
   virtual Mode getMode() const override { return _mode; }
+  virtual void setMode(Mode mode) override { _mode = mode; }
 
 protected:
   void setPinModeFromConfig(const HardwarePinConfig &config) {
-    std::string mode = config.getOptionAs<std::string>("mode");
+    std::string modeStr = config.getOptionAs<std::string>("mode");
 
-    if (mode == "INPUT") {
-      _mode = IDigitalIO::Mode::INPUT_MODE;
-    } else if (mode == "OUTPUT") {
-      _mode = IDigitalIO::Mode::OUTPUT_MODE;
+    static const std::unordered_map<std::string, Mode> modeMap = {
+        {"Input", Mode::MODE_INPUT},
+        {"Output", Mode::MODE_OUTPUT},
+        {"PullUp", Mode::MODE_PULLUP},
+        {"PullDown", Mode::MODE_PULLDOWN}};
+
+    auto it = modeMap.find(modeStr);
+    if (it != modeMap.end()) {
+      _mode = it->second;
     } else {
-      // Handle invalid mode
       Error(Error::DigitalIOModeOptionMissingOrInvalid);
-      _mode = IDigitalIO::Mode::INPUT_MODE; // Default to INPUT mode
+      _mode = Mode::MODE_INPUT; // Defaulting to MODE_INPUT
     }
   }
 
