@@ -1,4 +1,3 @@
-// MotorController.h
 #pragma once
 
 #include "EventManager/EventManager.h"
@@ -15,19 +14,20 @@ public:
                   MotorSettings &motorSettings);
   virtual ~MotorController() override;
 
-  void initialize(std::shared_ptr<IDAC> dac, std::shared_ptr<IDigitalIO> fill,
-                  std::shared_ptr<IDigitalIO> extract);
+  void initialize(std::shared_ptr<IDAC> motorSpeedDac,
+                  std::shared_ptr<IDigitalIO> fillDirectionSwitch,
+                  std::shared_ptr<IDigitalIO> extractDirectionSwitch);
 
   // Implement onNotify from IEventListener
-  virtual void onNotify(Event type, Parameter parameter, float value) override;
+  virtual void onNotify(Event type, Parameter parameter) override;
 
   void updateMotorSettings(MotorSettings &motorSettings);
 
-  // Method to register DAC component
-  void registerDacComponent(std::shared_ptr<IDAC> dac);
-  // Method to register digital IO components
-  void registerDigitalIO(std::shared_ptr<IDigitalIO> fill,
-                         std::shared_ptr<IDigitalIO> extract);
+  // Method to register DAC component for motor speed control
+  void registerDacComponent(std::shared_ptr<IDAC> motorSpeedDac);
+  // Method to register digital IO components for direction control
+  void registerDigitalIO(std::shared_ptr<IDigitalIO> fillDirectionSwitch,
+                         std::shared_ptr<IDigitalIO> extractDirectionSwitch);
 
   // Stops motor straight away and ignores any ramping
   void haltMotor();
@@ -49,9 +49,11 @@ public:
 
 private:
   std::shared_ptr<EventManager> _eventManager;
-  std::shared_ptr<IDAC> _dacComponent;  // DAC component for motor speed control
-  std::shared_ptr<IDigitalIO> _fill;    // Digital IO for fill component
-  std::shared_ptr<IDigitalIO> _extract; // Digital IO for extract component
+  std::shared_ptr<IDAC> _motorSpeedDac; // DAC component for motor speed control
+  std::shared_ptr<IDigitalIO>
+      _fillDirectionSwitch; // Digital IO for fill direction control
+  std::shared_ptr<IDigitalIO>
+      _extractDirectionSwitch; // Digital IO for extract direction control
 
   MotorSettings _settings;
 
@@ -66,7 +68,6 @@ private:
 
     RampState() = default;
 
-    // Optionally, provide a constructor for convenience
     RampState(float startFraction, float targetFraction,
               std::chrono::steady_clock::time_point startTime,
               std::chrono::milliseconds duration, bool isRamping)
@@ -75,7 +76,7 @@ private:
   } _rampState;
 
   // Helper methods to handle motor control
-  void activateFill();
-  void activateExtract();
+  void activateFillDirection();
+  void activateExtractDirection();
   void stopMotor();
 };

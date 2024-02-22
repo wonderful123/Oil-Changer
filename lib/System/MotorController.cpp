@@ -16,24 +16,25 @@ MotorController::~MotorController() {
   _eventManager->unsubscribe(shared_from_this(), Event::Motor);
 }
 
-void MotorController::initialize(std::shared_ptr<IDAC> dac,
-                                 std::shared_ptr<IDigitalIO> fill,
-                                 std::shared_ptr<IDigitalIO> extract) {
+void MotorController::initialize(
+    std::shared_ptr<IDAC> motorSpeedDac,
+    std::shared_ptr<IDigitalIO> fillDirectionSwitch,
+    std::shared_ptr<IDigitalIO> extractDirectionSwitch) {
   // Subscribe to Motor events
   _eventManager->subscribe(shared_from_this(), Event::Motor);
 
-  registerDacComponent(dac);
-  registerDigitalIO(fill, extract);
+  registerDacComponent(motorSpeedDac);
+  registerDigitalIO(fillDirectionSwitch, extractDirectionSwitch);
 }
 
-void MotorController::onNotify(Event type, Parameter parameter, float value) {
+void MotorController::onNotify(Event type, Parameter parameter) {
   if (type == Event::Motor) {
     switch (parameter) {
     case Parameter::MotorFill:
-      activateFill();
+      activateFillDirection();
       break;
     case Parameter::MotorExtract:
-      activateExtract();
+      activateExtractDirection();
       break;
     case Parameter::MotorStop:
       stopMotor();
@@ -51,46 +52,38 @@ void MotorController::updateMotorSettings(MotorSettings &motorSettings) {
   _settings = motorSettings;
 }
 
-void MotorController::registerDacComponent(std::shared_ptr<IDAC> dac) {
-  _dacComponent = std::move(dac);
+void MotorController::registerDacComponent(
+    std::shared_ptr<IDAC> motorSpeedDac) {
+  _motorSpeedDac = std::move(motorSpeedDac);
 }
 
-void MotorController::registerDigitalIO(std::shared_ptr<IDigitalIO> fill,
-                                        std::shared_ptr<IDigitalIO> extract) {
-  _fill = std::move(fill);
-  _extract = std::move(extract);
+void MotorController::registerDigitalIO(
+    std::shared_ptr<IDigitalIO> fillDirectionSwitch,
+    std::shared_ptr<IDigitalIO> extractDirectionSwitch) {
+  _fillDirectionSwitch = std::move(fillDirectionSwitch);
+  _extractDirectionSwitch = std::move(extractDirectionSwitch);
 }
 
-void MotorController::activateFill() {
-  if (_extract) {
-    _extract->write(IDigitalIO::DIGITAL_LOW); // Ensure extract is off
+void MotorController::activateFillDirection() {
+  if (_extractDirectionSwitch) {
+    _extractDirectionSwitch->write(
+        IDigitalIO::DIGITAL_LOW); // Ensure extract is off
   }
 
-  if (_fill) {
-    if (_settings.rampingEnabled) {
-      startRamp(_settings.maxSpeed,
-                std::chrono::milliseconds(
-                    _settings.rampingOnDurationMs)); // Ramp up to max speed
-    } else {
-      _fill->write(IDigitalIO::DIGITAL_HIGH);
-    }
+  if (_fillDirectionSwitch) {
+    _fillDirectionSwitch->write(IDigitalIO::DIGITAL_HIGH);
   }
 }
 
-void MotorController::activateExtract() {
-  Logger::info("[MotorController] Extract");
-  if (_fill) {
-    _fill->write(IDigitalIO::DIGITAL_LOW); // Ensure extract is off
+void MotorController::activateExtractDirection() {
+  if (_fillDirectionSwitch) {
+    _fillDirectionSwitch->write(IDigitalIO::DIGITAL_LOW); // Ensure fill is off
+    Logger::info("[MotorController] Extract fill direction set LOW");
   }
 
-  if (_extract) {
-    if (_settings.rampingEnabled) {
-      startRamp(_settings.maxSpeed,
-                std::chrono::milliseconds(
-                    _settings.rampingOnDurationMs)); // Ramp up to max speed
-    } else {
-      _extract->write(IDigitalIO::DIGITAL_HIGH);
-    }
+  if (_extractDirectionSwitch) {
+    _extractDirectionSwitch->write(IDigitalIO::DIGITAL_HIGH);
+    Logger::info("[MotorController] Extract fill direction set HIGH");
   }
 }
 
@@ -106,14 +99,14 @@ void MotorController::stopMotor() {
 
 // Stop right away and ignore any ramping if enabled
 void MotorController::haltMotor() {
-  if (_fill) {
-    _fill->write(IDigitalIO::DIGITAL_LOW);
+  if (_fillDirectionSwitch) {
+    _fillDirectionSwitch->write(IDigitalIO::DIGITAL_LOW);
   }
-  if (_extract) {
-    _extract->write(IDigitalIO::DIGITAL_LOW);
+  if (_extractDirectionSwitch) {
+    _extractDirectionSwitch->write(IDigitalIO::DIGITAL_LOW);
   }
-  if (_dacComponent) {
-    _dacComponent->setValue(0); // Stop the motor by setting DAC value to 0
+  if (_motorSpeedDac) {
+    _motorSpeedDac->setValue(0); // Stop the motor by setting DAC value to 0
   }
 }
 
@@ -136,8 +129,8 @@ void MotorController::setMotorSpeed(float fraction) {
 
   // Convert as fraction of max speed
   float convertedValue = _settings.maxSpeed * fraction;
-  if (_dacComponent) {
-    _dacComponent->setValue(convertedValue);
+  if (_motorSpeedDac) {
+    _motorSpeedDac->setValue(convertedValue);
   }
 }
 
