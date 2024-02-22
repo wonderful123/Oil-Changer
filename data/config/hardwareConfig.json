@@ -17,19 +17,19 @@
     }, {
       "id": "FlowMeterFill",
       "type": "FlowMeter",
-      "pinNumber": 15,
+      "pinNumber": 14,
       "options": {
         "pulsesPerLiter": 1000,
         "minUpdateIntervalMs": 100,
         "pcntUnit": "PCNT_UNIT_0",
         "pulseMultiplier": 100,
-        "pcntFilterValue": 800,
+        "pcntFilterValue": 80000,
         "pcntFilterEnabled": true
       }
     }, {
       "id": "FlowMeterExtract",
       "type": "FlowMeter",
-      "pinNumber": 14,
+      "pinNumber": 34,
       "options": {
         "pulsesPerLiter": 1000,
         "minUpdateIntervalMs": 100,
@@ -94,7 +94,7 @@
     }, {
       "id": "LPSFill",
       "type": "DigitalIO",
-      "pinNumber": 34,
+      "pinNumber": 2,
       "mode": "Input"
     }],
     "multiPin": [{
